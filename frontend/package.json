@@ -20,6 +20,7 @@
     "bootstrap-icons": "^1.11.3",
     "font-awesome": "^4.7.0",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.479.0",
     "moment-timezone": "^0.5.47",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
@@ -32,10 +33,13 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.12",
     "vite": "^6.2.0"
   }
 }

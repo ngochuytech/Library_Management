@@ -7,8 +7,6 @@ import NotFound from "./pages/NotFound";
 import Welcome from "./pages/Welcome";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import LoginTest from "./components/LoginTest";
-
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
@@ -29,7 +27,6 @@ function App() {
         <Route path="/logout" element={<Logout />} />
         <Route path="/register" element={<RegisterAndLogout />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/test" element={<LoginTest />} />
       </Routes>
     </BrowserRouter>
   );

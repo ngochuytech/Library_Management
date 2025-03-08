@@ -1,146 +1,63 @@
-import React, { Fragment, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { Button, Form, Card, Container, Row, Col } from "react-bootstrap";
+import React from "react";
+import { Form, Button, Container, Card } from "react-bootstrap";
 
-const SocialSignUpButton = () => (
-  <Fragment>
-    <Button
-      variant="primary"
-      className="ezy__signup6_btn w-100 d-flex align-items-center mb-3"
-    >
-      <span className="text-white fs-4 lh-1">
-        <FontAwesomeIcon icon={faFacebook} />
-      </span>
-      <span className="w-100 text-center text-white">
-        Sign Up with Facebook
-      </span>
-    </Button>
-    <Button
-      variant="danger"
-      className="ezy__signup6_btn w-100 d-flex align-items-center"
-    >
-      <span className="text-white fs-4 lh-1">
-        <FontAwesomeIcon icon={faGoogle} />
-      </span>
-      <span className="w-100 text-center text-white">Sign Up with Google</span>
-    </Button>
-  </Fragment>
-);
-
-const SignUpForm = () => {
-  const [validated, setValidated] = useState(false);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    setValidated(true);
-  };
-
+const RegisterForm = () => {
   return (
-    <Form
-      className="pe-md-4"
-      noValidate
-      validated={validated}
-      onSubmit={handleSubmit}
-    >
-      <Form.Group className="mb-4 mt-2">
-        <Form.Label>Full Name</Form.Label>
-        <Form.Control type="text" placeholder="Enter Full Name" required />
-        <Form.Control.Feedback type="invalid">
-          Please provide your full name.
-        </Form.Control.Feedback>
-      </Form.Group>
-      <Form.Group className="mb-4">
-        <Form.Label>Email Address</Form.Label>
-        <Form.Control type="email" placeholder="Enter Email Address" required />
-        <Form.Control.Feedback type="invalid">
-          Please provide a valid email.
-        </Form.Control.Feedback>
-      </Form.Group>
-      <Form.Group className="mb-4">
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Enter Password" required />
-        <Form.Control.Feedback type="invalid">
-          Please provide a password.
-        </Form.Control.Feedback>
-      </Form.Group>
-      <Form.Group className="mb-4">
-        <Form.Label>Confirm Password</Form.Label>
-        <Form.Control type="password" placeholder="Confirm Password" required />
-        <Form.Control.Feedback type="invalid">
-          Please confirm your password.
-        </Form.Control.Feedback>
-      </Form.Group>
+    <Container className="d-flex justify-content-center align-items-center vh-100">
+      <Card style={{ width: "25rem", padding: "20px", borderRadius: "10px" }}>
+        <Card.Body>
+          <div className="text-center mb-4">
+            <img src="/logo.png" alt="Logo" style={{ width: "80px" }} />
+            <h3 className="mt-2">MYLIB</h3>
+            <p>Đăng kí</p>
+            <p className="text-muted">Cho nhân viên và học sinh</p>
+          </div>
+          <Form>
+            <Form.Group controlId="formBasicUsername">
+              <Form.Label>Tên đăng nhập</Form.Label>
+              <Form.Control type="text" placeholder="College Reg. No." />
+            </Form.Group>
 
-      <Button
-        variant="primary"
-        type="submit"
-        className="ezy__signup6_btn-submit w-100"
-      >
-        Sign Up
-      </Button>
-      <Button variant="link" type="button" className="w-100">
-        Already have an account? Log In
-      </Button>
-    </Form>
+            <Form.Group controlId="formBasicEmail" className="mt-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="username@collegename.ac.in"
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formBasicPassword" className="mt-3">
+              <Form.Label>Mật khẩu</Form.Label>
+              <Form.Control type="password" placeholder="********" />
+            </Form.Group>
+
+            <Form.Group controlId="formBasicConfirmPassword" className="mt-3">
+              <Form.Label>Xác nhận mật khẩu</Form.Label>
+              <Form.Control type="password" placeholder="********" />
+            </Form.Group>
+
+            <Button variant="primary" type="submit" className="w-100 mt-3">
+              Đăng kí
+            </Button>
+          </Form>
+
+          <div className="text-center mt-3">
+            <p>
+              Đã có tài khoản?{" "}
+              <a href="#" className="text-decoration-none">
+                Đăng nhập
+              </a>
+            </p>
+            <p>
+              <a href="#" className="text-decoration-none">
+                Bạn là khách
+              </a>
+            </p>
+          </div>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 
-const SignUpFormCard = () => (
-  <Card className="ezy__signup6_form-card">
-    <Card.Body className="p-0">
-      <h2 className="ezy__signup6_heading mb-3">Join Easy Frontend</h2>
-      <p className="mb-4 mb-md-5">
-        <span className="mb-0 opacity-50 lh-1">Already have an account?</span>
-        <Button variant="link" className="py-0 text-dark text-decoration-none">
-          Log In
-        </Button>
-      </p>
-
-      <SignUpForm />
-
-      <div className="position-relative ezy__signup6_or-separator">
-        <hr className="my-4 my-md-5" />
-        <span className="px-2">Or</span>
-      </div>
-
-      <SocialSignUpButton />
-    </Card.Body>
-  </Card>
-);
-
-const SignUp6 = () => {
-  return (
-    <section className="ezy__signup6 d-flex">
-      <Container>
-        <Row className="justify-content-between h-100">
-          <Col lg={6}>
-            <div
-              className="ezy__signup6-bg-holder d-none d-lg-block h-100"
-              style={{
-                backgroundImage:
-                  "url(https://cdn.easyfrontend.com/pictures/sign-in-up/sign1.jpg)",
-              }}
-            />
-          </Col>
-          <Col lg={5} className="py-5">
-            <Row className="align-items-center h-100">
-              <Col xs={12}>
-                <SignUpFormCard />
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </Container>
-    </section>
-  );
-};
-
-export default SignUp6;
+export default RegisterForm;
