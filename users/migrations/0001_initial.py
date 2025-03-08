@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('roles', '0001_initial'),
     ]
 
     operations = [
@@ -23,7 +22,6 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('phone_number', models.CharField(max_length=15)),
                 ('is_activate', models.BooleanField(default=True)),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='roles.role')),
             ],
         ),
     ]

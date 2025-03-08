@@ -20,7 +20,7 @@ def getCreateCategory(request):
         if not serializer.is_valid():
             return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response("OK")
+        return Response(serializer.data, stauts=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 def getDetailCategory(request, name):
@@ -34,16 +34,15 @@ def getDetailCategory(request, name):
 
 @api_view(['PUT'])
 def editCategoryWithId(request, id):
-    if request.method == 'PUT':
-        try:
-            category = Category.objects.get(id=id)
-            serializer = CategorySerializer(category, data=request.data)
-            if not serializer.is_valid():
-                return Response({"message" : "Edit category unsuccessfull!"}, status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response(serializer.data)
-        except Category.DoesNotExist:
-            return Response({"message" : "Cannot find category with this name"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        category = Category.objects.get(id=id)
+        serializer = CategorySerializer(category, data=request.data)
+        if not serializer.is_valid():
+            return Response({"message" : "Edit category unsuccessfull!"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data)
+    except Category.DoesNotExist:
+        return Response({"message" : "Cannot find category with this id"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 def deleteCategoryWithId(request, id):
