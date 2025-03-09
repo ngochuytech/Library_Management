@@ -1,68 +1,52 @@
-/* Container for the whole page */
-div {
-  font-family: Arial, sans-serif;
+body {
+  background-color: #eef2f7 !important; /* Màu xanh nhạt nhẹ */
+}
+/* Mặc định menu dropdown sẽ bị ẩn */
+.dropdown-menu {
+  opacity: 0;
+  transform: translateY(-10px); /* Menu trượt từ trên xuống */
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out,
+    visibility 0.3s;
+  display: block; /* Đảm bảo menu không bị ảnh hưởng bởi Bootstrap */
+  visibility: hidden; /* Ẩn menu khi chưa mở */
+  pointer-events: none; /* Ngăn click vào menu khi chưa hiển thị */
 }
 
-/* Styles for the notes section */
-.notes-section {
-  margin-bottom: 2rem;
+/* Khi dropdown mở, hiển thị menu mượt */
+.show > .dropdown-menu {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto; /* Cho phép click vào menu khi hiển thị */
 }
 
-.notes-section h2 {
-  color: #333;
-  font-size: 24px;
+/* Hiệu ứng hover cho Dropdown.Toggle */
+.dropdown-toggle {
+  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
-/* Styles for individual notes - assuming your Note component has some container element */
-.note {
-  background-color: #f9f9f9;
-  border-left: 5px solid #007bff;
-  margin: 10px 0;
-  padding: 10px 15px;
-  border-radius: 5px;
+.dropdown-toggle:hover {
+  background: rgba(0, 123, 255, 0.1); /* Nền xanh nhạt khi hover */
+  transform: scale(1.05);
 }
 
-/* Styles for the form section */
-form {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  margin: auto;
+/* Khi dropdown đóng lại, loại bỏ hiệu ứng hover */
+.dropdown-toggle:focus:not(.show) {
+  box-shadow: none;
 }
 
-form h2 {
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
+/* Hiệu ứng hover cho Dropdown.Item */
+.dropdown-item {
+  transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-form label {
-  font-weight: bold;
-  margin-top: 10px;
+.dropdown-item:hover {
+  background: #d0e2ff; /* Màu xanh nhạt khi hover */
+  color: black;
 }
 
-form input,
-form textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 8px 0 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-form input[type="submit"] {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-form input[type="submit"]:hover {
-  background-color: #0056b3;
+/* Hiệu ứng riêng cho Đăng xuất */
+.dropdown-item.text-danger:hover {
+  background: rgba(255, 0, 0, 0.1);
+  color: red;
 }

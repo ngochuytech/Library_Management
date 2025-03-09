@@ -1,0 +1,86 @@
+.sidebar {
+  width: 70px; /* Sidebar thu nhỏ mặc định */
+  height: 100vh;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0 15px 15px 0;
+  padding: 10px;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.sidebar.expanded {
+  width: 200px; /* Mở rộng khi hover */
+}
+
+.nav-item-custom {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #333;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.nav-item-custom:hover {
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+}
+
+.icon {
+  font-size: 1.2rem;
+  width: 30px; /* Giúp icon căn chỉnh tốt */
+  text-align: center;
+}
+
+.nav-text {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sidebar.expanded .nav-text {
+  opacity: 1; /* Hiện chữ khi sidebar mở rộng */
+}
+.nav-item-custom {
+  color: black !important; /* Giữ màu chữ đen */
+}
+
+.nav-item-custom:hover {
+  background: #007bff;
+  color: black !important; /* Đảm bảo màu chữ không đổi */
+}
+.nav-item-custom {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: black !important; /* Giữ màu chữ đen */
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+  position: relative;
+}
+
+.nav-item-custom:hover {
+  background: #d0e2ff; /* Màu xanh nhạt */
+  color: black !important;
+  text-decoration: none;
+  transform: scale(1.03); /* Hiệu ứng phóng to nhẹ */
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+}
+
+.icon {
+  font-size: 1.2rem;
+  width: 30px;
+  text-align: center;
+}
+
+.nav-text {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sidebar.expanded .nav-text {
+  opacity: 1;
+}

@@ -4,13 +4,18 @@ import { Form, Button, Container, Card } from "react-bootstrap";
 const RegisterForm = () => {
   return (
     <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: "25rem", padding: "20px", borderRadius: "10px" }}>
+      <Card
+        style={{
+          width: "25rem",
+          height: "40rem",
+          padding: "15px",
+          borderRadius: "10px",
+        }}
+      >
         <Card.Body>
           <div className="text-center mb-4">
-            <img src="/logo.png" alt="Logo" style={{ width: "80px" }} />
+            <img src="/icon.jpg" alt="Logo" style={{ width: "80px" }} />
             <h3 className="mt-2">MYLIB</h3>
-            <p>Đăng kí</p>
-            <p className="text-muted">Cho nhân viên và học sinh</p>
           </div>
           <Form>
             <Form.Group controlId="formBasicUsername">

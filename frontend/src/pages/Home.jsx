@@ -18,6 +18,10 @@ import {
   Dropdown,
 } from "react-bootstrap";
 
+import "../styles/Home.css"; // Đường dẫn đến Home.css
+
+import Sidebar from "../components/SideBar.jsx"; // Đường dẫn đến Sidebar.jsx
+
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -57,11 +61,16 @@ const HomePage = () => {
   return (
     <Container fluid>
       {/* Navbar */}
-      <Navbar bg="light" expand="lg" className="shadow-sm px-4">
+      <Navbar bg="light" expand="lg" className="shadow px-4 fixed-top">
         <Container fluid>
           <Row className="w-100 align-items-center">
             {/* Cột 2 cho Logo */}
-            <Col md={2}>
+            <Col md={2} className="d-flex align-items-center">
+              <img
+                src="/icon.jpg"
+                alt="Logo"
+                style={{ width: "40px", height: "40px", marginRight: "10px" }}
+              />
               <Navbar.Brand href="#">MYLIB</Navbar.Brand>
             </Col>
 
@@ -188,17 +197,17 @@ const HomePage = () => {
 
       <Row>
         {/* Sidebar */}
-        <Col md={2} className="bg-light vh-100 p-3">
-          <Nav className="flex-column">
-            <Nav.Link href="#">Trang chủ</Nav.Link>
-            <Nav.Link href="#">Tìm kiếm</Nav.Link>
-            <Nav.Link href="#">Giá sách của tôi</Nav.Link>
-            <Nav.Link href="#">Đóng góp</Nav.Link>
-          </Nav>
+        <Col
+          md={2}
+          className="bg-light vh-100 p-3"
+          style={{ marginTop: "70px" }} // Adjusted margin-top to push content down
+        >
+          <Sidebar />
         </Col>
 
         {/* Main Content */}
-        <Col md={10} className="p-4">
+        <Col md={10} className="p-4" style={{ marginTop: "70px" }}>
+          {" "}
           {/* Quote */}
           <Card className="mb-4 p-3 bg-primary text-white">
             <Card.Text>
@@ -206,7 +215,6 @@ const HomePage = () => {
               biển trên Đảo giấu vàng." - Walt Disney
             </Card.Text>
           </Card>
-
           {/* Recommended Books */}
           <h5>Đề nghị cho bạn</h5>
           <Row className="mb-3 d-flex justify-content-center">
@@ -237,7 +245,6 @@ const HomePage = () => {
               </Col>
             ))}
           </Row>
-
           {/* New Books */}
           <h5>Mới đọc</h5>
           <Row className="mb-3 d-flex justify-content-center">

@@ -7,7 +7,7 @@ const LoginForm = () => {
       <Card style={{ width: "25rem", padding: "20px", borderRadius: "10px" }}>
         <Card.Body>
           <div className="text-center mb-4">
-            <img src="/logo.png" alt="Logo" style={{ width: "80px" }} />
+            <img src="/icon.jpg" alt="Logo" style={{ width: "80px" }} />
             <h3 className="mt-2">MYLIB</h3>
             <p>Chào mừng trở lại!</p>
           </div>
