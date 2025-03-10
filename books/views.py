@@ -38,7 +38,6 @@ def editBookWithId(request, id):
     try:
         book = Book.objects.get(id=id)
         serializer = BookSerializer(book, data=request.data)
-        print("Rq = ", request.data)
         if not serializer.is_valid():
             return Response(
                 { "message" : "Edit book unsuccessfull!",
@@ -52,8 +51,13 @@ def editBookWithId(request, id):
 
 @api_view(['DELETE'])   
 def deleteBookWithId(request, id):
-    book = Book.objects.get(id=id)
-    book.delete()
-    return Response("Delete book successfully!")
+    try:
+        book = Book.objects.get(id=id)
+        book.delete()
+        return Response("Delete book successfully!")
+    except Book.DoesNotExist:
+        return Response({"message": f"Cannot find book with id = {id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 

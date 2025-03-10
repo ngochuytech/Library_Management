@@ -46,8 +46,13 @@ def editCategoryWithId(request, id):
 
 @api_view(['DELETE'])
 def deleteCategoryWithId(request, id):
-    category = Category.objects.get(id=id)
-    category.delete()
-    return Response("Delete category successfully!")
+    try:
+        category = Category.objects.get(id=id)
+        category.delete()
+        return Response("Delete category successfully!")
+    except Category.DoesNotExist:
+       return Response({"message": f"Cannot find category with id = {id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
         
