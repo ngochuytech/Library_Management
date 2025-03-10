@@ -1,0 +1,61 @@
+body {
+  background-color: #eef2f7 !important; /* Màu xanh nhạt nhẹ */
+}
+/* Mặc định menu dropdown sẽ bị ẩn */
+.dropdown-menu {
+  opacity: 0;
+  transform: translateY(-10px); /* Menu trượt từ trên xuống */
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out,
+    visibility 0.3s;
+  display: block; /* Đảm bảo menu không bị ảnh hưởng bởi Bootstrap */
+  visibility: hidden; /* Ẩn menu khi chưa mở */
+  pointer-events: none; /* Ngăn click vào menu khi chưa hiển thị */
+}
+
+/* Khi dropdown mở, hiển thị menu mượt */
+.show > .dropdown-menu {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto; /* Cho phép click vào menu khi hiển thị */
+}
+
+/* Hiệu ứng hover cho Dropdown.Toggle */
+.dropdown-toggle {
+  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.dropdown-toggle:hover {
+  background: rgba(0, 123, 255, 0.1); /* Nền xanh nhạt khi hover */
+  transform: scale(1.05);
+}
+
+/* Khi dropdown đóng lại, loại bỏ hiệu ứng hover */
+.dropdown-toggle:focus:not(.show) {
+  box-shadow: none;
+}
+
+/* Hiệu ứng hover cho Dropdown.Item */
+.dropdown-item {
+  transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.dropdown-item:hover {
+  background: #d0e2ff; /* Màu xanh nhạt khi hover */
+  color: black;
+}
+
+/* Hiệu ứng riêng cho Đăng xuất */
+.dropdown-item.text-danger:hover {
+  background: rgba(255, 0, 0, 0.1);
+  color: red;
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
