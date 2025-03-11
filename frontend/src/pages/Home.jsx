@@ -204,7 +204,7 @@ const HomePage = () => {
         {/* Sidebar */}
         <Col
           md={2}
-          className="bg-light vh-100 p-3"
+          className="vh-100 p-3"
           style={{ marginTop: "70px" }} // Adjusted margin-top to push content down
         >
           <Sidebar />
