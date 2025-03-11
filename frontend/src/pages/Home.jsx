@@ -21,6 +21,7 @@ import {
 import "../styles/Home.css"; // Đường dẫn đến Home.css
 
 import Sidebar from "../components/SideBar.jsx"; // Đường dẫn đến Sidebar.jsx
+import Quote from "../components/Quote.jsx"; // Đường dẫn đến Quote.jsx
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -214,12 +215,9 @@ const HomePage = () => {
         <Col md={10} className="p-4" style={{ marginTop: "70px" }}>
           {" "}
           {/* Quote */}
-          <Card className="mb-4 p-3 bg-primary text-white">
-            <Card.Text>
-              "Sách còn chứa nhiều kho báu hơn tất cả chiến lợi phẩm của cướp
-              biển trên Đảo giấu vàng." - Walt Disney
-            </Card.Text>
-          </Card>
+          <Row className="mb-3 d-flex justify-content-center">
+            <Quote books={books} handleCardClick={handleCardClick} />
+          </Row>
           {/* Recommended Books */}
           <h5>Đề nghị cho bạn</h5>
           <Row className="mb-3 d-flex justify-content-center">
