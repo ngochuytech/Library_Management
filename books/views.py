@@ -9,8 +9,13 @@ from books.serializers import BookSerializer
 @api_view(['GET', 'POST'])
 def getCreateBook(request):
     if request.method == 'GET':
-        query = request.GET.get('query', '')
-        books = Book.objects.filter(title__icontains=query)
+        title = request.GET.get('title', '')
+        author = request.GET.get('author', '')
+        category = request.GET.get('category', '')
+        books = Book.objects.filter(title__icontains=title)
+        books = books.filter(author__icontains=author)
+        if category:
+            books = books.filter(category__name__iexact=category)
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':

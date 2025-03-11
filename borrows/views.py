@@ -10,7 +10,7 @@ from borrows.models import Borrow
 def getCreateBorrow(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
-        borrows = Borrow.objects.filter(user__name__icontains=query)
+        borrows = Borrow.objects.filter(user__name__icontains=query).order_by('exp_date')
         serializer = BorrowSerializer(borrows, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':

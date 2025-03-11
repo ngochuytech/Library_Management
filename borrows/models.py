@@ -6,6 +6,16 @@ from django.db import models
 from books.models import Book
 from users.models import User
 
+
+BORROWED_STATUS = (
+    ("Pending", "Pending"),
+    ("Approved", "Approved"),
+    ("Borrowed", "Borrowed"),
+    ("Overdue", "Overdue"),
+    ("Returned", "Returned"),
+    ("Lost", "Lost"),
+    ("Canceled", "Canceled")
+)
 # 
 def default_exp_date():
     return timezone.now() + datetime.timedelta(days=30)
@@ -17,7 +27,7 @@ class Borrow(models.Model):
     borrow_date = models.DateTimeField(default=timezone.now)
     return_date = models.DateTimeField(null=True, blank=True)
     exp_date = models.DateTimeField(default=default_exp_date)
-    status = models.CharField(max_length=255, default="PENDING")
+    status = models.CharField(max_length=255, choices=BORROWED_STATUS,default="PENDING")
 
     def __str__(self) -> str:
         return f"{self.user} - {self.book} ({self.status})"
