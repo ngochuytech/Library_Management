@@ -3,8 +3,8 @@ import { Form, Button, Container, Card } from "react-bootstrap";
 
 const LoginForm = () => {
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: "25rem", padding: "20px", borderRadius: "10px" }}>
+    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+      <Card style={{ width: "400px", padding: "20px", borderRadius: "10px", height: "auto" }}>
         <Card.Body>
           <div className="text-center mb-4">
             <img src="/icon.jpg" alt="Logo" style={{ width: "80px" }} />
@@ -14,10 +14,7 @@ const LoginForm = () => {
           <Form>
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="username@collegename.ac.in"
-              />
+              <Form.Control type="email" placeholder="username@collegename.ac.in" />
             </Form.Group>
 
             <Form.Group controlId="formBasicPassword" className="mt-3">
@@ -27,28 +24,15 @@ const LoginForm = () => {
 
             <Form.Group className="d-flex justify-content-between align-items-center mt-3">
               <Form.Check type="checkbox" label="Nhớ tôi" />
-              <a href="#" className="text-decoration-none">
-                Quên mật khẩu?
-              </a>
+              <a href="#" className="text-decoration-none">Quên mật khẩu?</a>
             </Form.Group>
 
-            <Button variant="primary" type="submit" className="w-100 mt-3">
-              Login
-            </Button>
+            <Button variant="primary" type="submit" className="w-100 mt-3">Login</Button>
           </Form>
 
           <div className="text-center mt-3">
-            <p>
-              Người mới?{" "}
-              <a href="#" className="text-decoration-none">
-                Đăng ký ngay
-              </a>
-            </p>
-            <p>
-              <a href="#" className="text-decoration-none">
-                Bạn là khách
-              </a>
-            </p>
+            <p>Người mới? <a href="#" className="text-decoration-none">Đăng ký ngay</a></p>
+            <p><a href="#" className="text-decoration-none">Bạn là khách</a></p>
           </div>
         </Card.Body>
       </Card>
