@@ -8,6 +8,11 @@ class CustomUserManager(UserManager):
             raise ValueError("Email is required")
         
         email = self.normalize_email(email)
+
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault('is_active', True)
+
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save()
