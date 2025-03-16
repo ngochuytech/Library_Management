@@ -11,14 +11,7 @@ import "../styles/Sidebar.css";
 
 const Sidebar = () => {
   return (
-<<<<<<< HEAD
-    <div
-      className={`sidebar expanded`}
-      style={{ position: "fixed", marginTop: "15px" }}
-    >
-=======
     <div className={`sidebar expanded`} style={{ position: "fixed" }}>
->>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
       <Nav className="flex-column">
         <Nav.Item>
           <Nav.Link href="#" className="nav-item-custom">

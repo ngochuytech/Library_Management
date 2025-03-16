@@ -91,10 +91,3 @@
 .sidebar.expanded .nav-text {
   opacity: 1;
 }
-<<<<<<< HEAD
-.nav-text {
-  font-size: 14px; /* Reduce the font size */
-  white-space: nowrap; /* Prevent text from wrapping */
-}
-=======
->>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
