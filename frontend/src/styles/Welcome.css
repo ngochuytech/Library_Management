@@ -44,8 +44,13 @@
 }
 
 .btn-login {
+<<<<<<< HEAD
   background-color: black;
   color: white;
+=======
+  background-color: black; 
+  color: white; 
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -60,6 +65,10 @@
   transform: scale(1.05); /* Hiệu ứng phóng to nhẹ */
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
 /* Main Content */
 .main-content {
   display: flex;
@@ -119,4 +128,8 @@
   height: 80px;
   background: linear-gradient(45deg, #0066cc, #00aaff);
   border-radius: 50%;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8

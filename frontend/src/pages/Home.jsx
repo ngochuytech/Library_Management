@@ -21,7 +21,10 @@ import {
 import "../styles/Home.css"; // Đường dẫn đến Home.css
 
 import Sidebar from "../components/SideBar.jsx"; // Đường dẫn đến Sidebar.jsx
+<<<<<<< HEAD
 import Quote from "../components/Quote.jsx"; // Đường dẫn đến Quote.jsx
+=======
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -59,11 +62,14 @@ const HomePage = () => {
     // Bạn có thể thêm nhiều sách khác vào đây
   ];
 
+<<<<<<< HEAD
   const handleCardClick = (book) => {
     // Viết code xử lý khi click vào card ở đây
     console.log("Clicked book:", book);
   };
 
+=======
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
   return (
     <Container fluid>
       {/* Navbar */}
@@ -205,7 +211,11 @@ const HomePage = () => {
         {/* Sidebar */}
         <Col
           md={2}
+<<<<<<< HEAD
           className="vh-100 p-3"
+=======
+          className="bg-light vh-100 p-3"
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
           style={{ marginTop: "70px" }} // Adjusted margin-top to push content down
         >
           <Sidebar />
@@ -215,18 +225,32 @@ const HomePage = () => {
         <Col md={10} className="p-4" style={{ marginTop: "70px" }}>
           {" "}
           {/* Quote */}
+<<<<<<< HEAD
           <Row className="mb-3 d-flex justify-content-center">
             <Quote books={books} handleCardClick={handleCardClick} />
           </Row>
+=======
+          <Card className="mb-4 p-3 bg-primary text-white">
+            <Card.Text>
+              "Sách còn chứa nhiều kho báu hơn tất cả chiến lợi phẩm của cướp
+              biển trên Đảo giấu vàng." - Walt Disney
+            </Card.Text>
+          </Card>
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
           {/* Recommended Books */}
           <h5>Đề nghị cho bạn</h5>
           <Row className="mb-3 d-flex justify-content-center">
             {books.map((book, index) => (
               <Col md={3} key={index} className="d-flex justify-content-center">
                 <Card
+<<<<<<< HEAD
                   className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
                   style={{ width: "200px" }}
                   onClick={() => handleCardClick(book)}
+=======
+                  className="shadow-sm border-0 rounded-4 overflow-hidden p-2"
+                  style={{ width: "200px" }}
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
                 >
                   <Card.Img
                     variant="top"
@@ -255,9 +279,14 @@ const HomePage = () => {
             {books.map((book, index) => (
               <Col md={3} key={index} className="d-flex justify-content-center">
                 <Card
+<<<<<<< HEAD
                   className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
                   style={{ width: "200px" }}
                   onClick={() => handleCardClick(book)}
+=======
+                  className="shadow-sm border-0 rounded-4 overflow-hidden p-2"
+                  style={{ width: "200px" }}
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
                 >
                   <Card.Img
                     variant="top"

@@ -50,6 +50,7 @@ body {
   background: rgba(255, 0, 0, 0.1);
   color: red;
 }
+<<<<<<< HEAD
 
 .card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -59,3 +60,5 @@ body {
   transform: scale(1.05);
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
+=======
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
