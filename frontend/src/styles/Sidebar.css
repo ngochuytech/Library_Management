@@ -1,16 +1,9 @@
 .sidebar {
   width: 70px; /* Sidebar thu nhỏ mặc định */
-<<<<<<< HEAD
-  height: 80vh;
-  background: white;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-=======
   height: 100vh;
   background: white;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 0 15px 15px 0;
->>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
   padding: 10px;
   transition: width 0.3s ease-in-out;
   overflow: hidden;

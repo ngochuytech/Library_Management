@@ -1,15 +1,5 @@
-<<<<<<< HEAD
-import React from "react";
 import LoginForm from "../components/LoginForm";
-
-function Login() {
-  return <LoginForm />;
-}
-
-export default Login;
-=======
-import LoginForm from "../components/LoginForm"
-import Background from "../components/Background"
+import Background from "../components/Background";
 
 function Login() {
   return (
@@ -26,9 +16,7 @@ function Login() {
         <LoginForm />
       </div>
     </Background>
-  )
+  );
 }
 
-export default Login
-
->>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
+export default Login;
