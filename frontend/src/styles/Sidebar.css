@@ -1,9 +1,9 @@
 .sidebar {
   width: 70px; /* Sidebar thu nhỏ mặc định */
-  height: 100vh;
+  height: 80vh;
   background: white;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 0 15px 15px 0;
+  border-radius: 15px;
   padding: 10px;
   transition: width 0.3s ease-in-out;
   overflow: hidden;
@@ -83,4 +83,8 @@
 
 .sidebar.expanded .nav-text {
   opacity: 1;
+}
+.nav-text {
+  font-size: 14px; /* Reduce the font size */
+  white-space: nowrap; /* Prevent text from wrapping */
 }
