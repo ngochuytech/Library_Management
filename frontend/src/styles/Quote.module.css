@@ -1,0 +1,117 @@
+/* Thẻ Card */
+.quoteCard {
+  background-color: #eef2f7 !important; /* Màu xanh nhạt nhẹ */
+  color: #333; /* Màu chữ tối để dễ đọc trên nền sáng */
+  border-radius: 10px;
+  border: none; /* Bỏ border */
+  height: 180px; /* Chiều cao của Card */
+}
+
+.cardBody {
+  padding: 1rem;
+  border: none; /* Bỏ border trong Card.Body */
+  height: 100%; /* Đảm bảo chiều cao của Card.Body bằng nhau */
+}
+
+h5 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  padding-left: 10px;
+}
+
+.cardText {
+  font-style: italic;
+  font-size: 1rem;
+}
+
+/* Định dạng hình ảnh sách */
+.cardImg {
+  object-fit: cover;
+  height: 120px; /* Đảm bảo ảnh sách có chiều cao đều nhau */
+  width: 100%; /* Đảm bảo ảnh sách chiếm hết chiều rộng */
+  border-radius: 10px; /* Bo tròn các góc ảnh sách */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng hover */
+}
+
+/* Tạo kiểu cho phần tiêu đề "Sách mới ra" */
+.verticalTitle {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: linear-gradient(to bottom, #007bff, #00c6ff);
+  padding: 10px;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  height: 100%;
+  width: 100%; /* Đảm bảo phần này chiếm đủ không gian */
+  text-align: center;
+}
+
+/* Định dạng cho phần trích dẫn */
+.customCol {
+  background-color: #007bff; /* Nền màu giống bg-primary */
+  padding: 20px; /* Thêm padding vào trong để tạo không gian */
+  border-radius: 8px; /* Bo góc nhẹ cho phần Col */
+  color: #ffffff; /* Màu chữ trắng cho phần trích dẫn */
+}
+
+/* Định dạng cho phần Card.Text */
+.customCol .cardText {
+  font-size: 1.1rem; /* Kích thước chữ của phần trích dẫn */
+  line-height: 1.5; /* Độ cao dòng để văn bản dễ đọc */
+  font-style: italic; /* Làm chữ nghiêng để trích dẫn nổi bật hơn */
+  padding: 10px !important; /* Thêm padding vào phần trích dẫn */
+}
+
+/* Tạo khoảng cách và cuộn ngang cho phần sách mới */
+.row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 1rem; /* Khoảng cách dưới cùng */
+}
+
+.col {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+/* Điều chỉnh Card bên phải */
+.bookCard {
+  border-radius: 10px;
+  /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); */
+  transition: box-shadow 0.3s ease-in-out;
+  background-color: none !important;
+  border: none;
+}
+
+/* Cập nhật các cột */
+.colMd3 {
+  padding: 0.5rem;
+}
+
+/* Các lớp tiện ích của Bootstrap */
+.dFlex {
+  display: flex;
+}
+
+.justifyContentStart {
+  justify-content: flex-start;
+}
+
+.alignItemsCenter {
+  align-items: center;
+}
+.custom-card {
+  /* existing styles... */
+  border: 1px solid #000; /* Example style */
+}
+.bookCard .cardImg:hover {
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05); /* Optional: Add a slight zoom effect */
+}
