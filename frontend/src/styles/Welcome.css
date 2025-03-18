@@ -1,0 +1,135 @@
+/* Main Container */
+.welcome-container {
+  background-color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 0 2rem;
+}
+
+/* Header Section */
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 4rem;
+  position: absolute;
+  top: 0;
+}
+
+.logo-img {
+  height: 50px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #0066cc;
+}
+
+.btn-login {
+<<<<<<< HEAD
+  background-color: black;
+  color: white;
+=======
+  background-color: black; 
+  color: white; 
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-login:hover {
+  background-color: #333; /* Màu xám khi hover */
+  transform: scale(1.05); /* Hiệu ứng phóng to nhẹ */
+}
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8
+/* Main Content */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.text-content {
+  margin-bottom: 3rem;
+}
+
+.quote {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.5;
+}
+
+.author {
+  font-size: 1.1rem;
+  color: #888;
+  margin-top: 10px;
+}
+
+.btn-rent {
+  padding: 16px 36px;
+  background-color: #333;
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-rent:hover {
+  background-color: #555;
+}
+
+/* Illustration */
+.illustration-container {
+  margin-top: 30px;
+}
+
+.illustration {
+  height: 400px;
+}
+
+/* Footer Circle */
+.footer-circle {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, #0066cc, #00aaff);
+  border-radius: 50%;
+<<<<<<< HEAD
+}
+=======
+}
+>>>>>>> a6c2f05783ad49986e36e71f46ce5a88972ae7b8

@@ -5,5 +5,8 @@ from django.forms import CharField
 class Category(models.Model):
     name = models.CharField(max_length=255)
 
+    class Meta:
+        db_table = 'Categories'
+
     def __str__(self) -> str:
         return self.name
