@@ -86,10 +86,21 @@ WSGI_APPLICATION = 'LibraryManagement.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # Set the backend to MySQL
+        'NAME': 'LMS',          # Your database name
+        'USER': 'root',          # Your MySQL username
+        'PASSWORD': '',  # Your MySQL password
+        'HOST': 'localhost',                   # Host for MySQL server
+        'PORT': '3306',                        # Default MySQL port
     }
 }
 

@@ -29,5 +29,8 @@ class Borrow(models.Model):
     exp_date = models.DateTimeField(default=default_exp_date)
     status = models.CharField(max_length=255, choices=BORROWED_STATUS,default="PENDING")
 
+    class Meta:
+        db_table = 'Borrows'
+
     def __str__(self) -> str:
         return f"{self.user} - {self.book} ({self.status})"
