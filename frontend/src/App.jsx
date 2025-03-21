@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Welcome from "./pages/Welcome";
 import ForgotPassword from "./pages/ForgotPassword";
+import BookDetail from "./pages/BookDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function Logout() {
@@ -35,6 +36,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/guest" element={<Welcome isGuest={true} />} />
         <Route path="*" element={<NotFound />} />
+        {/* Cập nhật với "element" thay vì "component" */}
+        <Route path="/book/:id" element={<BookDetail />} />
       </Routes>
     </BrowserRouter>
   );
