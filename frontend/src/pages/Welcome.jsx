@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import "../styles/Welcome.css" // We'll keep using the existing CSS file
+import "../styles/Welcome.css" // CSS chính
+import "../styles/icons.css" // CSS cho các biểu tượng
 
 function Welcome() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -16,6 +17,138 @@ function Welcome() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const categoryIcons = {
+    literature: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="icon"
+      >
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+    ),
+    economics: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="icon"
+      >
+        <line x1="12" y1="20" x2="12" y2="10"></line>
+        <line x1="18" y1="20" x2="18" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="16"></line>
+        <path d="M2 20h20"></path>
+      </svg>
+    ),
+    science: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="icon"
+      >
+        <path d="M10 2v8L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45L14 10V2"></path>
+        <line x1="10" y1="12" x2="14" y2="12"></line>
+      </svg>
+    ),
+    history: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="icon"
+      >
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+        <path d="M3 3v5h5"></path>
+        <path d="M12 7v5l4 2"></path>
+      </svg>
+    ),
+    children: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="icon"
+      >
+        <path d="M9 12h.01"></path>
+        <path d="M15 12h.01"></path>
+        <path d="M10 16c.5.3 1.5.5 2 .5s1.5-.2 2-.5"></path>
+        <path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"></path>
+      </svg>
+    ),
+    psychology: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="icon"
+      >
+        <path d="M12 2a7 7 0 0 0-7 7c0 4 3 6 4 8 1 2 0 3 0 3h6s-1-1 0-3c1-2 4-4 4-8a7 7 0 0 0-7-7Z"></path>
+        <path d="M8 16v3a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3"></path>
+      </svg>
+    ),
+  }
+
+  // Mảng danh mục sách với lớp biểu tượng tương ứng
+  const bookCategories = [
+    { name: "Văn học", icon: categoryIcons.literature },
+    { name: "Kinh tế", icon: categoryIcons.economics },
+    { name: "Khoa học", icon: categoryIcons.science },
+    { name: "Lịch sử", icon: categoryIcons.history },
+    { name: "Thiếu nhi", icon: categoryIcons.children },
+    { name: "Tâm lý", icon: categoryIcons.psychology },
+  ]
+  const iconContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    backgroundColor: '#f5f5f5',
+    marginBottom: '15px',
+    transition: 'all 0.3s ease',
+    color: '#3b82f6',
+  }
 
   return (
     <div className="welcome-container">
@@ -214,7 +347,7 @@ function Welcome() {
         <div className="service-cards">
           <div className="service-card">
             <div className="service-image">
-              <img src="./service1.png" alt="Online Reading" />
+              <img src="./service1.jpg" alt="Online Reading" />
             </div>
             <div className="service-content">
               <h3 className="service-title">Đọc sách trực tuyến</h3>
@@ -228,7 +361,7 @@ function Welcome() {
 
           <div className="service-card">
             <div className="service-image">
-              <img src="./service2.png" alt="Book Delivery" />
+              <img src="./service3.png" alt="Book Delivery" />
             </div>
             <div className="service-content">
               <h3 className="service-title">Giao sách tận nơi</h3>
@@ -251,31 +384,36 @@ function Welcome() {
             sách chuyên ngành.
           </p>
         </div>
-
         <div className="category-grid">
-          {["Văn học", "Kinh tế", "Khoa học", "Lịch sử", "Thiếu nhi", "Tâm lý"].map((category, index) => (
-            <div key={index} className="category-item">
-              <div className="category-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="icon"
-                >
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                </svg>
-              </div>
-              <h3 className="category-name">{category}</h3>
-            </div>
-          ))}
-        </div>
+  {bookCategories.map((category, index) => (
+    <div 
+      key={index} 
+      className="category-item"
+      onMouseOver={(e) => {
+        const iconContainer = e.currentTarget.querySelector('.icon-container');
+        if (iconContainer) {
+          iconContainer.style.backgroundColor = '#e0f2fe';
+          iconContainer.style.transform = 'translateY(-5px)';
+        }
+      }}
+      onMouseOut={(e) => {
+        const iconContainer = e.currentTarget.querySelector('.icon-container');
+        if (iconContainer) {
+          iconContainer.style.backgroundColor = '#f5f5f5';
+          iconContainer.style.transform = 'translateY(0)';
+        }
+      }}
+    >
+      <div 
+        className="icon-container"
+        style={iconContainerStyle}
+      >
+        {category.icon}
+      </div>
+      <h3 className="category-name">{category.name}</h3>
+    </div>
+  ))}
+</div>
 
         <div className="center-button">
           <button className="btn-primary">Xem tất cả danh mục</button>
@@ -292,21 +430,21 @@ function Welcome() {
         <div className="blog-cards">
           {[
             {
-              title: "10 cuốn sách nên đọc trong năm 2023",
+              title: "10 cuốn sách nên đọc trong năm 2025",
               excerpt: "Khám phá những cuốn sách hay nhất mà bạn không nên bỏ lỡ trong năm nay.",
-              date: "15/06/2023",
-              image: "./blog1.jpg",
+              date: "15/06/2025",
+              image: "./blog1.png",
             },
             {
               title: "Cách tạo thói quen đọc sách mỗi ngày",
               excerpt: "Những bí quyết giúp bạn duy trì thói quen đọc sách đều đặn và hiệu quả.",
-              date: "02/05/2023",
+              date: "02/05/2025",
               image: "./blog2.jpg",
             },
             {
               title: "Lợi ích của việc đọc sách đối với não bộ",
               excerpt: "Nghiên cứu khoa học về tác động tích cực của việc đọc sách đối với sức khỏe tinh thần.",
-              date: "18/04/2023",
+              date: "18/04/2025",
               image: "./blog3.jpg",
             },
           ].map((post, index) => (
