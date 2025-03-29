@@ -22,11 +22,14 @@ import "../styles/Home.css"; // Đường dẫn đến Home.css
 
 import Sidebar from "../components/SideBar.jsx"; // Đường dẫn đến Sidebar.jsx
 import Quote from "../components/Quote.jsx"; // Đường dẫn đến Quote.jsx
+import SearchTab from "../components/SearchTab.jsx"; // Đường dẫn đến SearchTab.jsx
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [color, setColor] = useState("text-dark"); // Màu mặc định
+  const [showSearchTab, setShowSearchTab] = useState(false); // State to track search tab visibility
+
   const books = [
     {
       title: "The Design of Everyday Things",
@@ -58,9 +61,14 @@ const HomePage = () => {
     },
     // Bạn có thể thêm nhiều sách khác vào đây
   ];
+
   const handleBookClick = (book) => {
     console.log(`Book clicked: ${book.title}`);
     // Bạn có thể thêm logic khác ở đây, ví dụ: điều hướng đến trang chi tiết sách
+  };
+
+  const handleSearchClick = () => {
+    setShowSearchTab(true);
   };
 
   return (
@@ -206,78 +214,91 @@ const HomePage = () => {
           className="vh-100 p-3"
           style={{ marginTop: "70px" }} // Adjusted margin-top to push content down
         >
-          <Sidebar />
+          <Sidebar onSearchClick={handleSearchClick} />
         </Col>
 
         {/* Main Content */}
         <Col md={10} className="p-4" style={{ marginTop: "70px" }}>
-          {" "}
-          {/* Quote */}
-          <Card className="text-white" style={{ border: "none" }}>
-            <Quote books={books} handleCardClick={handleBookClick} />
-          </Card>
-          {/* Recommended Books */}
-          <h5>Đề nghị cho bạn</h5>
-          <Row className="mb-3 d-flex justify-content-center">
-            {books.map((book, index) => (
-              <Col md={3} key={index} className="d-flex justify-content-center">
-                <Card
-                  className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
-                  style={{ width: "200px" }}
-                  onClick={() => handleBookClick(book)}
-                >
-                  <Card.Img
-                    variant="top"
-                    src={book.image}
-                    className="rounded-3"
-                  />
-                  <Card.Body className="text-center">
-                    <Card.Title className="fs-6 fw-bold text-truncate">
-                      {book.title}
-                    </Card.Title>
-                    <Card.Text className="text-muted small">
-                      {book.author}, {book.year}
-                    </Card.Text>
-                    <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-primary small">
-                      <FontAwesomeIcon icon={faThumbsUp} className="fs-6" />
-                      <span>{book.likes}</span>
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-          {/* New Books */}
-          <h5>Mới đọc</h5>
-          <Row className="mb-3 d-flex justify-content-center">
-            {books.map((book, index) => (
-              <Col md={3} key={index} className="d-flex justify-content-center">
-                <Card
-                  className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
-                  style={{ width: "200px" }}
-                  onClick={() => handleBookClick(book)}
-                >
-                  <Card.Img
-                    variant="top"
-                    src={book.image}
-                    className="rounded-3"
-                  />
-                  <Card.Body className="text-center">
-                    <Card.Title className="fs-6 fw-bold text-truncate">
-                      {book.title}
-                    </Card.Title>
-                    <Card.Text className="text-muted small">
-                      {book.author}, {book.year}
-                    </Card.Text>
-                    <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-primary small">
-                      <FontAwesomeIcon icon={faThumbsUp} className="fs-6" />
-                      <span>{book.likes}</span>
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          {showSearchTab ? (
+            <SearchTab />
+          ) : (
+            <>
+              {/* Quote */}
+              <Card className="text-white" style={{ border: "none" }}>
+                <Quote books={books} handleCardClick={handleBookClick} />
+              </Card>
+              {/* Recommended Books */}
+              <h5>Đề nghị cho bạn</h5>
+              <Row className="mb-3 d-flex justify-content-center">
+                {books.map((book, index) => (
+                  <Col
+                    md={3}
+                    key={index}
+                    className="d-flex justify-content-center"
+                  >
+                    <Card
+                      className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
+                      style={{ width: "200px" }}
+                      onClick={() => handleBookClick(book)}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={book.image}
+                        className="rounded-3"
+                      />
+                      <Card.Body className="text-center">
+                        <Card.Title className="fs-6 fw-bold text-truncate">
+                          {book.title}
+                        </Card.Title>
+                        <Card.Text className="text-muted small">
+                          {book.author}, {book.year}
+                        </Card.Text>
+                        <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-primary small">
+                          <FontAwesomeIcon icon={faThumbsUp} className="fs-6" />
+                          <span>{book.likes}</span>
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+              {/* New Books */}
+              <h5>Mới đọc</h5>
+              <Row className="mb-3 d-flex justify-content-center">
+                {books.map((book, index) => (
+                  <Col
+                    md={3}
+                    key={index}
+                    className="d-flex justify-content-center"
+                  >
+                    <Card
+                      className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
+                      style={{ width: "200px" }}
+                      onClick={() => handleBookClick(book)}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={book.image}
+                        className="rounded-3"
+                      />
+                      <Card.Body className="text-center">
+                        <Card.Title className="fs-6 fw-bold text-truncate">
+                          {book.title}
+                        </Card.Title>
+                        <Card.Text className="text-muted small">
+                          {book.author}, {book.year}
+                        </Card.Text>
+                        <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-primary small">
+                          <FontAwesomeIcon icon={faThumbsUp} className="fs-6" />
+                          <span>{book.likes}</span>
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </>
+          )}
         </Col>
       </Row>
     </Container>

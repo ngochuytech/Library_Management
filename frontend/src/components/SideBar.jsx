@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Nav } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../styles/Sidebar.css";
 
-const Sidebar = () => {
+const Sidebar = ({ onSearchClick }) => {
   return (
     <div
       className={`sidebar expanded`}
@@ -23,7 +23,11 @@ const Sidebar = () => {
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link href="#" className="nav-item-custom">
+          <Nav.Link
+            href="#"
+            className="nav-item-custom"
+            onClick={onSearchClick}
+          >
             <FontAwesomeIcon icon={faSearch} className="icon" />
             <span className="nav-text">Tìm kiếm</span>
           </Nav.Link>
