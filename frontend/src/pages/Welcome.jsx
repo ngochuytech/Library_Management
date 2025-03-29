@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import "../styles/Welcome.css" // CSS chính
-import "../styles/icons.css" // CSS cho các biểu tượng
+// import "../styles/icons.css" // CSS cho các biểu tượng
 
 function Welcome() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)

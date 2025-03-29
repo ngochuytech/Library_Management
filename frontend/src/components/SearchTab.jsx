@@ -1,10 +1,8 @@
 import React from "react";
 import { Container, Row, Col, Table, Button, Badge } from "react-bootstrap";
-import { useNavigate } from "react-router-dom"; // Thay useHistory bằng useNavigate
 import "../styles/BookTable.css"; // Đảm bảo đã tạo tệp CSS
 
-const BookTable = () => {
-  const navigate = useNavigate(); // Khởi tạo useNavigate hook để chuyển hướng
+const SearchTab = ({ handleBookClick }) => {
   const books = [
     {
       id: 1, // Thêm ID cho mỗi cuốn sách
@@ -41,11 +39,6 @@ const BookTable = () => {
     },
   ];
 
-  const handleViewDetails = (id) => {
-    // Chuyển hướng đến trang BookDetail với id sách
-    navigate(`/book/${id}`);
-  };
-
   return (
     <Container fluid>
       <Row className="my-4">
@@ -61,7 +54,7 @@ const BookTable = () => {
               </tr>
             </thead>
             <tbody>
-              {books.map((book, index) => (
+              {books.map((book) => (
                 <tr key={book.id}>
                   <td className="d-flex align-items-center justify-content-start">
                     <img
@@ -97,9 +90,9 @@ const BookTable = () => {
                       variant="outline-primary"
                       size="sm"
                       className="action-btn"
-                      onClick={() => handleViewDetails(book.id)} // Gọi hàm khi bấm "Xem trước"
+                      onClick={() => handleBookClick(book)} // Gọi hàm handleBookClick khi nhấn nút "Xem trước"
                     >
-                      {"Xem trước"}
+                      Xem trước
                     </Button>
                   </td>
                 </tr>
@@ -112,4 +105,4 @@ const BookTable = () => {
   );
 };
 
-export default BookTable;
+export default SearchTab;

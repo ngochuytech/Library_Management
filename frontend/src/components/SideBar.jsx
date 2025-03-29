@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../styles/Sidebar.css";
 
-const Sidebar = ({ onSearchClick }) => {
+const Sidebar = ({ onSearchClick, onHomeClick }) => {
   return (
     <div
       className={`sidebar expanded`}
@@ -17,7 +17,7 @@ const Sidebar = ({ onSearchClick }) => {
     >
       <Nav className="flex-column">
         <Nav.Item>
-          <Nav.Link href="#" className="nav-item-custom">
+          <Nav.Link href="#" className="nav-item-custom" onClick={onHomeClick}>
             <FontAwesomeIcon icon={faHome} className="icon" />
             <span className="nav-text">Trang chủ</span>
           </Nav.Link>
