@@ -1,61 +1,151 @@
+/* Home.css - Kết hợp style từ file 2 với Bootstrap */
+
+/* Styles cho body */
 body {
-  background-color: #eef2f7 !important; /* Màu xanh nhạt nhẹ */
-}
-/* Mặc định menu dropdown sẽ bị ẩn */
-.dropdown-menu {
-  opacity: 0;
-  transform: translateY(-10px); /* Menu trượt từ trên xuống */
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out,
-    visibility 0.3s;
-  display: block; /* Đảm bảo menu không bị ảnh hưởng bởi Bootstrap */
-  visibility: hidden; /* Ẩn menu khi chưa mở */
-  pointer-events: none; /* Ngăn click vào menu khi chưa hiển thị */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
 }
 
-/* Khi dropdown mở, hiển thị menu mượt */
-.show > .dropdown-menu {
-  opacity: 1;
-  transform: translateY(0);
-  visibility: visible;
-  pointer-events: auto; /* Cho phép click vào menu khi hiển thị */
+/* Cursor pointer cho các thành phần có thể click */
+.cursor-pointer {
+  cursor: pointer;
 }
 
-/* Hiệu ứng hover cho Dropdown.Toggle */
-.dropdown-toggle {
-  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
-}
-
-.dropdown-toggle:hover {
-  background: rgba(0, 123, 255, 0.1); /* Nền xanh nhạt khi hover */
-  transform: scale(1.05);
-}
-
-/* Khi dropdown đóng lại, loại bỏ hiệu ứng hover */
-.dropdown-toggle:focus:not(.show) {
-  box-shadow: none;
-}
-
-/* Hiệu ứng hover cho Dropdown.Item */
-.dropdown-item {
-  transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
-}
-
-.dropdown-item:hover {
-  background: #d0e2ff; /* Màu xanh nhạt khi hover */
-  color: black;
-}
-
-/* Hiệu ứng riêng cho Đăng xuất */
-.dropdown-item.text-danger:hover {
-  background: rgba(255, 0, 0, 0.1);
-  color: red;
-}
-
+/* Card hover effect */
 .card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-hover:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* View transition effect */
+.view-transition {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for horizontal scroll */
+.overflow-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+/* Section heading styles */
+.section-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #343a40;
+  border-left: 4px solid #0d6efd;
+  padding-left: 1rem;
+}
+
+/* Greeting style */
+.greeting {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #212529;
+}
+
+/* Rounded elements */
+.rounded-4 {
+  border-radius: 1rem !important;
+}
+
+.rounded-pill {
+  border-radius: 50rem !important;
+}
+
+/* Search box styling */
+.search-area .form-control {
+  border: 1px solid #e0e0e0;
+  padding-left: 1rem;
+  padding-right: 3rem;
+  height: 45px;
+}
+
+.search-area .btn {
+  top: 0;
+  height: 100%;
+}
+
+/* Navbar and sidebar adjustments */
+.navbar {
+  height: 70px;
+}
+
+/* Rating stars color */
+.text-warning {
+  color: #ffc107 !important;
+}
+
+/* Quote card styling */
+.quote-card {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.quote-card p {
+  font-style: italic;
+  font-size: 1.2rem;
+}
+
+.quote-card footer {
+  font-weight: 500;
+  text-align: right;
+}
+
+/* User avatar styling */
+.avatar-initials {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  background-color: #0d6efd;
+  border-radius: 50%;
+}
+
+/* Notification dropdown styling */
+.dropdown-menu {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 0.5rem;
+}
+
+/* Book card title truncation */
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }

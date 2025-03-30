@@ -29,10 +29,10 @@ class ReigsterClass(APIView):
         return Response("This is register page")
     
     def post(self, request):
-        name = request.data['name']
+        name = request.data['username']
         email = request.data['email']
         password = request.data['password']
-        phone_number = request.data['phone_number']
+        phone_number = request.data['phone']
         if not phone_number:
             return Response("Phone number is required", status=status.HTTP_400_BAD_REQUEST)
         my_user = User.objects.create_user(email=email, password=password, phone_number=phone_number, name=name)
