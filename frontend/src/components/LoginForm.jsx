@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Form, Button, Card } from "react-bootstrap"
 import { Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
@@ -27,20 +27,39 @@ const LoginForm = () => {
     navigate("/forgot-password")
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     // This is a simple mock authentication
     // In a real app, you would call an API
     console.log("Login attempt with:", { email, password, rememberMe })
 
-    // Mock successful login
-    localStorage.setItem("isAuthenticated", "true")
-    if (rememberMe) {
-      localStorage.setItem("userEmail", email)
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Login successful:", data);
+        sessionStorage.setItem("isAuthenticated", "true");
+        if (rememberMe) {
+          sessionStorage.setItem("userEmail", email);
+        }
+
+        // Navigate to home after login
+        navigate("/home");
+      } else {
+        const errorData = await response.json();
+        console.log("Error during login:", errorData);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
     }
 
-    // Navigate to home after login
-    navigate("/home")
   }
 
   return (
