@@ -10,6 +10,8 @@ const LoginForm = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
+  const BASE_URL = import.meta.env.VITE_API_URL
+
   const navigate = useNavigate()
 
   const handleRegisterClick = (e) => {
@@ -31,10 +33,10 @@ const LoginForm = () => {
     e.preventDefault()
     // This is a simple mock authentication
     // In a real app, you would call an API
-    console.log("Login attempt with:", { email, password, rememberMe })
-
+    // console.log("Login attempt with:", { email, password, rememberMe })
+    
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+      const response = await fetch(`${BASE_URL}/api/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

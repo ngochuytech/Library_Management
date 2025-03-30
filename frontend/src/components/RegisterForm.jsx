@@ -13,6 +13,7 @@ const RegisterForm = ({ route, method }) => {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordError, setPasswordError] = useState("")
+  const BASE_URL = import.meta.env.VITE_API_URL
   const navigate = useNavigate()
 
   const handleLoginClick = (e) => {
@@ -34,7 +35,7 @@ const RegisterForm = ({ route, method }) => {
     return true
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!validatePasswords()) {
@@ -43,12 +44,27 @@ const RegisterForm = ({ route, method }) => {
 
     // This is a simple mock registration
     // In a real app, you would call an API
-    console.log("Register form submitted with:", { username, email, password })
+    // Gửi yêu cầu đăng ký tới backend
+    try {
+      const response = await fetch(`${BASE_URL}/users/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password}),
+      });
 
-    // Mock successful registration
-    // After successful registration, navigate to login
-    alert("Đăng ký thành công! Vui lòng đăng nhập.")
-    navigate("/login")
+      if (response.ok) {
+        const data = await response.json();
+        alert(data);
+        navigate("/login");
+      } else {
+        const errorData = await response.json();
+        console.log("Error during registration:", errorData);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
   }
 
   return (

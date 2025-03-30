@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'notifications',
     'borrows',
     'rest_framework',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'django_seed',
 ]
 
 REST_FRAMEWORK = {
@@ -60,7 +62,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = True  # Cho phép tất cả các domain
 
 ROOT_URLCONF = 'LibraryManagement.urls'
 
