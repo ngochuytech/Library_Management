@@ -28,7 +28,7 @@ const Sidebar = ({ activeView, onNavigate }) => {
         <FontAwesomeIcon icon={faHome} className="me-3" />
         <span className="fw-medium">Trang chủ</span>
       </Nav.Link>
-
+      
       <Nav.Link
         className={getNavItemClass("search")}
         onClick={() => onNavigate("search")}
@@ -36,7 +36,7 @@ const Sidebar = ({ activeView, onNavigate }) => {
         <FontAwesomeIcon icon={faSearch} className="me-3" />
         <span className="fw-medium">Tìm kiếm</span>
       </Nav.Link>
-
+      
       <Nav.Link
         className={getNavItemClass("bookshelf")}
         onClick={() => onNavigate("bookshelf")}
@@ -44,7 +44,7 @@ const Sidebar = ({ activeView, onNavigate }) => {
         <FontAwesomeIcon icon={faBookOpen} className="me-3" />
         <span className="fw-medium">Tủ sách của tôi</span>
       </Nav.Link>
-
+      
       <Nav.Link
         className={getNavItemClass("contributions")}
         onClick={() => onNavigate("contributions")}
@@ -52,22 +52,28 @@ const Sidebar = ({ activeView, onNavigate }) => {
         <FontAwesomeIcon icon={faHandHoldingHeart} className="me-3" />
         <span className="fw-medium">Đóng góp</span>
       </Nav.Link>
-
+      
       <div className="mt-4 mb-3 text-muted px-3 fw-medium">
         <small>CÁ NHÂN</small>
       </div>
-
-      <Nav.Link className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark">
+      
+      <Nav.Link
+        className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark"
+      >
         <FontAwesomeIcon icon={faHeart} className="me-3" />
         <span className="fw-medium">Ưa thích</span>
       </Nav.Link>
-
-      <Nav.Link className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark">
+      
+      <Nav.Link
+        className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark"
+      >
         <FontAwesomeIcon icon={faHistory} className="me-3" />
         <span className="fw-medium">Lịch sử mượn</span>
       </Nav.Link>
-
-      <Nav.Link className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark">
+      
+      <Nav.Link
+        className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark"
+      >
         <FontAwesomeIcon icon={faChartLine} className="me-3" />
         <span className="fw-medium">Thống kê</span>
       </Nav.Link>
