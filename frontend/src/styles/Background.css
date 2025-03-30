@@ -1,0 +1,33 @@
+.wave-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.otp-text {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #666;
+  font-size: 2rem;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.wave-svg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.content-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 100vh;
+}
+

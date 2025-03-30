@@ -1,0 +1,64 @@
+.header {
+  transition: all 0.5s;
+  z-index: 997;
+  padding: 15px 0;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.header.header-scrolled {
+  padding: 10px 0;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  height: auto;
+  max-height: 80px; /* Reduced height */
+}
+
+/* Logo styling */
+.header .logo {
+  font-size: 28px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Navigation menu */
+.header .navbar {
+  padding: 0;
+}
+
+.header .navbar ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  list-style: none;
+  align-items: center;
+}
+
+.header .navbar li {
+  position: relative;
+}
+
+.header .navbar a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px; /* Reduced padding */
+  font-size: 15px;
+  font-weight: 500;
+  color: #37517e;
+  white-space: nowrap;
+  transition: 0.3s;
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+  .header {
+    padding: 12px 0;
+  }
+  
+  .header.header-scrolled {
+    padding: 8px 0;
+    max-height: 70px; /* Even smaller on mobile */
+  }
+}
