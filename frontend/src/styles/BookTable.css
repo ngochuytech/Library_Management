@@ -1,0 +1,78 @@
+/* Cải thiện kiểu bảng */
+.book-table {
+  font-family: "Arial", sans-serif;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  background-color: #f9f9f9;
+}
+
+/* Căn chỉnh văn bản giữa các cột */
+.book-table th,
+.book-table td {
+  padding: 15px 20px;
+  text-align: left; /* Thay đổi thành căn trái để không bị lệch */
+  vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+}
+
+.book-table th {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.book-table td {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+}
+
+.book-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Căn chỉnh hình ảnh và văn bản */
+.book-table .d-flex {
+  display: flex;
+  align-items: center;
+}
+
+.book-table img {
+  width: 50px;
+  height: 75px;
+  margin-right: 15px;
+  object-fit: cover;
+}
+
+/* Định dạng cho badge status */
+.status-badge {
+  font-weight: bold;
+  text-transform: capitalize;
+  padding: 5px 15px;
+}
+
+.book-table .text-center {
+  text-align: center;
+}
+
+/* Cải thiện kiểu Button */
+.action-btn {
+  transition: background-color 0.3s ease;
+}
+
+.action-btn:hover {
+  background-color: #0056b3;
+  color: white;
+  border-color: #0056b3;
+}
+
+/* Phần hover khi di chuột lên từng hàng */
+.book-table tbody tr:hover .action-btn {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Điều chỉnh các nút cho gọn gàng hơn */
+.book-table .btn-sm {
+  font-size: 12px;
+  padding: 5px 10px;
+}
