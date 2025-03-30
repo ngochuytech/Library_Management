@@ -23,12 +23,15 @@ import "../styles/Home.css"; // Đường dẫn đến Home.css
 import Sidebar from "../components/SideBar.jsx"; // Đường dẫn đến Sidebar.jsx
 import Quote from "../components/Quote.jsx"; // Đường dẫn đến Quote.jsx
 import SearchTab from "../components/SearchTab.jsx"; // Đường dẫn đến SearchTab.jsx
+import BookDetail from "../components/BookDetail.jsx"; // Đường dẫn đến BookDetail.jsx
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [color, setColor] = useState("text-dark"); // Màu mặc định
   const [showSearchTab, setShowSearchTab] = useState(false); // State to track search tab visibility
+  const [selectedBook, setSelectedBook] = useState(null); // Add state to track selected book
+  const [showHomeContent, setShowHomeContent] = useState(true); // Trạng thái để điều khiển hiển thị nội dung ban đầu
 
   const books = [
     {
@@ -39,36 +42,44 @@ const HomePage = () => {
       likes: 120,
     },
     {
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      year: "1988",
+      title: "Don't Make Me Think",
+      author: "Steve Krug",
+      year: "2000",
       image: "/book.jpg",
-      likes: 120,
+      likes: 90,
     },
     {
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      year: "1988",
+      title: "Rich Dad Poor Dad",
+      author: "Robert T. Kiyosaki",
+      year: "1997",
       image: "/book.jpg",
-      likes: 120,
+      likes: 150,
     },
     {
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      year: "1988",
+      title: "Clean Code",
+      author: "Robert C. Martin",
+      year: "2008",
       image: "/book.jpg",
-      likes: 120,
+      likes: 100,
     },
-    // Bạn có thể thêm nhiều sách khác vào đây
   ];
 
   const handleBookClick = (book) => {
     console.log(`Book clicked: ${book.title}`);
-    // Bạn có thể thêm logic khác ở đây, ví dụ: điều hướng đến trang chi tiết sách
+    setSelectedBook(book); // Cập nhật selectedBook khi nhấp vào cuốn sách
+    setShowHomeContent(false); // Ẩn nội dung trang chủ khi hiển thị chi tiết sách
   };
 
   const handleSearchClick = () => {
-    setShowSearchTab(true);
+    setShowSearchTab(true); // Hiển thị SearchTab
+    setShowHomeContent(false); // Ẩn nội dung trang chủ khi hiển thị SearchTab
+  };
+
+  // Handle click on "Trang chủ" to navigate to the homepage
+  const handleHomeClick = () => {
+    setShowHomeContent(true); // Khi nhấn "Trang chủ", hiển thị lại nội dung ban đầu
+    setSelectedBook(null); // Reset selectedBook
+    setShowSearchTab(false); // Ẩn SearchTab
   };
 
   return (
@@ -87,7 +98,8 @@ const HomePage = () => {
               alt="Logo"
               style={{ width: "40px", height: "40px", marginRight: "10px" }}
             />
-            <Navbar.Brand href="#">MYLIB</Navbar.Brand>
+            <Navbar.Brand onClick={handleHomeClick}>MYLIB</Navbar.Brand>{" "}
+            {/* Thêm onClick để quay lại trang chủ */}
           </Col>
 
           {/* Cột 10 cho Nội dung Navbar */}
@@ -214,20 +226,20 @@ const HomePage = () => {
           className="vh-100 p-3"
           style={{ marginTop: "70px" }} // Adjusted margin-top to push content down
         >
-          <Sidebar onSearchClick={handleSearchClick} />
+          <Sidebar
+            onSearchClick={handleSearchClick}
+            onHomeClick={handleHomeClick}
+          />
         </Col>
 
         {/* Main Content */}
         <Col md={10} className="p-4" style={{ marginTop: "70px" }}>
-          {showSearchTab ? (
-            <SearchTab />
-          ) : (
+          {showHomeContent ? (
             <>
-              {/* Quote */}
+              {/* Hiển thị lại nội dung ban đầu */}
               <Card className="text-white" style={{ border: "none" }}>
                 <Quote books={books} handleCardClick={handleBookClick} />
               </Card>
-              {/* Recommended Books */}
               <h5>Đề nghị cho bạn</h5>
               <Row className="mb-3 d-flex justify-content-center">
                 {books.map((book, index) => (
@@ -262,43 +274,12 @@ const HomePage = () => {
                   </Col>
                 ))}
               </Row>
-              {/* New Books */}
-              <h5>Mới đọc</h5>
-              <Row className="mb-3 d-flex justify-content-center">
-                {books.map((book, index) => (
-                  <Col
-                    md={3}
-                    key={index}
-                    className="d-flex justify-content-center"
-                  >
-                    <Card
-                      className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
-                      style={{ width: "200px" }}
-                      onClick={() => handleBookClick(book)}
-                    >
-                      <Card.Img
-                        variant="top"
-                        src={book.image}
-                        className="rounded-3"
-                      />
-                      <Card.Body className="text-center">
-                        <Card.Title className="fs-6 fw-bold text-truncate">
-                          {book.title}
-                        </Card.Title>
-                        <Card.Text className="text-muted small">
-                          {book.author}, {book.year}
-                        </Card.Text>
-                        <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-primary small">
-                          <FontAwesomeIcon icon={faThumbsUp} className="fs-6" />
-                          <span>{book.likes}</span>
-                        </Card.Text>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
             </>
-          )}
+          ) : showSearchTab ? (
+            <SearchTab handleBookClick={handleBookClick} />
+          ) : selectedBook ? (
+            <BookDetail book={selectedBook} />
+          ) : null}
         </Col>
       </Row>
     </Container>
