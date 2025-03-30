@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,8 +46,7 @@ INSTALLED_APPS = [
     'borrows',
     'rest_framework',
     'rest_framework_simplejwt',
-    'corsheaders',
-    'django_seed',
+    'corsheaders'
 ]
 
 REST_FRAMEWORK = {
@@ -105,6 +106,9 @@ DATABASES = {
         'PASSWORD': '',  # Your MySQL password
         'HOST': 'localhost',                   # Host for MySQL server
         'PORT': '3306',                        # Default MySQL port
+        'OPTIONS': {
+            'sql_mode': 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO',
+        }
     }
 }
 
