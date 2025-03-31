@@ -9,13 +9,7 @@ import {
   Pagination,
   Dropdown,
 } from "react-bootstrap";
-import {
-  faStar,
-  faEye,
-  faBookmark,
-  faBookOpen,
-  faEllipsisV,
-} from "@fortawesome/free-solid-svg-icons";
+import { faStar, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const SearchTab = ({ handleBookClick }) => {
@@ -386,68 +380,6 @@ const SearchTab = ({ handleBookClick }) => {
                       />
                       Xem
                     </Button>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        variant="outline-secondary"
-                        size="sm"
-                        id={`dropdown-actions-${book.id}`}
-                        style={{
-                          borderColor: "#ced4da",
-                          color: "#495057",
-                          borderRadius: "6px",
-                          padding: "0.3rem 0.4rem",
-                          fontSize: "0.8rem",
-                        }}
-                      >
-                        <FontAwesomeIcon
-                          icon={faEllipsisV}
-                          style={{ fontSize: "0.8rem" }}
-                        />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu
-                        style={{
-                          borderRadius: "8px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                          border: "none",
-                          fontSize: "0.8rem",
-                        }}
-                      >
-                        <Dropdown.Item
-                          style={{
-                            padding: "0.4rem 0.8rem",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <FontAwesomeIcon
-                            icon={faBookmark}
-                            style={{
-                              marginRight: "0.4rem",
-                              color: "#7f8c8d",
-                              fontSize: "0.8rem",
-                            }}
-                          />
-                          Lưu sau
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          style={{
-                            padding: "0.4rem 0.8rem",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <FontAwesomeIcon
-                            icon={faBookOpen}
-                            style={{
-                              marginRight: "0.4rem",
-                              color: "#7f8c8d",
-                              fontSize: "0.8rem",
-                            }}
-                          />
-                          Đọc thử
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
                   </div>
                 </td>
               </tr>
