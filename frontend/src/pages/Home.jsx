@@ -28,6 +28,9 @@ import SearchTab from "../components/SearchTab.jsx"; // Đường dẫn đến S
 import BookDetail from "../components/BookDetail.jsx"; // Đường dẫn đến BookDetail.jsx
 import MyBookshelf from "../components/MyBookshelf.jsx"; // Import thêm component này
 import Contributions from "../components/Contributions.jsx"; // Import thêm component này
+import Account from "../components/Account.jsx"; // Đường dẫn đến Account.jsx
+import Liked from "../components/Liked.jsx"; // Đường dẫn đến Liked.jsx
+import History from "../components/History.jsx"; // Đường dẫn đến History.jsx
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -151,6 +154,12 @@ const HomePage = () => {
         return <Contributions />;
       case "bookDetail":
         return selectedBook ? <BookDetail book={selectedBook} /> : null;
+      case "account":
+        return <Account />; // Hiển thị component Account
+      case "liked":
+        return <Liked />; // Hiển thị component Liked
+      case "History":
+        return <History />; // Hiển thị component Liked
       case "home":
       default:
         return (
@@ -336,13 +345,25 @@ const HomePage = () => {
                       <div className="font-weight-bold">Vu Tran</div>
                     </Dropdown.Toggle>
                     <Dropdown.Menu align="end" className="shadow rounded">
-                      <Dropdown.Item href="#" className="py-2">
+                      <Dropdown.Item
+                        href="#"
+                        className="py-2"
+                        onClick={() => handleNavigation("account")}
+                      >
                         Trang cá nhân
                       </Dropdown.Item>
-                      <Dropdown.Item href="#" className="py-2">
+                      <Dropdown.Item
+                        href="#"
+                        className="py-2"
+                        onClick={() => handleNavigation("liked")}
+                      >
                         Ưa thích
                       </Dropdown.Item>
-                      <Dropdown.Item href="#" className="py-2">
+                      <Dropdown.Item
+                        href="#"
+                        className="py-2"
+                        onClick={() => handleNavigation("History")}
+                      >
                         Lịch sử mượn
                       </Dropdown.Item>
                       <Dropdown.Divider />
