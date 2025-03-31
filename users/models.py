@@ -34,6 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True) 
     phone_number = models.CharField(max_length=15, unique=True)
+    avatar = models.ImageField(default='icon.png')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

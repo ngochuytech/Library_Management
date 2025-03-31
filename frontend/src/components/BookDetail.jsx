@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Container,
@@ -12,21 +12,23 @@ import {
 import { faBell, faStar } from "@fortawesome/free-solid-svg-icons"; // Import các icon cần thiết
 import "../styles/BookDetail.css"; // Tùy chọn: Tạo file CSS để tùy chỉnh thêm
 
-const DetailBook = () => {
+const DetailBook = ({book}) => {
+  console.log("Book = ", book);
+  
   // Dữ liệu giả lập cho sách (bạn có thể thay bằng dữ liệu từ API)
-  const book = {
-    title: "Don't Make Me Think",
-    author: "Steve Krug",
-    edition: "Second Edition",
-    year: 2000,
-    rating: 5.0,
-    reviews: 25,
-    readers: 119,
-    status: "Còn sách",
-    coverImage: "book.jpg", // Thay bằng URL hình ảnh thực tế
-    description:
-      'Steve Krug là một chuyên gia tư vấn về khả năng sử dụng, có hơn 30 năm kinh nghiệm làm việc với các công ty như Apple, Netscape, AOL, Lexus và các khách hàng khác. Ông là tác giả của cuốn sách nổi tiếng "Don\'t Make Me Think", được coi là kinh điển trong lĩnh vực thiết kế trải nghiệm người dùng. Cuốn sách này giúp bạn hiểu cách người dùng thực sự sử dụng website và ứng dụng, đồng thời đưa ra các nguyên tắc thiết kế đơn giản nhưng hiệu quả.',
-  };
+  // const book = {
+  //   title: "Don't Make Me Think",
+  //   author: "Steve Krug",
+  //   edition: "Second Edition",
+  //   year: 2000,
+  //   rating: 5.0,
+  //   reviews: 25,
+  //   readers: 119,
+  //   status: "Còn sách",
+  //   coverImage: "book.jpg", // Thay bằng URL hình ảnh thực tế
+  //   description:
+  //     'Steve Krug là một chuyên gia tư vấn về khả năng sử dụng, có hơn 30 năm kinh nghiệm làm việc với các công ty như Apple, Netscape, AOL, Lexus và các khách hàng khác. Ông là tác giả của cuốn sách nổi tiếng "Don\'t Make Me Think", được coi là kinh điển trong lĩnh vực thiết kế trải nghiệm người dùng. Cuốn sách này giúp bạn hiểu cách người dùng thực sự sử dụng website và ứng dụng, đồng thời đưa ra các nguyên tắc thiết kế đơn giản nhưng hiệu quả.',
+  // };
 
   return (
     <Container className="my-5">
@@ -36,7 +38,7 @@ const DetailBook = () => {
           <Row>
             {/* Hình bìa sách */}
             <Col md={3}>
-              <Image src={book.coverImage} alt={book.title} fluid />
+              <Image src={book.image.slice(16)} alt={book.title} fluid />
             </Col>
 
             {/* Thông tin sách */}

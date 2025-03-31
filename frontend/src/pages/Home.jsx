@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBell,
@@ -35,51 +35,34 @@ const HomePage = () => {
   const [activeView, setActiveView] = useState("home"); // Thêm state này để quản lý view
   const [selectedBook, setSelectedBook] = useState(null);
 
-  // Dữ liệu sách đề xuất với rating thay vì likes
-  const recommendedBooks = [
-    {
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      year: "1988",
-      image: "/book.jpg",
-      rating: 4.5,
-    },
-    {
-      title: "Don't Make Me Think",
-      author: "Steve Krug",
-      year: "2000",
-      image: "/book.jpg",
-      rating: 4.2,
-    },
-    {
-      title: "Rich Dad Poor Dad",
-      author: "Robert T. Kiyosaki",
-      year: "1997",
-      image: "/book.jpg",
-      rating: 5.0,
-    },
-    {
-      title: "Clean Code",
-      author: "Robert C. Martin",
-      year: "2008",
-      image: "/book.jpg",
-      rating: 4.7,
-    },
-    {
-      title: "Sprint : How to solve big problems",
-      author: "Jake Knapp",
-      year: "2000",
-      image: "/book.jpg",
-      rating: 4.5,
-    },
-    {
-      title: "Harry Potter and The Chamber of Secrets",
-      author: "J.K. Rowling",
-      year: "2002",
-      image: "/book.jpg",
-      rating: 4.9,
-    },
-  ];
+  const [recommendedBooks, setRecommendedBooks] = useState([]); // State cho sách đề xuất từ API
+  const [loadingRecommended, setLoadingRecommended] = useState(true); // State quản lý trạng thái loading
+  const [errorRecommended, setErrorRecommended] = useState(null); // State quản lý lỗi
+  const BASE_URL = import.meta.env.VITE_API_URL
+
+  useEffect(() => {
+    const fetchRecommendedBooks = async () => {
+      setLoadingRecommended(true); // Bắt đầu loading
+      setErrorRecommended(null); // Reset lỗi
+      try {
+
+        const response = await fetch(`${BASE_URL}/books/api`); 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        setRecommendedBooks(data.results);
+      } catch (error) {
+        console.error("Failed to fetch recommended books:", error);
+        setErrorRecommended("Không thể tải sách đề xuất. Vui lòng thử lại sau.");
+      } finally {
+        setLoadingRecommended(false); 
+      }
+    };
+
+    fetchRecommendedBooks(); // Gọi hàm fetch khi component mount
+  }, []); // Mảng rỗng đảm bảo useEffect chỉ chạy 1 lần sau khi mount
 
   // Thêm mảng sách đã đọc gần đây
   const recentlyViewedBooks = [
@@ -114,7 +97,6 @@ const HomePage = () => {
   ];
 
   const handleBookClick = (book) => {
-    console.log(`Book clicked: ${book.title}`);
     setSelectedBook(book);
     setActiveView("bookDetail");
   };
@@ -138,7 +120,7 @@ const HomePage = () => {
               style={{ width: "100%" }}
               onClick={() => onBookClick(book)}
             >
-              <Card.Img variant="top" src={book.image} className="rounded-3" />
+              <Card.Img variant="top" src={book.image.slice(16)} className="rounded-3" />
               <Card.Body className="text-center">
                 <Card.Title className="fs-6 fw-bold text-truncate">
                   {book.title}
