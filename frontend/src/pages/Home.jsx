@@ -55,7 +55,9 @@ const HomePage = () => {
         }
         const data = await response.json();
         
-        setRecommendedBooks(data.results);
+        setRecommendedBooks(data.results);  
+        console.log("recom ", data.results);
+              
       } catch (error) {
         console.error("Failed to fetch recommended books:", error);
         setErrorRecommended("Không thể tải sách đề xuất. Vui lòng thử lại sau.");
@@ -129,7 +131,7 @@ const HomePage = () => {
                   {book.title}
                 </Card.Title>
                 <Card.Text className="text-muted small">
-                  {book.author}, {book.year}
+                  {book.author.name}
                 </Card.Text>
                 <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-warning small">
                   <FontAwesomeIcon icon={faStar} className="fs-6" />
