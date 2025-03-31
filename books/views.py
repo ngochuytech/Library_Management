@@ -2,13 +2,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-
+from rest_framework.pagination import PageNumberPagination
 from books.models import Book
 from books.serializers import BookSerializer
 
+class suggestBookPagination(PageNumberPagination):
+    page_size = 6
+
 # Create your views here.
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def getBook(request):
     title = request.GET.get('title', '')
     author = request.GET.get('author', '')
@@ -17,8 +19,12 @@ def getBook(request):
     books = books.filter(author__icontains=author)
     if category:
         books = books.filter(category__name__iexact=category)
-    serializer = BookSerializer(books, many=True)
-    return Response(serializer.data)
+    
+    # Áp dụng phân trang
+    paginator = suggestBookPagination()
+    paginated_books = paginator.paginate_queryset(books, request)
+    serializer = BookSerializer(paginated_books, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])

@@ -10,7 +10,7 @@ class Book(models.Model):
     publication_year = models.DateField()
     quantity = models.IntegerField(default=0)
     avaliable = models.IntegerField(default=0)
-    image = models.CharField(max_length=500, default="default image")
+    image = models.ImageField(default="Default.png")
     description = models.TextField()
     
     class Meta:
