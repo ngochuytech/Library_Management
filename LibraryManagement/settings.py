@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'categories',
     'notifications',
     'borrows',
+    'authors',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders'

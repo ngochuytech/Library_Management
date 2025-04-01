@@ -20,6 +20,7 @@ import {
   faPhone,
   faPen,
   faCheck,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -44,6 +45,66 @@ const Account = () => {
   const handleSave = () => {
     setUserData(formData);
     setIsEditing(false);
+  };
+
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData({ ...passwordData, [name]: value });
+  };
+
+  const validatePasswordForm = () => {
+    let valid = true;
+    const newErrors = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
+
+    if (!passwordData.currentPassword) {
+      newErrors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
+      valid = false;
+    }
+
+    if (!passwordData.newPassword) {
+      newErrors.newPassword = "Vui lòng nhập mật khẩu mới";
+      valid = false;
+    } else if (passwordData.newPassword.length < 6) {
+      newErrors.newPassword = "Mật khẩu phải có ít nhất 6 ký tự";
+      valid = false;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      newErrors.confirmPassword = "Mật khẩu mới không khớp";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handlePasswordSubmit = () => {
+    if (validatePasswordForm()) {
+      console.log("Đang thay đổi mật khẩu:", passwordData);
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -227,96 +288,223 @@ const Account = () => {
                   <h5 className="mb-4">Bảo mật tài khoản</h5>
 
                   <ListGroup variant="flush">
-                    <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <h6>Mật khẩu</h6>
-                        <p className="mb-0">••••••••</p>
-                      </div>
-                      <Button variant="outline-primary" size="sm">
-                        Thay đổi
-                      </Button>
-                    </ListGroup.Item>
-
                     <ListGroup.Item>
-                      <h6>Xác thực 2 yếu tố</h6>
-                      <p className="text-muted">Chưa bật</p>
-                      <Button variant="outline-primary" size="sm">
-                        Bật ngay
-                      </Button>
-                    </ListGroup.Item>
+                      {isChangingPassword ? (
+                        <Form>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Mật khẩu hiện tại</Form.Label>
+                            <Form.Control
+                              type="password"
+                              name="currentPassword"
+                              value={passwordData.currentPassword}
+                              onChange={handlePasswordChange}
+                              placeholder="Nhập mật khẩu hiện tại"
+                              isInvalid={!!errors.currentPassword}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.currentPassword}
+                            </Form.Control.Feedback>
+                          </Form.Group>
 
-                    <ListGroup.Item>
-                      <h6>Thiết bị đã đăng nhập</h6>
-                      <p className="text-muted">iPhone 13 - 14:30 20/10/2023</p>
-                      <Button variant="outline-danger" size="sm">
-                        Đăng xuất tất cả
-                      </Button>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Mật khẩu mới</Form.Label>
+                            <Form.Control
+                              type="password"
+                              name="newPassword"
+                              value={passwordData.newPassword}
+                              onChange={handlePasswordChange}
+                              placeholder="Nhập mật khẩu mới"
+                              isInvalid={!!errors.newPassword}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.newPassword}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Nhập lại mật khẩu mới</Form.Label>
+                            <Form.Control
+                              type="password"
+                              name="confirmPassword"
+                              value={passwordData.confirmPassword}
+                              onChange={handlePasswordChange}
+                              placeholder="Nhập lại mật khẩu mới"
+                              isInvalid={!!errors.confirmPassword}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.confirmPassword}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+
+                          <div className="d-flex gap-2">
+                            <Button
+                              variant="primary"
+                              onClick={handlePasswordSubmit}
+                            >
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="me-2"
+                              />
+                              Lưu mật khẩu mới
+                            </Button>
+                            <Button
+                              variant="outline-secondary"
+                              onClick={() => setIsChangingPassword(false)}
+                            >
+                              Hủy
+                            </Button>
+                          </div>
+                        </Form>
+                      ) : (
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6>Mật khẩu</h6>
+                            <p className="mb-0">••••••••</p>
+                          </div>
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={() => setIsChangingPassword(true)}
+                          >
+                            Thay đổi
+                          </Button>
+                        </div>
+                      )}
                     </ListGroup.Item>
                   </ListGroup>
                 </Tab>
 
                 <Tab eventKey="notifications" title="Thông báo">
-                  <h5 className="mb-4">Cài đặt thông báo</h5>
+                  <h5 className="mb-4">Thông báo của bạn</h5>
 
-                  <Form>
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="switch"
-                        id="email-notification"
-                        label="Nhận thông báo qua email"
-                        defaultChecked
-                      />
-                    </Form.Group>
+                  <div
+                    style={{
+                      maxHeight: "400px",
+                      overflowY: "auto",
+                      border: "1px solid #dee2e6",
+                      borderRadius: "0.25rem",
+                    }}
+                  >
+                    <ListGroup variant="flush">
+                      <ListGroup.Item>
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <p className="mb-1">
+                              <strong>📘 'Don't Make Me Think'</strong> sẽ đến
+                              hạn trả vào ngày <strong>10/03/2025</strong>.
+                            </p>
+                            <small className="text-muted">2 giờ trước</small>
+                          </div>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
 
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="switch"
-                        id="sms-notification"
-                        label="Nhận thông báo qua SMS"
-                      />
-                    </Form.Group>
+                      <ListGroup.Item>
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <p className="mb-1">
+                              <strong>
+                                📕 'The Design of Everyday Things'
+                              </strong>{" "}
+                              đã quá hạn 2 ngày. Vui lòng trả sách để tránh
+                              phạt.
+                            </p>
+                            <small className="text-muted">1 ngày trước</small>
+                          </div>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
 
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="switch"
-                        id="app-notification"
-                        label="Thông báo trong ứng dụng"
-                        defaultChecked
-                      />
-                    </Form.Group>
+                      <ListGroup.Item>
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <p className="mb-1">
+                              <strong>📙 'Clean Code'</strong> đã được trả thành
+                              công.
+                            </p>
+                            <small className="text-muted">5 ngày trước</small>
+                          </div>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
 
-                    <h6 className="mt-4 mb-3">Loại thông báo</h6>
-
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="checkbox"
-                        id="book-notification"
-                        label="Sách mới"
-                        defaultChecked
-                      />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="checkbox"
-                        id="promo-notification"
-                        label="Khuyến mãi"
-                        defaultChecked
-                      />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="checkbox"
-                        id="system-notification"
-                        label="Thông báo hệ thống"
-                      />
-                    </Form.Group>
-
-                    <Button variant="primary" className="mt-3">
-                      Lưu cài đặt
-                    </Button>
-                  </Form>
+                      <ListGroup.Item>
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <p className="mb-1">
+                              <strong>📘 'JavaScript: The Good Parts'</strong>{" "}
+                              sẽ đến hạn trả vào ngày{" "}
+                              <strong>18/03/2025</strong>.
+                            </p>
+                            <small className="text-muted">1 tuần trước</small>
+                          </div>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <p className="mb-1">
+                              <strong>📘 'JavaScript: The Good Parts'</strong>{" "}
+                              sẽ đến hạn trả vào ngày{" "}
+                              <strong>18/03/2025</strong>.
+                            </p>
+                            <small className="text-muted">1 tuần trước</small>
+                          </div>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <p className="mb-1">
+                              <strong>📘 'JavaScript: The Good Parts'</strong>{" "}
+                              sẽ đến hạn trả vào ngày{" "}
+                              <strong>18/03/2025</strong>.
+                            </p>
+                            <small className="text-muted">1 tuần trước</small>
+                          </div>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
+                    </ListGroup>
+                  </div>
                 </Tab>
               </Tabs>
             </Card.Body>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Table,
@@ -9,60 +9,83 @@ import {
   Pagination,
   Dropdown,
 } from "react-bootstrap";
-import {
-  faStar,
-  faEye,
-  faBookmark,
-  faBookOpen,
-  faEllipsisV,
-} from "@fortawesome/free-solid-svg-icons";
+import { faStar, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const SearchTab = ({ handleBookClick }) => {
-  const books = [
-    {
-      id: 1,
-      title: "Don't Make Me Think",
-      author: "Steve Krug",
-      year: "2000",
-      rating: 4.5,
-      reviews: 128,
-      category: "Computer Science",
-      status: "Available",
-      stock: 5,
-      location: "CS A-15",
-      image: "/book.jpg",
-      description: "A classic book about web usability and user experience.",
-    },
-    {
-      id: 2,
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      year: "1988",
-      rating: 4.7,
-      reviews: 256,
-      category: "Design",
-      status: "Out of stock",
-      stock: 0,
-      location: "DS B-22",
-      image: "/book.jpg",
-      description: "Fundamentals of design and human-centered interaction.",
-    },
-    {
-      id: 3,
-      title: "Rich Dad Poor Dad",
-      author: "Robert T. Kiyosaki",
-      year: "1997",
-      rating: 4.3,
-      reviews: 342,
-      category: "Financial MGMT",
-      status: "Available",
-      stock: 3,
-      location: "FM C-10",
-      image: "/book.jpg",
-      description: "Personal finance lessons through childhood stories.",
-    },
-  ];
+  const [searchBooks, setsearchBooks] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalBooks, setTotalBooks] = useState(0);
+
+  const BASE_URL = import.meta.env.VITE_API_URL
+
+  const fetchSearchBooks = async (page = 1) => {
+    try {
+      const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setsearchBooks(data.results); 
+      setTotalBooks(data.count); 
+      setTotalPages(Math.ceil(data.count / 6));  
+    } catch (error) {
+      console.error("Failed to fetch search books:", error);
+    }
+  };
+
+  useEffect(() => {
+      fetchSearchBooks(currentPage);
+  }, [currentPage]); 
+  // const books = [
+  //   {
+  //     id: 1,
+  //     title: "Don't Make Me Think",
+  //     author: "Steve Krug",
+  //     year: "2000",
+  //     rating: 4.5,
+  //     reviews: 128,
+  //     category: "Computer Science",
+  //     status: "Available",
+  //     stock: 5,
+  //     location: "CS A-15",
+  //     image: "/book.jpg",
+  //     description: "A classic book about web usability and user experience.",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "The Design of Everyday Things",
+  //     author: "Don Norman",
+  //     year: "1988",
+  //     rating: 4.7,
+  //     reviews: 256,
+  //     category: "Design",
+  //     status: "Out of stock",
+  //     stock: 0,
+  //     location: "DS B-22",
+  //     image: "/book.jpg",
+  //     description: "Fundamentals of design and human-centered interaction.",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Rich Dad Poor Dad",
+  //     author: "Robert T. Kiyosaki",
+  //     year: "1997",
+  //     rating: 4.3,
+  //     reviews: 342,
+  //     category: "Financial MGMT",
+  //     status: "Available",
+  //     stock: 3,
+  //     location: "FM C-10",
+  //     image: "/book.jpg",
+  //     description: "Personal finance lessons through childhood stories.",
+  //   },
+  // ];
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const renderRatingStars = (rating) => {
     return [...Array(5)].map((_, i) => (
@@ -107,7 +130,7 @@ const SearchTab = ({ handleBookClick }) => {
           }}
         >
           <colgroup>
-            <col style={{ width: "30%" }} /> {/* Giảm từ 40% xuống 30% */}
+            <col style={{ width: "30%" }} />
             <col style={{ width: "15%" }} />
             <col style={{ width: "15%" }} />
             <col style={{ width: "20%" }} />
@@ -178,7 +201,7 @@ const SearchTab = ({ handleBookClick }) => {
             </tr>
           </thead>
           <tbody>
-            {books.map((book) => (
+            {searchBooks.map((book) => (
               <tr
                 key={book.id}
                 style={{
@@ -199,7 +222,7 @@ const SearchTab = ({ handleBookClick }) => {
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <img
-                      src={book.image}
+                      src={book.image.slice(16)}
                       alt={book.title}
                       style={{
                         width: "50px", // Giảm kích thước ảnh
@@ -238,7 +261,7 @@ const SearchTab = ({ handleBookClick }) => {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {book.author} • {book.year}
+                        {book.author.name} • {book.publication_date}
                       </div>
                     </div>
                   </div>
@@ -270,7 +293,7 @@ const SearchTab = ({ handleBookClick }) => {
                         color: "#adb5bd",
                       }}
                     >
-                      {book.reviews} đánh giá
+                      {/* {book.reviews} đánh giá */}
                     </div>
                   </div>
                 </td>
@@ -282,18 +305,22 @@ const SearchTab = ({ handleBookClick }) => {
                     borderBottom: "1px solid #f1f3f5",
                   }}
                 >
-                  <Badge
-                    style={{
-                      backgroundColor: "#f1f3f5",
-                      color: "#495057",
-                      fontWeight: "normal",
-                      padding: "0.3em 0.6em",
-                      borderRadius: "50px",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {book.category}
-                  </Badge>
+                  {book.category.map((category, index) => (
+                    <Badge
+                      key={index} 
+                      style={{
+                        backgroundColor: "#f1f3f5",
+                        color: "#030303",
+                        fontWeight: "normal",
+                        padding: "0.3em 0.6em",
+                        borderRadius: "50px",
+                        fontSize: "0.8rem",
+                        marginRight: "5px",
+                      }}
+                    >
+                      {category.name}
+                    </Badge>
+                  ))}
                 </td>
                 <td
                   style={{
@@ -315,18 +342,18 @@ const SearchTab = ({ handleBookClick }) => {
                       pill
                       style={{
                         backgroundColor:
-                          book.status === "Available" ? "#2ecc71" : "#e74c3c",
+                          book.avaliable > 0 ? "#2ecc71" : "#e74c3c",
                         padding: "0.3em 0.6em",
                         marginBottom: "0.4rem",
                         fontWeight: 500,
                         fontSize: "0.8rem",
                       }}
                     >
-                      {book.status}
+                      {book.avaliable > 0 ? "Còn hàng" : "Đã hết hàng"}
                     </Badge>
-                    {book.status === "Available" && (
+                    {book.avaliable > 0 && (
                       <ProgressBar
-                        now={(book.stock / 5) * 100}
+                        now={(book.avaliable / book.quantity) * 100}
                         style={{
                           height: "5px",
                           width: "70px",
@@ -341,8 +368,8 @@ const SearchTab = ({ handleBookClick }) => {
                         color: "#868e96",
                       }}
                     >
-                      {book.status === "Available"
-                        ? `${book.stock} có sẵn`
+                      {book.avaliable > 0
+                        ? `${book.avaliable} có sẵn`
                         : "Đã hết hàng"}
                     </div>
                   </div>
@@ -386,68 +413,6 @@ const SearchTab = ({ handleBookClick }) => {
                       />
                       Xem
                     </Button>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        variant="outline-secondary"
-                        size="sm"
-                        id={`dropdown-actions-${book.id}`}
-                        style={{
-                          borderColor: "#ced4da",
-                          color: "#495057",
-                          borderRadius: "6px",
-                          padding: "0.3rem 0.4rem",
-                          fontSize: "0.8rem",
-                        }}
-                      >
-                        <FontAwesomeIcon
-                          icon={faEllipsisV}
-                          style={{ fontSize: "0.8rem" }}
-                        />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu
-                        style={{
-                          borderRadius: "8px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                          border: "none",
-                          fontSize: "0.8rem",
-                        }}
-                      >
-                        <Dropdown.Item
-                          style={{
-                            padding: "0.4rem 0.8rem",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <FontAwesomeIcon
-                            icon={faBookmark}
-                            style={{
-                              marginRight: "0.4rem",
-                              color: "#7f8c8d",
-                              fontSize: "0.8rem",
-                            }}
-                          />
-                          Lưu sau
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          style={{
-                            padding: "0.4rem 0.8rem",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <FontAwesomeIcon
-                            icon={faBookOpen}
-                            style={{
-                              marginRight: "0.4rem",
-                              color: "#7f8c8d",
-                              fontSize: "0.8rem",
-                            }}
-                          />
-                          Đọc thử
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
                   </div>
                 </td>
               </tr>
@@ -457,48 +422,17 @@ const SearchTab = ({ handleBookClick }) => {
       </Card>
 
       {/* Pagination */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <Pagination
-          style={{
-            borderRadius: "8px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            fontSize: "0.9rem",
-          }}
-        >
-          <Pagination.First
-            style={{
-              borderTopLeftRadius: "8px",
-              borderBottomLeftRadius: "8px",
-              fontSize: "0.8rem",
-            }}
-          />
-          <Pagination.Prev style={{ fontSize: "0.8rem" }} />
-          <Pagination.Item
-            active
-            style={{
-              backgroundColor: "#3498db",
-              borderColor: "#3498db",
-              fontSize: "0.8rem",
-            }}
-          >
-            {1}
-          </Pagination.Item>
-          <Pagination.Item style={{ fontSize: "0.8rem" }}>{2}</Pagination.Item>
-          <Pagination.Item style={{ fontSize: "0.8rem" }}>{3}</Pagination.Item>
-          <Pagination.Next style={{ fontSize: "0.8rem" }} />
-          <Pagination.Last
-            style={{
-              borderTopRightRadius: "8px",
-              borderBottomRightRadius: "8px",
-              fontSize: "0.8rem",
-            }}
-          />
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+        <Pagination>
+          <Pagination.First onClick={() => handlePageChange(1)} />
+          <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+          {[...Array(totalPages)].map((_, index) => (
+            <Pagination.Item key={index + 1} active={currentPage === index + 1} onClick={() => handlePageChange(index + 1)}>
+              {index + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          <Pagination.Last onClick={() => handlePageChange(totalPages)} />
         </Pagination>
       </div>
     </Container>
