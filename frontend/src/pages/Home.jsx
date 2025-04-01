@@ -364,7 +364,12 @@ const HomePage = () => {
                       >
                         VT
                       </div>
-                      <div className="font-weight-bold">Vu Tran</div>
+                      <div className="font-weight-bold">
+                        {sessionStorage.getItem("user") === null 
+                          ? "Nguyễn Văn A" 
+                          : sessionStorage.getItem("username")}
+                      </div>
+
                     </Dropdown.Toggle>
                     <Dropdown.Menu align="end" className="shadow rounded">
                       <Dropdown.Item
