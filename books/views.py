@@ -20,6 +20,12 @@ def getBook(request):
     serializer = BookSerializer(paginated_books, many=True)
     return paginator.get_paginated_response(serializer.data)
 
+@api_view(['GET'])
+def getRandomBook(request, bookId):
+    random_books = Book.objects.exclude(id=bookId).order_by('?')[:3]
+    serializer = BookSerializer(random_books, many=True)
+    return Response(serializer.data)
+
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def createBook(request):

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Container,
@@ -27,57 +27,98 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import "../styles/BookDetail.css";
 
-const DetailBook = () => {
+const DetailBook = ({book}) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [author, setAuthor] = useState(null)
+  const [similarBooks, setSimilarBooks] = useState([])
+  const [loadingAuthor, setLoadingAuthor] = useState(true); // State quản lý trạng thái loading
+  const [errorAuthor, setErrorAuthor] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_URL
 
-  const book = {
-    title: "Don't Make Me Think",
-    author: "Steve Krug",
-    edition: "Second Edition",
-    year: 2000,
-    rating: 5.0,
-    status: "Available",
-    stock: 5,
-    language: "English",
-    genres: ["Design", "UX", "Web Development"],
-    coverImage: "book.jpg",
-    description:
-      "Steve Krug is a usability consultant with over 30 years of experience working with companies like Apple, Netscape, AOL, Lexus, and others. He is the author of the famous book 'Don't Make Me Think', which is considered a classic in the field of user experience design. This book helps you understand how users really use websites and applications, while providing simple but effective design principles.",
-    previewContent: `Chapter 1: Don't Make Me Think
+  useEffect(() => {
+    const fetchAuthor = async () => {
+        setAuthor();
+        try {
+          const response = await fetch(`${BASE_URL}/authors/api/${book.author.id}`); 
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();           
+          setAuthor(data);
+        } catch (error) {
+          setErrorAuthor("Không thể tải tác giả. Vui lòng thử lại sau.");
+        } finally {
+          setLoadingAuthor(false); 
+        }
+    }
 
-A usability test is essentially a reality check. When you watch users try to use something you've designed (whether it's a website, a mobile app, or a toaster), you quickly realize that what you thought was perfectly clear often isn't clear at all.
+    const fetchSimilarBook = async () => {
+      setSimilarBooks([]);
+      try {
+        const response = await fetch(`${BASE_URL}/books/api/random/${book.id}`); 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json(); 
+        
+        setSimilarBooks(data);
+      } catch (error) {
+        console.log("Không thể tải sách tương tự");
+        
+      }
+    }
+    
+    fetchAuthor();
+    fetchSimilarBook();
+  }, []);
+//   const book = {
+//     title: "Don't Make Me Think",
+//     author: "Steve Krug",
+//     edition: "Second Edition",
+//     year: 2000,
+//     rating: 5.0,
+//     status: "Available",
+//     stock: 5,
+//     language: "English",
+//     genres: ["Design", "UX", "Web Development"],
+//     coverImage: "book.jpg",
+//     description:
+//       "Steve Krug is a usability consultant with over 30 years of experience working with companies like Apple, Netscape, AOL, Lexus, and others. He is the author of the famous book 'Don't Make Me Think', which is considered a classic in the field of user experience design. This book helps you understand how users really use websites and applications, while providing simple but effective design principles.",
+//     previewContent: `Chapter 1: Don't Make Me Think
 
-The first law of usability: Don't make me think!
+// A usability test is essentially a reality check. When you watch users try to use something you've designed (whether it's a website, a mobile app, or a toaster), you quickly realize that what you thought was perfectly clear often isn't clear at all.
 
-This means that as far as humanly possible, when I look at a web page it should be self-evident. Obvious. Self-explanatory. I should be able to "get it" - what it is and how to use it - without expending any effort thinking about it.
+// The first law of usability: Don't make me think!
 
-Chapter 2: How We Really Use the Web
+// This means that as far as humanly possible, when I look at a web page it should be self-evident. Obvious. Self-explanatory. I should be able to "get it" - what it is and how to use it - without expending any effort thinking about it.
 
-Facts of life:
-1. We don't read pages. We scan them.
-2. We don't make optimal choices. We satisfice.
-3. We don't figure out how things work. We muddle through.
+// Chapter 2: How We Really Use the Web
 
-Understanding these facts will help you design better websites that match how people actually use the web.`,
-    similarBooks: [
-      {
-        title: "The Design of Everyday Things",
-        author: "Don Norman",
-        cover: "book.jpg",
-      },
-      {
-        title: "Don't Make Me Think Revisited",
-        author: "Steve Krug",
-        cover: "book.jpg",
-      },
-      {
-        title: "Lean UX",
-        author: "Jeff Gothelf",
-        cover: "book.jpg",
-      },
-    ],
-  };
+// Facts of life:
+// 1. We don't read pages. We scan them.
+// 2. We don't make optimal choices. We satisfice.
+// 3. We don't figure out how things work. We muddle through.
+
+// Understanding these facts will help you design better websites that match how people actually use the web.`,
+//     similarBooks: [
+//       {
+//         title: "The Design of Everyday Things",
+//         author: "Don Norman",
+//         cover: "book.jpg",
+//       },
+//       {
+//         title: "Don't Make Me Think Revisited",
+//         author: "Steve Krug",
+//         cover: "book.jpg",
+//       },
+//       {
+//         title: "Lean UX",
+//         author: "Jeff Gothelf",
+//         cover: "book.jpg",
+//       },
+//     ],
+//   };
 
   const renderRatingStars = (rating) => {
     const stars = [];
@@ -127,7 +168,7 @@ Understanding these facts will help you design better websites that match how pe
           <Modal.Title>Preview: {book.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div style={{ whiteSpace: "pre-line" }}>{book.previewContent}</div>
+          <div style={{ whiteSpace: "pre-line" }}>{book.preview}</div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowPreview(false)}>
@@ -145,7 +186,7 @@ Understanding these facts will help you design better websites that match how pe
                 {/* Book Cover */}
                 <Col md={4} className="mb-4 mb-md-0">
                   <Image
-                    src={book.coverImage}
+                    src={book.image.slice(16)}
                     alt={book.title}
                     fluid
                     className="shadow-sm rounded"
@@ -168,7 +209,7 @@ Understanding these facts will help you design better websites that match how pe
                     <div>
                       <h1 className="h3 mb-2">{book.title}</h1>
                       <h2 className="h5 text-muted mb-3">
-                        by {book.author} • {book.edition} ({book.year})
+                        by {book.author.name} ({book.publication_date})
                       </h2>
                     </div>
                     <Button
@@ -194,14 +235,14 @@ Understanding these facts will help you design better websites that match how pe
                   </div>
 
                   <div className="d-flex flex-wrap gap-2 mb-3">
-                    {book.genres.map((genre, index) => (
+                    {book.category.map((obj, index) => (
                       <Badge
                         key={index}
                         bg="light"
                         text="dark"
                         className="fw-normal"
                       >
-                        {genre}
+                        {obj.name}
                       </Badge>
                     ))}
                   </div>
@@ -212,14 +253,15 @@ Understanding these facts will help you design better websites that match how pe
                   >
                     <div className="me-3">
                       <Badge bg="success" className="me-2">
-                        {book.status}
+                        {/* {book.status} */}
+                        Còn sách
                       </Badge>
                       <span className="text-muted small">
-                        ({book.stock} in stock)
+                        ({book.avaliable} trong kho)
                       </span>
                     </div>
                     <ProgressBar
-                      now={(book.stock / 10) * 100}
+                      now={(book.avaliable / book.quantity) * 100}
                       variant="success"
                       className="flex-grow-1"
                       style={{ height: "8px" }}
@@ -253,22 +295,30 @@ Understanding these facts will help you design better websites that match how pe
         <Col lg={4}>
           {/* Author Info */}
           <Card className="mb-4">
-            <Card.Header as="h5">About the Author</Card.Header>
+            <Card.Header as="h5">Về tác giả</Card.Header>
             <Card.Body>
               <div className="d-flex mb-3">
                 <Image
-                  src="https://via.placeholder.com/80"
+                  src={author?.avatar ? author.avatar.slice(16) : "icon.png"}
                   roundedCircle
                   width={80}
                   height={80}
                   className="me-3"
                 />
-                <div>
-                  <h5 className="mb-1">{book.author}</h5>
-                  <p className="text-muted small">UX Designer & Consultant</p>
-                </div>
+                {loadingAuthor ? (
+                    <p>Đang tải...</p>
+                  ) : errorAuthor ? (
+                        <p>{errorAuthor}</p>
+                      ) : (
+                        <div>
+                          <h5 className="mb-1">{author.name}</h5>
+                          <p className="text-muted small">{author.jobs}</p>
+                        </div>
+                        
+                      )
+                }
               </div>
-              <p>{book.authorBio}</p>
+              <p>{author?.biography ? author.biography : ""}</p>
               <Button variant="outline-primary" size="sm">
                 View all books by this author
               </Button>
@@ -277,21 +327,21 @@ Understanding these facts will help you design better websites that match how pe
 
           {/* Similar Books */}
           <Card>
-            <Card.Header as="h5">You May Also Like</Card.Header>
+            <Card.Header as="h5">Bạn cũng có thể thích</Card.Header>
             <Card.Body>
               <ListGroup variant="flush">
-                {book.similarBooks.map((similarBook, index) => (
+                {similarBooks.map((obj, index) => (
                   <ListGroup.Item key={index} className="border-0">
                     <div className="d-flex">
                       <Image
-                        src={similarBook.cover}
+                        src={obj.image.slice(16)}
                         width={60}
                         className="me-3 shadow-sm"
                       />
                       <div>
-                        <h6 className="mb-1">{similarBook.title}</h6>
+                        <h6 className="mb-1">{obj.title}</h6>
                         <p className="small text-muted mb-0">
-                          by {similarBook.author}
+                          by {obj.author.name}
                         </p>
                         <div className="small text-warning">
                           {renderRatingStars(4.5)}
