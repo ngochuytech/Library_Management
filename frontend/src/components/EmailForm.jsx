@@ -1,11 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Form, Button, Card } from "react-bootstrap"
+import { Form, Button, Card, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
+import api from "../services/api"
 
 const EmailForm = ({ onSubmit }) => {
   const [email, setEmail] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [devOtp, setDevOtp] = useState("") // For development only
   const navigate = useNavigate()
 
   const handleLoginClick = (e) => {
@@ -13,9 +17,24 @@ const EmailForm = ({ onSubmit }) => {
     navigate("/login")
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    onSubmit(email)
+    try {
+      setIsLoading(true)
+      setError("")
+      const response = await api.requestPasswordReset(email)
+      setIsLoading(false)
+
+      // DEVELOPMENT ONLY: Display the OTP that was returned from the API
+      if (response.otp) {
+        setDevOtp(response.otp)
+      }
+
+      onSubmit(email)
+    } catch (err) {
+      setIsLoading(false)
+      setError(err.error || "Không thể gửi mã xác nhận. Vui lòng thử lại.")
+    }
   }
 
   return (
@@ -37,6 +56,13 @@ const EmailForm = ({ onSubmit }) => {
           <p style={{ fontSize: "14px", color: "#888" }}>Nhập email để nhận mã xác nhận</p>
         </div>
 
+        {/* DEVELOPMENT ONLY: Display the OTP */}
+        {devOtp && (
+          <Alert variant="info" className="mb-3">
+            <strong>Development OTP:</strong> {devOtp}
+          </Alert>
+        )}
+
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-4" controlId="formBasicEmail">
             <Form.Label style={{ fontWeight: "500", fontSize: "14px" }}>Email</Form.Label>
@@ -52,6 +78,11 @@ const EmailForm = ({ onSubmit }) => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {error && (
+              <div className="text-danger mt-1" style={{ fontSize: "12px" }}>
+                {error}
+              </div>
+            )}
           </Form.Group>
 
           <Button
@@ -64,8 +95,9 @@ const EmailForm = ({ onSubmit }) => {
               padding: "10px",
               fontWeight: "500",
             }}
+            disabled={isLoading}
           >
-            Gửi mã xác nhận
+            {isLoading ? "Đang gửi..." : "Gửi mã xác nhận"}
           </Button>
         </Form>
 

@@ -1,0 +1,192 @@
+Watching for file changes with StatReloader
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\LibraryManagement\settings.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /users/forgot-password HTTP/1.1" 200 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+"OPTIONS /forgot-password HTTP/1.1" 200 0
+Not Found: /forgot-password
+"POST /forgot-password HTTP/1.1" 404 3539
+Not Found: /forgot-password
+"POST /forgot-password HTTP/1.1" 404 3539
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Not Found: /forgot-password
+"POST /forgot-password HTTP/1.1" 404 3539
+"OPTIONS /forgot-password/ HTTP/1.1" 200 0
+Not Found: /forgot-password/
+"POST /forgot-password/ HTTP/1.1" 404 3542
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /users/forgot-password
+Traceback (most recent call last):
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\utils\deprecation.py", line 131, in __call__
+    response = self.process_response(request, response)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/users/forgot-password/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+"POST /users/forgot-password HTTP/1.1" 500 72982
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /users/forgot-password HTTP/1.1" 200 57
+Internal Server Error: /users/verify-otp
+Traceback (most recent call last):
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py", line 102, in post
+    stored_data = request.session.get(f'password_reset_otp_{email}')
+                                                            ^^^^^
+NameError: name 'email' is not defined. Did you mean: 'eval'? Or did you forget to import 'email'?
+"POST /users/verify-otp HTTP/1.1" 500 95055
+"POST /users/forgot-password HTTP/1.1" 200 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Internal Server Error: /users/verify-otp
+Traceback (most recent call last):
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py", line 102, in post
+    stored_data = request.session.get(f'password_reset_otp_{email}')
+                                                            ^^^^^
+NameError: name 'email' is not defined. Did you mean: 'eval'? Or did you forget to import 'email'?
+"POST /users/verify-otp HTTP/1.1" 500 95035
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+Watching for file changes with StatReloader
+Not Found: /
+"GET /?ide_webview_request_time=1743439435268 HTTP/1.1" 404 3514
+"OPTIONS /users/forgot-password HTTP/1.1" 200 0
+"POST /users/forgot-password HTTP/1.1" 200 57
+"OPTIONS /users/verify-otp HTTP/1.1" 200 0
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\users\views.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+"OPTIONS /users/forgot-password HTTP/1.1" 200 0
+"POST /users/forgot-password HTTP/1.1" 200 57
+Bad Request: /users/verify-otp
+"POST /users/verify-otp HTTP/1.1" 400 57
+D:\Nam3Ki2\Python\qltv\Vu2\temp-repo\LibraryManagement\settings.py changed, reloading.

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import pymysql
+from dotenv import load_dotenv
 pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,11 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-sce%b2tpi3baphuv6f&8p0oh9=33q7(9of28nt@x9@-8uv%g9('
-
+ALLOWED_HOSTS = ['*']
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+
 
 
 # Application definition
@@ -163,5 +164,13 @@ MEDIA_URL = '/frontend/public/image/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+load_dotenv()
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Giữ nguyên
+EMAIL_PORT = 587  # Giữ nguyên
+EMAIL_USE_TLS = True  # Giữ nguyên
+EMAIL_HOST_USER = 'tranminhvu101204@gmail.com'  # Đổi thành email Gmail của bạn
+EMAIL_HOST_PASSWORD = 'phdh ioes ovrc jurq'
+DEFAULT_FROM_EMAIL = 'tranminhvu101204@gmail.com'  # Cùng email với EMAIL_HOST_USER

@@ -1,69 +1,74 @@
-"use client"
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api'; // Import your api instance
 
-import { useState } from "react"
-import Background from "../components/Background"
-import EmailForm from "../components/EmailForm"
-import OtpForm from "../components/OtpForm"
-import ResetPasswordForm from "../components/ResetPasswordForm"
-import SuccessForm from "../components/SuccessForm"
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-function ForgotPassword() {
-  const [step, setStep] = useState(1)
-  const [email, setEmail] = useState("")
-
-  const handleEmailSubmit = (submittedEmail) => {
-    setEmail(submittedEmail)
-    setStep(2)
-  }
-
-  const handleOtpSubmit = () => {
-    // After OTP verification, go to password reset step
-    setStep(3)
-  }
-
-  const handlePasswordReset = (newPassword) => {
-    // Here you would typically call an API to update the password
-    console.log(`Password reset for ${email} with new password`)
-
-    // Move to success step
-    setStep(4)
-  }
-
-  const handleLoginClick = () => {
-    // Navigate to login page
-    window.location.href = "/login"
-  }
-
-  const handleResendOtp = () => {
-    // Logic to resend OTP
-    alert(`OTP đã được gửi lại đến ${email}`)
-  }
-
-  const handleGoBack = () => {
-    setStep(step - 1)
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    setMessage('');
+    
+    try {
+      // Use your API instance directly
+      const response = await api.post('/users/forgot-password/', { email });
+      
+      if (response.data.status === 'success') {
+        setMessage(response.data.message);
+        // Store email for next steps
+        sessionStorage.setItem('resetEmail', email);
+        // Navigate to OTP verification
+        navigate('/otp-verification');
+      } else {
+        setError(response.data.message || 'An error occurred');
+      }
+    } catch (err) {
+      setError('Failed to send reset email. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <Background>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          padding: "20px",
-        }}
-      >
-        {step === 1 && <EmailForm onSubmit={handleEmailSubmit} />}
-        {step === 2 && (
-          <OtpForm onSubmit={handleOtpSubmit} onResend={handleResendOtp} onGoBack={handleGoBack} email={email} />
-        )}
-        {step === 3 && <ResetPasswordForm onSubmit={handlePasswordReset} />}
-        {step === 4 && <SuccessForm onLoginClick={handleLoginClick} message="Mật khẩu đã được đặt lại thành công" />}
+    <div className="forgot-password-container">
+      <h2>Forgot Password</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      {message && <div className="success-message">{message}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        
+        <button 
+          type="submit" 
+          className="submit-button"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Sending...' : 'Send Reset OTP'}
+        </button>
+      </form>
+      
+      <div className="auth-links">
+        <a href="/login">Return to Login</a>
       </div>
-    </Background>
-  )
-}
+    </div>
+  );
+};
 
-export default ForgotPassword
-
+export default ForgotPassword;
