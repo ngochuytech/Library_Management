@@ -30,6 +30,7 @@ urlpatterns = [
     path('books/', include("books.urls")),
     path('borrows/', include("borrows.urls")),
     path('notifications/', include("notifications.urls")),
+    path('authors/', include("authors.urls")),
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

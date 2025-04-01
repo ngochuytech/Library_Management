@@ -4,7 +4,10 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Welcome from "./pages/Welcome";
-import ForgotPassword from "./pages/ForgotPassword";
+import ForgotPassword from './pages/ForgotPassword';
+import OtpForm from './components/OtpForm';
+import ResetPasswordForm from './pages/ResetPasswordForm';
+import SuccessForm from './components/SuccessForm';
 // import BookDetail from "./components/BookDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -33,8 +36,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/register" element={<RegisterAndLogout />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/guest" element={<Welcome isGuest={true} />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/otp-verification" element={<OtpForm />} />
+        <Route path="/reset-password" element={<ResetPasswordForm />} />
+        <Route path="/reset-success" element={<SuccessForm />} />
         <Route path="*" element={<NotFound />} />
         {/* Cập nhật với "element" thay vì "component"
         <Route path="/book" element={<BookDetail />} /> */}

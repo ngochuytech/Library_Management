@@ -41,6 +41,9 @@ const HomePage = () => {
   const [recommendedBooks, setRecommendedBooks] = useState([]); // State cho sách đề xuất từ API
   const [loadingRecommended, setLoadingRecommended] = useState(true); // State quản lý trạng thái loading
   const [errorRecommended, setErrorRecommended] = useState(null); // State quản lý lỗi
+
+  const [recentlyBooks, setRecentlyBooks] = useState([])
+
   const BASE_URL = import.meta.env.VITE_API_URL
 
   useEffect(() => {
@@ -55,7 +58,8 @@ const HomePage = () => {
         }
         const data = await response.json();
         
-        setRecommendedBooks(data.results);
+        setRecommendedBooks(data.results);  
+              
       } catch (error) {
         console.error("Failed to fetch recommended books:", error);
         setErrorRecommended("Không thể tải sách đề xuất. Vui lòng thử lại sau.");
@@ -64,40 +68,58 @@ const HomePage = () => {
       }
     };
 
-    fetchRecommendedBooks(); // Gọi hàm fetch khi component mount
-  }, []); // Mảng rỗng đảm bảo useEffect chỉ chạy 1 lần sau khi mount
+    const fetchRecentlyBooks = async() => {
+      setRecentlyBooks([]);
+      try {
+
+        const response = await fetch(`${BASE_URL}/books/api?page=2`); 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        setRecentlyBooks(data.results);  
+              
+      } catch (error) {
+        console.error("Failed to fetch recently books:", error);
+      }
+    }
+
+    fetchRecommendedBooks();
+    fetchRecentlyBooks();
+  }, []); 
 
   // Thêm mảng sách đã đọc gần đây
-  const recentlyViewedBooks = [
-    {
-      title: "The Road to React",
-      author: "Steve Krug",
-      year: "2020",
-      image: "/book.jpg",
-      rating: 4.5,
-    },
-    {
-      title: "Lean UX : Design Great Products",
-      author: "Jeff Gothelf",
-      year: "2016",
-      image: "/book.jpg",
-      rating: 4.5,
-    },
-    {
-      title: "Harry Potter and The Chamber of Secrets",
-      author: "J.K. Rowling",
-      year: "2002",
-      image: "/book.jpg",
-      rating: 4.9,
-    },
-    {
-      title: "Sprint : How to solve big problems",
-      author: "Jake Knapp",
-      year: "2000",
-      image: "/book.jpg",
-      rating: 4.5,
-    },
-  ];
+  // const recentlyViewedBooks = [
+  //   {
+  //     title: "The Road to React",
+  //     author: "Steve Krug",
+  //     year: "2020",
+  //     image: "/book.jpg",
+  //     rating: 4.5,
+  //   },
+  //   {
+  //     title: "Lean UX : Design Great Products",
+  //     author: "Jeff Gothelf",
+  //     year: "2016",
+  //     image: "/book.jpg",
+  //     rating: 4.5,
+  //   },
+  //   {
+  //     title: "Harry Potter and The Chamber of Secrets",
+  //     author: "J.K. Rowling",
+  //     year: "2002",
+  //     image: "/book.jpg",
+  //     rating: 4.9,
+  //   },
+  //   {
+  //     title: "Sprint : How to solve big problems",
+  //     author: "Jake Knapp",
+  //     year: "2000",
+  //     image: "/book.jpg",
+  //     rating: 4.5,
+  //   },
+  // ];
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
@@ -129,7 +151,7 @@ const HomePage = () => {
                   {book.title}
                 </Card.Title>
                 <Card.Text className="text-muted small">
-                  {book.author}, {book.year}
+                  {book.author?.name}
                 </Card.Text>
                 <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-warning small">
                   <FontAwesomeIcon icon={faStar} className="fs-6" />
@@ -177,7 +199,7 @@ const HomePage = () => {
             <h3 className="section-heading mt-4">Mới đọc</h3>
             <BookSection
               title="Mới đọc"
-              books={recentlyViewedBooks}
+              books={recentlyBooks}
               onBookClick={handleBookClick}
             />
           </>

@@ -13,18 +13,18 @@ class suggestBookPagination(PageNumberPagination):
 @api_view(['GET'])
 def getBook(request):
     title = request.GET.get('title', '')
-    author = request.GET.get('author', '')
-    category = request.GET.get('category', '')
     books = Book.objects.filter(title__icontains=title)
-    books = books.filter(author__icontains=author)
-    if category:
-        books = books.filter(category__name__iexact=category)
-    
     # Áp dụng phân trang
     paginator = suggestBookPagination()
     paginated_books = paginator.paginate_queryset(books, request)
     serializer = BookSerializer(paginated_books, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+@api_view(['GET'])
+def getRandomBook(request, bookId):
+    random_books = Book.objects.exclude(id=bookId).order_by('?')[:3]
+    serializer = BookSerializer(random_books, many=True)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
