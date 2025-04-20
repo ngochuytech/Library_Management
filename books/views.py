@@ -12,8 +12,17 @@ class suggestBookPagination(PageNumberPagination):
 # Create your views here.
 @api_view(['GET'])
 def getBook(request):
-    title = request.GET.get('title', '')
-    books = Book.objects.filter(title__icontains=title)
+    query = request.GET.get('query', '')
+    type = request.GET.get('type', '')
+    if(type=='title'):
+        books = Book.objects.filter(title__icontains=query)
+    elif(type=='author'):
+        books = Book.objects.filter(author__name__icontains=query)
+    elif(type=='category'):
+        books = Book.objects.filter(category__name__icontains=query)
+    else:
+        books = Book.objects.all()
+    
     # Áp dụng phân trang
     paginator = suggestBookPagination()
     paginated_books = paginator.paginate_queryset(books, request)

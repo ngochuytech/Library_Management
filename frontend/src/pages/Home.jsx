@@ -22,25 +22,29 @@ import {
 
 import "../styles/Home.css"; // Đường dẫn đến Home.css
 
-import Sidebar from "../components/SideBar.jsx"; // Đường dẫn đến Sidebar.jsx
-import Quote from "../components/Quote.jsx"; // Đường dẫn đến Quote.jsx
-import SearchTab from "../components/SearchTab.jsx"; // Đường dẫn đến SearchTab.jsx
-import BookDetail from "../components/BookDetail.jsx"; // Đường dẫn đến BookDetail.jsx
-import MyBookshelf from "../components/MyBookshelf.jsx"; // Import thêm component này
-import Contributions from "../components/Contributions.jsx"; // Import thêm component này
-import Account from "../components/Account.jsx"; // Đường dẫn đến Account.jsx
-import Liked from "../components/Liked.jsx"; // Đường dẫn đến Liked.jsx
-import History from "../components/History.jsx"; // Đường dẫn đến History.jsx
+import Sidebar from "../components/SideBar.jsx"; 
+import Quote from "../components/Quote.jsx"; 
+import SearchTab from "../components/SearchTab.jsx"; 
+import BookDetail from "../components/BookDetail.jsx"; 
+import MyBookshelf from "../components/MyBookshelf.jsx"; 
+import Contributions from "../components/Contributions.jsx";
+import Account from "../components/Account.jsx";
+import Liked from "../components/Liked.jsx"; 
+import History from "../components/History.jsx"; 
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [activeView, setActiveView] = useState("home"); // Thêm state này để quản lý view
+  const [activeView, setActiveView] = useState("home"); 
   const [selectedBook, setSelectedBook] = useState(null);
 
-  const [recommendedBooks, setRecommendedBooks] = useState([]); // State cho sách đề xuất từ API
-  const [loadingRecommended, setLoadingRecommended] = useState(true); // State quản lý trạng thái loading
-  const [errorRecommended, setErrorRecommended] = useState(null); // State quản lý lỗi
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchType, setSearchType] = useState("title");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchResult, setSearchResult] = useState([]);
+  const [totalPages, setTotalPages] = useState();
+
+  const [recommendedBooks, setRecommendedBooks] = useState([]); 
 
   const [recentlyBooks, setRecentlyBooks] = useState([])
 
@@ -48,8 +52,6 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchRecommendedBooks = async () => {
-      setLoadingRecommended(true); // Bắt đầu loading
-      setErrorRecommended(null); // Reset lỗi
       try {
 
         const response = await fetch(`${BASE_URL}/books/api`); 
@@ -62,9 +64,6 @@ const HomePage = () => {
               
       } catch (error) {
         console.error("Failed to fetch recommended books:", error);
-        setErrorRecommended("Không thể tải sách đề xuất. Vui lòng thử lại sau.");
-      } finally {
-        setLoadingRecommended(false); 
       }
     };
 
@@ -87,39 +86,48 @@ const HomePage = () => {
 
     fetchRecommendedBooks();
     fetchRecentlyBooks();
-  }, []); 
+  }, []);
 
-  // Thêm mảng sách đã đọc gần đây
-  // const recentlyViewedBooks = [
-  //   {
-  //     title: "The Road to React",
-  //     author: "Steve Krug",
-  //     year: "2020",
-  //     image: "/book.jpg",
-  //     rating: 4.5,
-  //   },
-  //   {
-  //     title: "Lean UX : Design Great Products",
-  //     author: "Jeff Gothelf",
-  //     year: "2016",
-  //     image: "/book.jpg",
-  //     rating: 4.5,
-  //   },
-  //   {
-  //     title: "Harry Potter and The Chamber of Secrets",
-  //     author: "J.K. Rowling",
-  //     year: "2002",
-  //     image: "/book.jpg",
-  //     rating: 4.9,
-  //   },
-  //   {
-  //     title: "Sprint : How to solve big problems",
-  //     author: "Jake Knapp",
-  //     year: "2000",
-  //     image: "/book.jpg",
-  //     rating: 4.5,
-  //   },
-  // ];
+  useEffect(() => {
+    if(activeView=='search' && searchQuery.trim() == '')
+      fetchAllBook(currentPage);
+    else
+      fetchSearchResults(currentPage);
+  }, [activeView, searchQuery, searchType, currentPage])
+
+  const fetchSearchResults = async (page) =>{
+    try {
+      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setSearchResult(data.results);
+      setTotalPages(Math.ceil(data.count / 6));
+
+    } catch (error) {
+      console.error("Failed to fetch search books:", error);
+    }
+  }
+
+  const fetchAllBook = async (page) =>{
+    try {
+      const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setSearchResult(data.results);
+      setTotalPages(Math.ceil(data.count / 6));
+
+    } catch (error) {
+      console.error("Failed to fetch all books:", error);
+    }
+  }
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
@@ -165,11 +173,25 @@ const HomePage = () => {
     </div>
   );
 
+  const handleSearch = async (e) => {
+      e.preventDefault();
+      setCurrentPage(1); 
+      setActiveView("search");
+  };
+
   // Render nội dung dựa trên activeView giống file 2
   const renderContent = () => {
     switch (activeView) {
       case "search":
-        return <SearchTab handleBookClick={handleBookClick} />;
+        return (
+          <SearchTab
+            searchResult={searchResult}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            handleBookClick={handleBookClick}
+          />
+        );
       case "bookshelf":
         return <MyBookshelf books={recommendedBooks} />;
       case "contributions":
@@ -177,11 +199,11 @@ const HomePage = () => {
       case "bookDetail":
         return selectedBook ? <BookDetail book={selectedBook} /> : null;
       case "account":
-        return <Account />; // Hiển thị component Account
+        return <Account />;
       case "liked":
-        return <Liked />; // Hiển thị component Liked
+        return <Liked />;
       case "History":
-        return <History />; // Hiển thị component Liked
+        return <History />;
       case "home":
       default:
         return (
@@ -251,32 +273,35 @@ const HomePage = () => {
                 <div className="d-flex search-area">
                   <Dropdown className="me-2">
                     <Dropdown.Toggle variant="light" className="rounded-pill">
-                      Tất cả <FontAwesomeIcon icon={faChevronDown} size="xs" />
+                      {
+                        searchType === "title" ? "Tựa đề" : 
+                        searchType === "author" ? "Tác giả" : 
+                        "Thể loại"
+                      }
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                      <Dropdown.Item>Tất cả</Dropdown.Item>
-                      <Dropdown.Item>Tựa đề</Dropdown.Item>
-                      <Dropdown.Item>Tác giả</Dropdown.Item>
-                      <Dropdown.Item>Thể loại</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("title")}>Tựa đề</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("author")}>Tác giả</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("category")}>Thể loại</Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
 
                   <Form
                     className="d-flex position-relative"
                     style={{ width: "400px" }}
+                    onSubmit={handleSearch}
                   >
                     <FormControl
                       type="text"
                       placeholder="Tìm kiếm"
                       className="rounded-pill"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <Button
+                      type="submit"
                       className="position-absolute end-0 rounded-pill"
-                      style={{
-                        backgroundColor: "transparent",
-                        border: "none",
-                        color: "#333",
-                      }}
+                      style={{ backgroundColor: "transparent", border: "none", color: "#333" }}
                     >
                       <FontAwesomeIcon icon={faSearch} />
                     </Button>
