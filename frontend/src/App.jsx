@@ -11,6 +11,7 @@ import SuccessForm from "./components/SuccessForm";
 import AdminHome from "./pages/AdminHome";
 import BorrowDetail from "./pages/BorrowDetail";
 import AdminBookDetail from "./pages/AdminBookDetail";
+import AdminUsersDetail from "./pages/AdminUsersDetail";
 // import BookDetail from "./components/BookDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -50,6 +51,7 @@ function App() {
         {/* Admin */}
         <Route path="/borrowDetail/:borrowId" element={<BorrowDetail />} />
         <Route path="/admin/books/:id" element={<AdminBookDetail />} />
+        <Route path="/admin/users/:id" element={<AdminUsersDetail />} />
       </Routes>
     </BrowserRouter>
   );
