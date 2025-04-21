@@ -12,80 +12,7 @@ import {
 import { faStar, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const SearchTab = ({ handleBookClick }) => {
-  const [searchBooks, setsearchBooks] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalBooks, setTotalBooks] = useState(0);
-
-  const BASE_URL = import.meta.env.VITE_API_URL
-
-  const fetchSearchBooks = async (page = 1) => {
-    try {
-      const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-
-      setsearchBooks(data.results); 
-      setTotalBooks(data.count); 
-      setTotalPages(Math.ceil(data.count / 6));  
-    } catch (error) {
-      console.error("Failed to fetch search books:", error);
-    }
-  };
-
-  useEffect(() => {
-      fetchSearchBooks(currentPage);
-  }, [currentPage]); 
-  // const books = [
-  //   {
-  //     id: 1,
-  //     title: "Don't Make Me Think",
-  //     author: "Steve Krug",
-  //     year: "2000",
-  //     rating: 4.5,
-  //     reviews: 128,
-  //     category: "Computer Science",
-  //     status: "Available",
-  //     stock: 5,
-  //     location: "CS A-15",
-  //     image: "/book.jpg",
-  //     description: "A classic book about web usability and user experience.",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "The Design of Everyday Things",
-  //     author: "Don Norman",
-  //     year: "1988",
-  //     rating: 4.7,
-  //     reviews: 256,
-  //     category: "Design",
-  //     status: "Out of stock",
-  //     stock: 0,
-  //     location: "DS B-22",
-  //     image: "/book.jpg",
-  //     description: "Fundamentals of design and human-centered interaction.",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Rich Dad Poor Dad",
-  //     author: "Robert T. Kiyosaki",
-  //     year: "1997",
-  //     rating: 4.3,
-  //     reviews: 342,
-  //     category: "Financial MGMT",
-  //     status: "Available",
-  //     stock: 3,
-  //     location: "FM C-10",
-  //     image: "/book.jpg",
-  //     description: "Personal finance lessons through childhood stories.",
-  //   },
-  // ];
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handleBookClick, }) => {
 
   const renderRatingStars = (rating) => {
     return [...Array(5)].map((_, i) => (
@@ -201,7 +128,7 @@ const SearchTab = ({ handleBookClick }) => {
             </tr>
           </thead>
           <tbody>
-            {searchBooks.map((book) => (
+            {searchResult.map((book) => (
               <tr
                 key={book.id}
                 style={{
@@ -424,15 +351,15 @@ const SearchTab = ({ handleBookClick }) => {
       {/* Pagination */}
       <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
         <Pagination>
-          <Pagination.First onClick={() => handlePageChange(1)} />
-          <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+          <Pagination.First onClick={() => onPageChange(1)} />
+          <Pagination.Prev onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} />
           {[...Array(totalPages)].map((_, index) => (
-            <Pagination.Item key={index + 1} active={currentPage === index + 1} onClick={() => handlePageChange(index + 1)}>
+            <Pagination.Item key={index + 1} active={currentPage === index + 1} onClick={() => onPageChange(index + 1)}>
               {index + 1}
             </Pagination.Item>
           ))}
-          <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-          <Pagination.Last onClick={() => handlePageChange(totalPages)} />
+          <Pagination.Next onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          <Pagination.Last onClick={() => onPageChange(totalPages)} />
         </Pagination>
       </div>
     </Container>
