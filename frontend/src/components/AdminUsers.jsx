@@ -143,19 +143,6 @@ const AdminUsers = () => {
     }
   };
 
-  // Mở modal thêm người dùng
-  const handleAddUser = () => {
-    setModalTitle("Thêm người dùng mới");
-    setCurrentUser(null);
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      avatar: null,
-    });
-    setShowModal(true);
-  };
-
   // Mở modal sửa người dùng
   const handleEditUser = (user) => {
     setModalTitle("Chỉnh sửa người dùng");
@@ -198,19 +185,6 @@ const AdminUsers = () => {
           user.id === currentUser.id ? { ...user, ...formData } : user
         )
       );
-    } else {
-      // Thêm người dùng mới
-      const newUser = {
-        id: users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1,
-        ...formData,
-        // role: "User", // <- Đã xóa
-        status: "Active", // Mặc định
-      };
-      // Xử lý avatar nếu là file object
-      if (formData.avatar instanceof File) {
-        newUser.avatar = URL.createObjectURL(formData.avatar); // Tạo URL tạm để hiển thị, API thực tế sẽ xử lý upload
-      }
-      setUsers([...users, newUser]);
     }
     setShowModal(false);
     setCurrentUser(null); // Reset currentUser
@@ -262,12 +236,6 @@ const AdminUsers = () => {
                     />
                     Quản lý người dùng
                   </h4>
-                </Col>
-                <Col md={6} className="text-end">
-                  <Button variant="primary" onClick={handleAddUser}>
-                    <FontAwesomeIcon icon={faPlus} className="me-2" />
-                    Thêm người dùng
-                  </Button>
                 </Col>
               </Row>
             </Card.Header>
