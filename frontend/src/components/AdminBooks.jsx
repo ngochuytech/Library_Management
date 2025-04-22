@@ -26,6 +26,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const AdminBooks = () => {
   const navigate = useNavigate();
 
@@ -53,71 +55,32 @@ const AdminBooks = () => {
   // State tìm kiếm và phân trang
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const booksPerPage = 10;
+  const [totalPages, setTotalPages] = useState(1);
 
   // State xác nhận xóa
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
 
-  // Fetch dữ liệu sách (giả lập)
+  // Fetch dữ liệu sách từ API
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        // Giả lập API call
-        setTimeout(() => {
-          const mockBooks = [
-            {
-              id: 1,
-              title: "Don't Make Me Think",
-              author: "Steve Krug",
-              category: "Design",
-              quantity: 10,
-              available: 8,
-              description: "A classic book about web usability",
-              image: "/book.jpg",
-            },
-            {
-              id: 2,
-              title: "The Design of Everyday Things",
-              author: "Don Norman",
-              category: "Design",
-              quantity: 5,
-              available: 3,
-              description: "Fundamentals of design psychology",
-              image: "/book.jpg",
-            },
-            {
-              id: 3,
-              title: "Clean Code",
-              author: "Robert C. Martin",
-              category: "Programming",
-              quantity: 7,
-              available: 5,
-              description: "How to write maintainable code",
-              image: "/book.jpg",
-            },
-            {
-              id: 4,
-              title: "Atomic Habits",
-              author: "James Clear",
-              category: "Self-help",
-              quantity: 12,
-              available: 10,
-              description: "Building good habits and breaking bad ones",
-              image: "/book.jpg",
-            },
-          ];
-          setBooks(mockBooks);
-          setLoading(false);
-        }, 1000);
+        const response = await fetch(`${BASE_URL}/books/api`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch books");
+        }
+        const data = await response.json();
+        setBooks(data.results);
+        setTotalPages(data.total_pages);
       } catch (err) {
-        setError("Failed to fetch books");
+        setError("Failed to load books. Please try again later.");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchBooks();
-  }, []);
+  }, [currentPage]);
 
   // Xử lý thay đổi form
   const handleInputChange = (e) => {
@@ -210,19 +173,6 @@ const AdminBooks = () => {
     setShowModal(false);
   };
 
-  // Lọc sách theo từ khóa tìm kiếm
-  const filteredBooks = books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Tính toán phân trang
-  const indexOfLastBook = currentPage * booksPerPage;
-  const indexOfFirstBook = indexOfLastBook - booksPerPage;
-  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
-  const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
-
   if (loading) {
     return (
       <Container className="my-5 text-center">
@@ -292,8 +242,8 @@ const AdminBooks = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentBooks.length > 0 ? (
-                    currentBooks.map((book) => (
+                  {books.length > 0 ? (
+                    books.map((book) => (
                       <tr key={book.id}>
                         <td>{book.id}</td>
                         <td>
@@ -305,9 +255,11 @@ const AdminBooks = () => {
                           />
                         </td>
                         <td>{book.title}</td>
-                        <td>{book.author}</td>
+                        <td>{book.author.name}</td>
                         <td>
-                          <Badge bg="info">{book.category}</Badge>
+                          <Badge bg="info">
+                            {book.category.map((cat) => cat.name).join(", ")}
+                          </Badge>
                         </td>
                         <td>{book.quantity}</td>
                         <td>{book.available}</td>
@@ -349,7 +301,7 @@ const AdminBooks = () => {
               </Table>
 
               {/* Phân trang */}
-              {filteredBooks.length > booksPerPage && (
+              {books.length > 0 && (
                 <div className="d-flex justify-content-center mt-4">
                   <Pagination>
                     <Pagination.First
@@ -357,7 +309,9 @@ const AdminBooks = () => {
                       disabled={currentPage === 1}
                     />
                     <Pagination.Prev
-                      onClick={() => setCurrentPage(currentPage - 1)}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
                       disabled={currentPage === 1}
                     />
                     {Array.from({ length: totalPages }, (_, i) => (
@@ -370,7 +324,9 @@ const AdminBooks = () => {
                       </Pagination.Item>
                     ))}
                     <Pagination.Next
-                      onClick={() => setCurrentPage(currentPage + 1)}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
                       disabled={currentPage === totalPages}
                     />
                     <Pagination.Last
@@ -555,18 +511,6 @@ const AdminBooks = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* Phân trang */}
-      <div className="d-flex justify-content-center mt-4">
-        <Pagination>
-          <Pagination.First />
-          <Pagination.Prev />
-          <Pagination.Item active>{1}</Pagination.Item>
-          <Pagination.Item>{2}</Pagination.Item>
-          <Pagination.Item>{3}</Pagination.Item>
-          <Pagination.Next />
-          <Pagination.Last />
-        </Pagination>
-      </div>
     </Container>
   );
 };
