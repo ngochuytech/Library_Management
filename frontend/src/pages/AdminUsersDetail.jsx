@@ -27,19 +27,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-// Mock data
-const mockUserDetail = {
-  id: 1,
-  name: "Nguyễn Văn A",
-  phone: "0912345678",
-  email: "nguyenvana@example.com",
-  avatar: "/avatar.jpg",
-  bio: "Là một người đọc sách đam mê, yêu thích các thể loại khoa học viễn tưởng và lịch sử. Thường xuyên tham gia các câu lạc bộ đọc sách và đóng góp ý kiến xây dựng cho thư viện.",
-  status: "Active",
-  joinDate: "15/03/2022",
-  lastActive: "2 giờ trước",
-  borrowedBooks: 12,
-};
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminUsersDetail = () => {
   const { id } = useParams();
@@ -49,17 +37,22 @@ const AdminUsersDetail = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    setTimeout(() => {
-      if (parseInt(id) === 1) {
-        setUser(mockUserDetail);
-      } else {
-        setError(`Không tìm thấy người dùng với ID: ${id}`);
+    const fetchUserDetail = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/users/detail/${id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user with ID: ${id}`);
+        }
+        const data = await response.json();
+        setUser(data);
+      } catch (err) {
+        setError(`Không thể tải thông tin người dùng với ID: ${id}`);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 500);
+    };
+
+    fetchUserDetail();
   }, [id]);
 
   const handleViewHistory = () => {

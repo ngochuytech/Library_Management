@@ -12,6 +12,7 @@ import random
 import string
 import datetime
 from django.utils.crypto import get_random_string
+from rest_framework.permissions import IsAuthenticated
 
 # Store OTPs temporarily (in production, use Redis or database)
 otp_store = {}
@@ -141,3 +142,22 @@ class ResetPasswordView(APIView):
             return Response({'message': 'Password reset successful', 'status': 'success'}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'message': 'User not found', 'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
+
+class UserListView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        try:
+            user = User.objects.get(id=id)
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)

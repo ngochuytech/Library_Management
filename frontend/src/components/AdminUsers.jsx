@@ -58,62 +58,19 @@ const AdminUsers = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  // Fetch dữ liệu người dùng (giả lập)
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
+  // Fetch dữ liệu người dùng từ API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Giả lập API call
-        setTimeout(() => {
-          const mockUsers = [
-            {
-              id: 1,
-              name: "Nguyễn Văn A",
-              phone: "0912345678",
-              email: "nguyenvana@example.com",
-              avatar: "/user1.jpg",
-              // role: "Admin", // <- Đã xóa
-              status: "Active",
-            },
-            {
-              id: 2,
-              name: "Trần Thị B",
-              phone: "0987654321",
-              email: "tranthib@example.com",
-              avatar: "/user2.jpg",
-              // role: "User", // <- Đã xóa
-              status: "Active",
-            },
-            {
-              id: 3,
-              name: "Lê Văn C",
-              phone: "0978123456",
-              email: "levanc@example.com",
-              avatar: "/user3.jpg",
-              // role: "User", // <- Đã xóa
-              status: "Inactive",
-            },
-            {
-              id: 4,
-              name: "Phạm Thị D",
-              phone: "0965432187",
-              email: "phamthid@example.com",
-              avatar: "/user4.jpg",
-              // role: "Moderator", // <- Đã xóa
-              status: "Active",
-            },
-            {
-              id: 5,
-              name: "Hoàng Văn E",
-              phone: "0932165498",
-              email: "hoangvane@example.com",
-              avatar: "/user5.jpg",
-              // role: "User", // <- Đã xóa
-              status: "Inactive",
-            },
-          ];
-          setUsers(mockUsers);
-          setLoading(false);
-        }, 1000);
+        const response = await fetch(`${BASE_URL}/users/list`); // Adjust the endpoint as needed
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const data = await response.json();
+        setUsers(data);
+        setLoading(false);
       } catch (err) {
         setError("Failed to fetch users");
         setLoading(false);
