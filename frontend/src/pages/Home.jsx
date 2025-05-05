@@ -31,6 +31,7 @@ import Contributions from "../components/Contributions.jsx";
 import Account from "../components/Account.jsx";
 import Liked from "../components/Liked.jsx"; 
 import History from "../components/History.jsx"; 
+import RecommendBooks from "../components/RecommendBooks.jsx";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -196,6 +197,8 @@ const HomePage = () => {
         return <MyBookshelf books={recommendedBooks} />;
       case "contributions":
         return <Contributions />;
+      case "RecommendBooks":
+        return <RecommendBooks />;
       case "bookDetail":
         return selectedBook ? <BookDetail book={selectedBook} /> : null;
       case "account":

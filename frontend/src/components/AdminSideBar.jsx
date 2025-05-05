@@ -60,6 +60,14 @@ const AdminSidebar = ({ activeView, onNavigate }) => {
         <span className="fw-medium">Quản lý mượn trả sách</span>
       </Nav.Link>
 
+      <Nav.Link
+        className={getNavItemClass("manageRecommended")}
+        onClick={() => onNavigate("manageRecommended")}
+      >
+        <FontAwesomeIcon icon={faHandHoldingHeart} className="me-3" />
+        <span className="fw-medium">Quản lý đề xuất sách</span>
+      </Nav.Link>
+
       <div className="mt-4 mb-3 text-muted px-3 fw-medium">
         <small>CÁ NHÂN</small>
       </div>

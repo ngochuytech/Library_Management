@@ -34,6 +34,7 @@ import History from "../components/History.jsx"; // Đường dẫn đến Histo
 import AdminBooks from "../components/AdminBooks.jsx"; // Đường dẫn đến AdminBooks.jsx
 import AdminUsers from "../components/AdminUsers.jsx"; // Đường dẫn đến AdminUsers.jsx
 import AdminBorrows from "../components/AdminBorrows.jsx"; // Đường dẫn đến AdminBorrows.jsx
+import AdminRecommendedBooks from "../components/AdminRecommendedBooks.jsx"; // Đường dẫn đến AdminRecommendedBooks.jsx
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -89,38 +90,6 @@ const HomePage = () => {
     fetchRecommendedBooks();
     fetchRecentlyBooks();
   }, []);
-
-  // Thêm mảng sách đã đọc gần đây
-  // const recentlyViewedBooks = [
-  //   {
-  //     title: "The Road to React",
-  //     author: "Steve Krug",
-  //     year: "2020",
-  //     image: "/book.jpg",
-  //     rating: 4.5,
-  //   },
-  //   {
-  //     title: "Lean UX : Design Great Products",
-  //     author: "Jeff Gothelf",
-  //     year: "2016",
-  //     image: "/book.jpg",
-  //     rating: 4.5,
-  //   },
-  //   {
-  //     title: "Harry Potter and The Chamber of Secrets",
-  //     author: "J.K. Rowling",
-  //     year: "2002",
-  //     image: "/book.jpg",
-  //     rating: 4.9,
-  //   },
-  //   {
-  //     title: "Sprint : How to solve big problems",
-  //     author: "Jake Knapp",
-  //     year: "2000",
-  //     image: "/book.jpg",
-  //     rating: 4.5,
-  //   },
-  // ];
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
@@ -179,6 +148,8 @@ const HomePage = () => {
         return <AdminUsers />; // Thay thế bằng component quản lý người dùng
       case "manageBorrows":
         return <AdminBorrows />; // Thay thế bằng component quản lý mượn trả sách
+      case "manageRecommended":
+        return <AdminRecommendedBooks />; // Thay thế bằng component quản lý sách đề xuất
 
       case "search":
         return <SearchTab handleBookClick={handleBookClick} />;
