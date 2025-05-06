@@ -59,7 +59,7 @@ const MyBookshelf = ({ books }) => {
       <div className="bookshelf-grid">
         {filteredBooks.map((book, index) => (
           <div key={index} className="bookshelf-item">
-            <img src={book.image.slice(16) || "/placeholder.svg"} alt={book.title} className="bookshelf-cover" />
+            <img src={`/image/${book.image}` || "/placeholder.svg"} alt={book.title} className="bookshelf-cover" />
             <div className="bookshelf-details">
               <h3 className="bookshelf-book-title">{book.title}</h3>
               <p className="bookshelf-author">{book.author.name}</p>

@@ -149,7 +149,7 @@ const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handle
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <img
-                      src={book.image.slice(16)}
+                      src={`image/${book.image}`}
                       alt={book.title}
                       style={{
                         width: "50px", // Giảm kích thước ảnh

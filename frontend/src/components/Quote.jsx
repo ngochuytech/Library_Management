@@ -86,7 +86,7 @@ const Quote = ({ books, handleCardClick }) => (
                   >
                     <Card.Img
                       variant="top"
-                      src={book.image.slice(16)}
+                      src={`/image/${book.image}`}
                       className={`${styles.cardImg} rounded-3`}
                       style={{
                         objectFit: "cover",
