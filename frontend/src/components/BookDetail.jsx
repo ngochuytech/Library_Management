@@ -271,7 +271,7 @@ const DetailBook = ({book}) => {
                   <div className="d-flex gap-3 mb-4">
                     <Button variant="primary" size="lg" className="flex-grow-1">
                       <FontAwesomeIcon icon={faShoppingCart} className="me-2" />
-                      Borrow Now
+                      Muợn ngay
                     </Button>
                   </div>
                 </Col>

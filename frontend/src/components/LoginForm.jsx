@@ -46,11 +46,11 @@ const LoginForm = () => {
   
       if (response.ok) {
         const data = await response.json();
-        console.log("Login successful:", data);
         sessionStorage.setItem("isAuthenticated", "true");
         if (rememberMe) {
           sessionStorage.setItem("userEmail", email);
         }
+        sessionStorage.setItem("username", data.user.name)
 
         // Navigate to home after login
         navigate("/home");

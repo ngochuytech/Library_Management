@@ -52,7 +52,13 @@ const Sidebar = ({ activeView, onNavigate }) => {
         <FontAwesomeIcon icon={faHandHoldingHeart} className="me-3" />
         <span className="fw-medium">Đóng góp</span>
       </Nav.Link>
-      
+      <Nav.Link
+        className={getNavItemClass("RecommendBooks")}
+        onClick={() => onNavigate("RecommendBooks")}
+      >
+        <FontAwesomeIcon icon={faHandHoldingHeart} className="me-3" />
+        <span className="fw-medium">Đề xuất</span>
+      </Nav.Link>
       <div className="mt-4 mb-3 text-muted px-3 fw-medium">
         <small>CÁ NHÂN</small>
       </div>
