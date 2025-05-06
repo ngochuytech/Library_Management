@@ -35,6 +35,7 @@ import AdminBooks from "../components/AdminBooks.jsx"; // Đường dẫn đến
 import AdminUsers from "../components/AdminUsers.jsx"; // Đường dẫn đến AdminUsers.jsx
 import AdminBorrows from "../components/AdminBorrows.jsx"; // Đường dẫn đến AdminBorrows.jsx
 import AdminRecommendedBooks from "../components/AdminRecommendedBooks.jsx"; // Đường dẫn đến AdminRecommendedBooks.jsx
+import LibraryAdminSearch from "../components/LibraryAdminSearch";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -152,7 +153,7 @@ const HomePage = () => {
         return <AdminRecommendedBooks />; // Thay thế bằng component quản lý sách đề xuất
 
       case "search":
-        return <SearchTab handleBookClick={handleBookClick} />;
+        return <LibraryAdminSearch />;
       case "bookshelf":
         return <MyBookshelf books={recommendedBooks} />;
       case "contributions":
@@ -247,6 +248,7 @@ const HomePage = () => {
                   <Form
                     className="d-flex position-relative"
                     style={{ width: "400px" }}
+                    onSubmit={e => { e.preventDefault(); handleNavigation("adminSearch"); }}
                   >
                     <FormControl
                       type="text"
@@ -260,6 +262,7 @@ const HomePage = () => {
                         border: "none",
                         color: "#333",
                       }}
+                      type="submit"
                     >
                       <FontAwesomeIcon icon={faSearch} />
                     </Button>
