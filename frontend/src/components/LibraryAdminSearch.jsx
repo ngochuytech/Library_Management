@@ -107,7 +107,10 @@ const LibraryAdminSearch = () => {
 
   // Pagination
   const totalPages = Math.ceil(results.length / rowsPerPage);
-  const pagedResults = results.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+  const pagedResults = results.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
 
   // Render table columns by type
   const renderTable = () => {
@@ -126,16 +129,28 @@ const LibraryAdminSearch = () => {
           </thead>
           <tbody>
             {pagedResults.length === 0 ? (
-              <tr><td colSpan={6} className="text-center">Không có kết quả</td></tr>
+              <tr>
+                <td colSpan={6} className="text-center">
+                  Không có kết quả
+                </td>
+              </tr>
             ) : (
               pagedResults.map((b, idx) => (
                 <tr key={b.id}>
                   <td>{(page - 1) * rowsPerPage + idx + 1}</td>
-                  <td><Image src={b.image} width={40} rounded /></td>
+                  <td>
+                    <Image src={b.image} width={40} rounded />
+                  </td>
                   <td>{b.title}</td>
                   <td>{b.author}</td>
                   <td>
-                    <span className={b.status === "Còn sách" ? "text-success" : "text-danger"}>{b.status}</span>
+                    <span
+                      className={
+                        b.status === "Còn sách" ? "text-success" : "text-danger"
+                      }
+                    >
+                      {b.status}
+                    </span>
                   </td>
                   <td>
                     <ButtonGroup size="sm">
@@ -165,7 +180,11 @@ const LibraryAdminSearch = () => {
           </thead>
           <tbody>
             {pagedResults.length === 0 ? (
-              <tr><td colSpan={6} className="text-center">Không có kết quả</td></tr>
+              <tr>
+                <td colSpan={6} className="text-center">
+                  Không có kết quả
+                </td>
+              </tr>
             ) : (
               pagedResults.map((u, idx) => (
                 <tr key={u.id}>
@@ -202,7 +221,11 @@ const LibraryAdminSearch = () => {
           </thead>
           <tbody>
             {pagedResults.length === 0 ? (
-              <tr><td colSpan={6} className="text-center">Không có kết quả</td></tr>
+              <tr>
+                <td colSpan={6} className="text-center">
+                  Không có kết quả
+                </td>
+              </tr>
             ) : (
               pagedResults.map((br, idx) => (
                 <tr key={br.id}>
@@ -232,7 +255,10 @@ const LibraryAdminSearch = () => {
   const renderAdvancedFilter = () => {
     if (type === "book" || type === "all") {
       return (
-        <Form.Group as={Row} className="mb-2 align-items-center justify-content-end">
+        <Form.Group
+          as={Row}
+          className="mb-2 align-items-center justify-content-end"
+        >
           <Form.Label column sm={3} className="mb-0 text-end fw-semibold">
             Trạng thái
           </Form.Label>
@@ -296,8 +322,14 @@ const LibraryAdminSearch = () => {
               {totalPages > 1 && (
                 <div className="d-flex justify-content-center mt-3">
                   <Pagination>
-                    <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
-                    <Pagination.Prev onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} />
+                    <Pagination.First
+                      onClick={() => setPage(1)}
+                      disabled={page === 1}
+                    />
+                    <Pagination.Prev
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    />
                     {Array.from({ length: totalPages }, (_, i) => (
                       <Pagination.Item
                         key={i + 1}
@@ -307,8 +339,16 @@ const LibraryAdminSearch = () => {
                         {i + 1}
                       </Pagination.Item>
                     ))}
-                    <Pagination.Next onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} />
-                    <Pagination.Last onClick={() => setPage(totalPages)} disabled={page === totalPages} />
+                    <Pagination.Next
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={page === totalPages}
+                    />
+                    <Pagination.Last
+                      onClick={() => setPage(totalPages)}
+                      disabled={page === totalPages}
+                    />
                   </Pagination>
                 </div>
               )}

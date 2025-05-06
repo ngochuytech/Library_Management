@@ -45,6 +45,20 @@ const AdminBookDetail = () => {
   const [editedBook, setEditedBook] = useState({});
   const [categories, setCategories] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [authorBooks, setAuthorBooks] = useState([]);
+
+  // Fetch books by author when the author is selected
+  const fetchBooksByAuthor = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/books/api/author/${book.author.id}`
+      );
+      const data = await response.json();
+      setAuthorBooks(data);
+    } catch (err) {
+      console.error("Lỗi khi tải sách của tác giả", err);
+    }
+  };
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -121,6 +135,11 @@ const AdminBookDetail = () => {
     }
 
     return stars;
+  };
+
+  const handleViewAuthorBooks = () => {
+    fetchBooksByAuthor();
+    window.scrollTo(0, 0);
   };
 
   const handleEdit = () => {
@@ -537,13 +556,46 @@ const AdminBookDetail = () => {
                 </div>
               </div>
               <p>{book.author?.biography}</p>
-              <Button variant="outline-primary" size="sm">
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={handleViewAuthorBooks}
+              >
                 Xem tất cả sách của tác giả
               </Button>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+      {authorBooks.length > 0 && (
+        <Card className="mt-4">
+          <Card.Header>
+            <h5>Sách khác của {book.author.name}</h5>
+          </Card.Header>
+          <Card.Body>
+            <Row>
+              {authorBooks.map((b) => (
+                <Col key={b.id} md={6} lg={4} className="mb-3">
+                  <Card className="h-100 shadow-sm">
+                    <Card.Img variant="top" src={b.image} />
+                    <Card.Body>
+                      <Card.Title>{b.title}</Card.Title>
+                      <Card.Text>Đánh giá: {b.rating} / 5</Card.Text>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => navigate(`/admin/books/${b.id}`)}
+                      >
+                        Xem chi tiết
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Card.Body>
+        </Card>
+      )}
     </Container>
   );
 };

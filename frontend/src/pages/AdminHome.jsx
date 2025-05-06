@@ -152,6 +152,16 @@ const HomePage = () => {
       case "manageRecommended":
         return <AdminRecommendedBooks />; // Thay thế bằng component quản lý sách đề xuất
 
+      // case "search":
+      //   return (
+      //     <SearchTab
+      //       searchResult={searchResult}
+      //       currentPage={currentPage}
+      //       totalPages={totalPages}
+      //       onPageChange={setCurrentPage}
+      //       handleBookClick={handleBookClick}
+      //     />
+      //   );
       case "search":
         return <LibraryAdminSearch />;
       case "bookshelf":
@@ -248,7 +258,10 @@ const HomePage = () => {
                   <Form
                     className="d-flex position-relative"
                     style={{ width: "400px" }}
-                    onSubmit={e => { e.preventDefault(); handleNavigation("adminSearch"); }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleNavigation("adminSearch");
+                    }}
                   >
                     <FormControl
                       type="text"

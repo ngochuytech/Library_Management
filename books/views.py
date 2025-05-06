@@ -84,6 +84,12 @@ def deleteBookWithId(request, id):
     except Book.DoesNotExist:
         return Response({"message": f"Cannot find book with id = {id}"}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def getBooksByAuthor(request, author_id):
+    books = Book.objects.filter(author__id=author_id)
+    serializer = BookSerializer(books, many=True)
+    return Response(serializer.data)
+
 
 
 
