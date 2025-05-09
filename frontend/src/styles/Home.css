@@ -1,28 +1,271 @@
-/* Home.css - Kết hợp style từ file 2 với Bootstrap */
-
-/* Styles cho body */
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #eef2f7;
+  overflow-x: hidden;
 }
 
-/* Cursor pointer cho các thành phần có thể click */
-.cursor-pointer {
+.home-container {
+  min-height: 100vh;
+  width: 100%;
+  padding: 25px;
+  margin-top: 25px;
+}
+
+.content-shield {
+  background-color: white;
+  border-radius: 12px;
+  min-height: calc(100vh - 30px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Content Layout */
+.content-layout {
+  display: flex;
+  min-height: calc(100vh - 30px);
+}
+
+/* Sidebar Container */
+.sidebar-container {
+  width: 250px;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Main Content Container */
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Top Navigation */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  z-index: 10;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+  padding: 2px;
+  width: 400px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-button {
+  background-color: transparent;
+  border: none;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.dropdown-icon {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px 40px 8px 16px;
+  border: none;
+  border-radius: 0 9999px 9999px 0;
+  width: 100%;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.lang-selector {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.notifications {
+  position: relative;
   cursor: pointer;
 }
 
-/* Card hover effect */
-.card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.notification-icon {
+  font-size: 20px;
+  color: #111827;
 }
 
-.card-hover:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+.notifications-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
 }
 
-/* View transition effect */
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.view-all {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 4px 16px 4px 4px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 200px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.user-dropdown-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 4px 0;
+}
+
+.logout {
+  color: #dc2626;
+}
+
+.content-area {
+  width: 1600px;
+  min-height: 90vh;
+  margin: 0 auto;
+  padding: 0 32px 32px;
+  background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-height: calc(100vh - 80px);
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Tùy chỉnh thanh cuộn cho Chrome/Safari */
+.content-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 .view-transition {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -32,120 +275,15 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Custom scrollbar for horizontal scroll */
-.overflow-auto::-webkit-scrollbar {
-  height: 6px;
-}
-
-.overflow-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-}
-
-.overflow-auto::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-
-/* Section heading styles */
-.section-heading {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #343a40;
-  border-left: 4px solid #0d6efd;
-  padding-left: 1rem;
-}
-
-/* Greeting style */
 .greeting {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: #212529;
-}
-
-/* Rounded elements */
-.rounded-4 {
-  border-radius: 1rem !important;
-}
-
-.rounded-pill {
-  border-radius: 50rem !important;
-}
-
-/* Search box styling */
-.search-area .form-control {
-  border: 1px solid #e0e0e0;
-  padding-left: 1rem;
-  padding-right: 3rem;
-  height: 45px;
-}
-
-.search-area .btn {
-  top: 0;
-  height: 100%;
-}
-
-/* Navbar and sidebar adjustments */
-.navbar {
-  height: 70px;
-}
-
-/* Rating stars color */
-.text-warning {
-  color: #ffc107 !important;
-}
-
-/* Quote card styling */
-.quote-card {
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  color: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.quote-card p {
-  font-style: italic;
-  font-size: 1.2rem;
-}
-
-.quote-card footer {
+  font-size: 24px;
   font-weight: 500;
-  text-align: right;
-}
-
-/* User avatar styling */
-.avatar-initials {
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  background-color: #0d6efd;
-  border-radius: 50%;
-}
-
-/* Notification dropdown styling */
-.dropdown-menu {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  border: none;
-  border-radius: 0.5rem;
-}
-
-/* Book card title truncation */
-.text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  margin-bottom: 16px;
 }
