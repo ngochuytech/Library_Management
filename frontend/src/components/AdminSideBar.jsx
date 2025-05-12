@@ -15,7 +15,7 @@ const AdminSidebar = ({ activeView, onNavigate }) => {
   return (
     <div className="sidebar">
       <div className="logo-container">
-        <img src="./logo" alt="MYLIB Logo" className="logo" />
+      <img src="/logoUnder.png" alt="MYLI Logo" className="logo" />
       </div>
 
       <nav className="sidebar-nav">
