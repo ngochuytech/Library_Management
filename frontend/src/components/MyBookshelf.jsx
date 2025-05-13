@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Container, Row, Col, Card, Tab, Nav, Badge } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,92 +14,38 @@ import {
   faHandPointer,
 } from "@fortawesome/free-solid-svg-icons";
 
-const PersonalLibrary = () => {
+const PersonalLibrary = ({ userId }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [favorites, setFavorites] = useState([]);
+  const [books, setBooks] = useState([]);
 
-  const books = [
-    {
-      id: 1,
-      title: "Atomic Habits",
-      author: "James Clear",
-      year: 2018,
-      image: "https://m.media-amazon.com/images/I/51B7kuFwQFL._SY425_.jpg",
-      rating: 4.5,
-      borrowedDate: "2023-05-15",
-      dueDate: "2023-06-15",
-      status: "borrowed",
-      type: "book",
-      favorite: true,
-    },
-    {
-      id: 2,
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      year: 2013,
-      image: "https://m.media-amazon.com/images/I/410+RPX6XML._SY425_.jpg",
-      rating: 4.2,
-      borrowedDate: "2023-06-01",
-      dueDate: "2023-06-29",
-      status: "waiting",
-      type: "book",
-      favorite: false,
-    },
-    {
-      id: 3,
-      title: "UX Design Trends 2023",
-      author: "UX Collective",
-      year: 2023,
-      image:
-        "https://miro.medium.com/v2/resize:fit:1000/1*Xosrq77VfQ8X_8GkZJjnow.jpeg",
-      rating: 4.0,
-      borrowedDate: "2023-06-10",
-      dueDate: "2023-07-10",
-      status: "preview",
-      type: "magazine",
-      favorite: true,
-    },
-    {
-      id: 4,
-      title: "Clean Code",
-      author: "Robert C. Martin",
-      year: 2008,
-      image: "https://m.media-amazon.com/images/I/41xShlnTZTL._SY425_.jpg",
-      rating: 4.7,
-      borrowedDate: "2023-05-20",
-      dueDate: "2023-05-30",
-      status: "overdue",
-      type: "book",
-      favorite: false,
-    },
-    {
-      id: 5,
-      title: "Sapiens",
-      author: "Yuval Noah Harari",
-      year: 2011,
-      image: "https://m.media-amazon.com/images/I/51RYHl9O3bL._SY425_.jpg",
-      rating: 4.8,
-      borrowedDate: "2023-06-05",
-      dueDate: "2023-07-05",
-      status: "borrowed",
-      type: "book",
-      favorite: true,
-    },
-    {
-      id: 6,
-      title: "JavaScript Monthly",
-      author: "JS Foundation",
-      year: 2023,
-      image:
-        "https://miro.medium.com/v2/resize:fit:1000/1*Xosrq77VfQ8X_8GkZJjnow.jpeg",
-      rating: 3.9,
-      borrowedDate: "2023-06-12",
-      dueDate: "2023-07-12",
-      status: "borrowed",
-      type: "magazine",
-      favorite: false,
-    },
-  ];
+  useEffect(() => {
+    const fetchBorrows = async () => {
+      try {
+        const id = userId || sessionStorage.getItem("idUser"); // Lấy userId từ props hoặc sessionStorage
+        if (!id) {
+          console.error("User ID not found");
+          return;
+        }
+
+        console.log("Fetching borrows for user ID:", id);
+        const BASE_URL = import.meta.env.VITE_API_URL;
+        const response = await axios.get(`${BASE_URL}/borrows/api/user/${id}`, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+        });
+        console.log("API Response:", response.data);
+        const data = Array.isArray(response.data) ? response.data : []; // Đảm bảo dữ liệu là mảng
+        setBooks(data);
+      } catch (error) {
+        console.error("Error fetching borrows:", error);
+        setBooks([]); // Đặt giá trị mặc định là mảng rỗng nếu có lỗi
+      }
+    };
+
+    fetchBorrows();
+  }, [userId]);
 
   const handleActionClick = (book, action) => {
     console.log(
@@ -107,12 +54,12 @@ const PersonalLibrary = () => {
     // TODO: Gọi API hoặc cập nhật state nếu cần
   };
 
-  const filteredBooks = books.filter((book) => {
+  const filteredBooks = Array.isArray(books) ? books.filter((book) => {
     if (activeTab === "all") return true;
     if (activeTab === "favorites") return book.favorite;
     if (activeTab === "borrowed") return book.status !== "preview";
     return true;
-  });
+  }) : [];
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -272,8 +219,7 @@ const PersonalLibrary = () => {
                   </span>
                 </div>
 
-                {/* Remove the duplicate bookshelf-grid block here */}
-
+                {getActionButton(book)}
               </Card.Body>
             </Card>
           </Col>

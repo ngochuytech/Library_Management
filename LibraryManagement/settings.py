@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import pymysql
+from datetime import timedelta
 from dotenv import load_dotenv
 pymysql.install_as_MySQLdb()
 
@@ -99,6 +100,14 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True  
 SESSION_COOKIE_SAMESITE = 'Lax'  
 CSRF_COOKIE_SECURE = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    
+    'ROTATE_REFRESH_TOKENS': True,                 
+    'BLACKLIST_AFTER_ROTATION': True,            
+    'AUTH_HEADER_TYPES': ('Bearer',),               
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

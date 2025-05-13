@@ -27,6 +27,20 @@ def getDetailBorrow(request, id):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+
+# @permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def getBorrowsByUserId(request, user_id):
+    try:
+        borrows = Borrow.objects.filter(user__id=user_id).order_by('exp_date')
+        serializer = BorrowSerializer(borrows, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(
+            {"message": "An error occurred while fetching borrows.", "error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 class BorrowCreateView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
