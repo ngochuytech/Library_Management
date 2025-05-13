@@ -87,14 +87,12 @@ const HomePage = () => {
     fetchRecommendedBooks();
     fetchRecentlyBooks();
   }, []);
-
   useEffect(() => {
     if (activeView == 'search' && searchQuery.trim() == '')
       fetchAllBook(currentPage);
     else
       fetchSearchResults(currentPage);
-  }
-
+  });
   const fetchSearchResults = async (page) => {
     try {
       const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
