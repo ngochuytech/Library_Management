@@ -7,5 +7,6 @@ urlpatterns = [
     path('api/create', views.createBook),
     path('api/<int:id>', views.getDetailBook),
     path('api/edit/<int:id>', views.editBookWithId),
-    path('api/delete/<int:id>', views.deleteBookWithId)
+    path('api/delete/<int:id>', views.deleteBookWithId),
+    path('api/author/<int:author_id>', views.getBooksByAuthor),
 ]

@@ -12,7 +12,7 @@ class Book(models.Model):
     quantity = models.IntegerField(default=0)
     avaliable = models.IntegerField(default=0)
     rating = models.FloatField(default=5.0)
-    image = models.ImageField(default="Default.png")
+    image = models.ImageField(default="Default.jpg")
     description = models.TextField(default="")
     preview = models.TextField(default="")
     class Meta:
