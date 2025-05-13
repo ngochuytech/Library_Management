@@ -28,7 +28,7 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      error.response?.data?.code !== 'invalid_refresh_token'
+      error.response?.data?.code !== 'token_not_valid'
     ) {
       originalRequest._retry = true;
 
@@ -39,11 +39,10 @@ api.interceptors.response.use(
 
         sessionStorage.setItem('access_token', data.access_token);
 
-        // Cập nhật header Authorization và thử lại yêu cầu gốc
         originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
         return api(originalRequest);
       } catch (refreshError) {
-        if (refreshError.response?.data?.code === 'invalid_refresh_token') {
+        if (refreshError.response?.data?.code === 'token_not_valid') {
           sessionStorage.removeItem('access_token');
           toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
           window.location.href = `${BASE_URL}/users/login`;

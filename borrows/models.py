@@ -24,9 +24,10 @@ def default_exp_date():
 class Borrow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    borrow_date = models.DateTimeField(default=timezone.now)
+    borrow_days = models.IntegerField(default=7)
+    borrow_date = models.DateTimeField(null=True, blank=True)
     return_date = models.DateTimeField(null=True, blank=True)
-    exp_date = models.DateTimeField(default=default_exp_date)
+    exp_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=255, choices=BORROWED_STATUS,default="PENDING")
 
     class Meta:

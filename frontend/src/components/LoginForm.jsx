@@ -46,7 +46,7 @@ const LoginForm = () => {
       sessionStorage.setItem("avatar", response.data.user.avatar)
       if (rememberMe) {
         sessionStorage.setItem("userEmail", email);
-      }
+      }      
       toast.success("Đăng nhập thành công!")
       navigate("/home");
       
