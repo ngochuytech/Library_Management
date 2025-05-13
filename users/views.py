@@ -31,7 +31,6 @@ class LoginClass(APIView):
     def post(self, request):
         email = request.data['email']
         password = request.data['password']
-        # my_user = authenticate(username=email, password=password)
         my_user = User.objects.filter(email=email).first()
         if my_user and my_user.check_password(password):
             refresh = RefreshToken.for_user(my_user)
@@ -46,7 +45,6 @@ class LoginClass(APIView):
                 value=refresh_token,
                 max_age=timedelta(days=7).total_seconds(),
                 httponly=True,
-                secure=True,
                 samesite='Lax'
             )
             return response
@@ -79,14 +77,18 @@ def get_user_from_token(token):
 class RefreshTokenView(APIView):
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
+        print("refresh_token = ", refresh_token)
         if not refresh_token:
             return Response({'error': 'No refresh token provided'}, status=400)
         
         try:
             refresh = RefreshToken(refresh_token)
+            print("refresh_token af= ", refresh)
+
             access_token = str(refresh.access_token)
             return Response({'access_token': access_token}, status=200)
         except Exception as e:
+            print("refresh_token = ", refresh_token)
             return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class ForgotPasswordView(APIView):

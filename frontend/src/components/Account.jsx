@@ -76,7 +76,7 @@ const Account = () => {
         bio: response.data.bio || "Đọc sách là niềm đam mê của tôi !",
       });
     } catch (error) {
-      console.error("Failed to fetch user detail:", error.response.data.error);
+      console.error("Failed to fetch user detail:", error.message);
       toast.error("Không thể tải thông tin người dùng. Vui lòng thử lại.");
     }
    
