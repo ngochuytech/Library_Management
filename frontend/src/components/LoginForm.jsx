@@ -4,6 +4,9 @@ import { useEffect, useState } from "react"
 import { Form, Button, Card } from "react-bootstrap"
 import { Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -31,35 +34,24 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // This is a simple mock authentication
-    // In a real app, you would call an API
-    // console.log("Login attempt with:", { email, password, rememberMe })
     
     try {
-      const response = await fetch(`${BASE_URL}/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await axios.post(`${BASE_URL}/users/login`, {email, password},
+        {withCredentials: true}
+      )
   
-      if (response.ok) {
-        const data = await response.json();
-        sessionStorage.setItem("isAuthenticated", "true");
-        if (rememberMe) {
-          sessionStorage.setItem("userEmail", email);
-        }
-        sessionStorage.setItem("username", data.user.name)
-
-        // Navigate to home after login
-        navigate("/home");
-      } else {
-        const errorData = await response.json();
-        console.log("Error during login:", errorData);
-      }
+      sessionStorage.setItem('access_token', response.data.access_token)
+      sessionStorage.setItem('username', response.data.user.name)
+      sessionStorage.setItem("idUser", response.data.user.id)
+      sessionStorage.setItem("avatar", response.data.user.avatar)
+      if (rememberMe) {
+        sessionStorage.setItem("userEmail", email);
+      }      
+      toast.success("Đăng nhập thành công!")
+      navigate("/home");
+      
     } catch (error) {
-      console.error("An error occurred:", error);
+      toast.error("Đăng nhập thât bại. " + error.response.data.error)
     }
 
   }

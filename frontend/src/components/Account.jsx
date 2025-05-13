@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Container,
   Row,
@@ -23,28 +26,100 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import api from '../api'
 
 const Account = () => {
+  const navigate = useNavigate()
+  const BASE_URL = import.meta.env.VITE_API_URL
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [key, setKey] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState({
-    name: "Nguyễn Văn A",
-    phone: "+01 377702837",
-    email: "nguyenvana@example.com",
-    bio: "Tôi là một người đam mê đọc sách và học hỏi kiến thức mới.",
-    avatar: "/avatar.jpg",
-  });
+  const [userData, setUserData] = useState({});
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); 
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  useEffect(() => {
+    const access_token = sessionStorage.getItem("access_token");
+    if(access_token){
+      setIsAuthenticated(true);
+      fetchUser();
+    }
+    else
+      setIsAuthenticated(false);
+  }, [])
 
   const [formData, setFormData] = useState({ ...userData });
 
+  const fetchUser = async () => {
+    try {
+      const id = sessionStorage.getItem("idUser");
+      const response = await api.get(`/users/api?id=${id}`);
+
+      setUserData({
+        name: response.data.name,
+        phone: response.data.phone_number,
+        email: response.data.email,
+        avatar: response.data.avatar,
+        created_at: response.data.created_at,
+        bio: "Đọc sách là niềm đam mê của tôi !"        
+      })
+
+      setFormData({
+        name: response.data.name,
+        phone: response.data.phone_number,
+        email: response.data.email,
+        avatar: response.data.avatar,
+        created_at: response.data.created_at,
+        bio: response.data.bio || "Đọc sách là niềm đam mê của tôi !",
+      });
+    } catch (error) {
+      console.error("Failed to fetch user detail:", error.response.data.error);
+      toast.error("Không thể tải thông tin người dùng. Vui lòng thử lại.");
+    }
+   
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "phone") {
+      const cleanedValue = value.replace(/[^0-9]/g, '');
+      setFormData({ ...formData, [name]: cleanedValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+    setFieldErrors({ ...fieldErrors, [name]: "" })
   };
 
-  const handleSave = () => {
-    setUserData(formData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const idUser = sessionStorage.getItem("idUser");
+      const response = await api.put(`/users/api/${idUser}`,{
+        name: formData.name,
+        phone_number: formData.phone
+      }, {withCredentials: true});
+      
+      const updatedData = await response.json();
+      setUserData({
+        ...userData,
+        name: updatedData.name,
+        phone: updatedData.phone_number
+      });
+      setIsEditing(false);
+      setError("");
+      setFieldErrors({});
+      toast.success("Cập nhật thông tin thành công!");
+      sessionStorage.setItem("username", updatedData.name)
+    } catch (error) {
+      console.error("Failed to update user:", error.response.data.error);
+      if(error.response.data.error.phone_number)
+        toast.error("Cập nhật thông tin thất bại. Số điện thoại này đã tồn tại" )
+      else
+        toast.error("Cập nhật thông tin thất bại. " + error.response.data.error)
+    }
+
   };
 
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -72,7 +147,7 @@ const Account = () => {
       confirmPassword: "",
     };
 
-    if (!passwordData.currentPassword) {
+    if (!passwordData.currentPassword || passwordData.currentPassword.trim()=='') {
       newErrors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
       valid = false;
     }
@@ -94,18 +169,71 @@ const Account = () => {
     return valid;
   };
 
-  const handlePasswordSubmit = () => {
-    if (validatePasswordForm()) {
-      console.log("Đang thay đổi mật khẩu:", passwordData);
+  const handlePasswordSubmit = async () => {
+    if(!validatePasswordForm())
+      return;
 
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+    try {
+        const response = await fetch(`${BASE_URL}/users/api/change-password`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+          },
+          body: JSON.stringify({
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+            confirmPassword: passwordData.confirmPassword,
+          }),
+        })
+
+        if(!response.ok){
+          const errorData = await response.json();
+          setError(errorData.error || "Vui lòng thử lại.")
+          throw errorData.error;
+        }
+
+        const data = await response.json();
+        toast.success(data.message || "Đổi mật khẩu thành công!", {
+          autoClose: 7000, 
+        });
+        setError("");
+        setErrors({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setIsChangingPassword(false);
+    } catch (error) {
+      console.error("Failed to change password: ", error);
+      toast.error(`Đổi mật khẩu thất bại. ${error}.`, {
+        autoClose: 7000,
       });
-      setIsChangingPassword(false);
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <Container className="my-5 d-flex justify-content-center">
+        <Card style={{ width: "400px", padding: "20px" }}>
+          <Card.Body className="text-center">
+            <Button
+              variant="primary"
+              onClick={() => navigate("/login")}
+              className="w-100"
+            >
+              Đăng nhập
+            </Button>
+          </Card.Body>
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <Container className="my-5">
@@ -121,7 +249,7 @@ const Account = () => {
                 className="mb-3 border"
               />
               <h4>{userData.name}</h4>
-              <p className="text-muted">Thành viên từ 01/01/2023</p>
+              <p className="text-muted">Thành viên từ {userData.created_at}</p>
             </Card.Body>
           </Card>
 
@@ -177,9 +305,13 @@ const Account = () => {
                         <Form.Control
                           type="text"
                           name="name"
-                          value={formData.name}
+                          value={formData.name || ""}
                           onChange={handleInputChange}
+                          isInvalid={!!fieldErrors.name}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {fieldErrors.name}
+                        </Form.Control.Feedback>
                       </Form.Group>
 
                       <Form.Group className="mb-3">
@@ -190,9 +322,13 @@ const Account = () => {
                         <Form.Control
                           type="tel"
                           name="phone"
-                          value={formData.phone}
+                          value={formData.phone || ""}
                           onChange={handleInputChange}
+                          isInvalid={!!fieldErrors.phone}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {fieldErrors.phone}
+                        </Form.Control.Feedback>
                       </Form.Group>
 
                       <Form.Group className="mb-3">
@@ -203,7 +339,7 @@ const Account = () => {
                         <Form.Control
                           type="email"
                           name="email"
-                          value={formData.email}
+                          value={formData.email || ""}
                           onChange={handleInputChange}
                           disabled
                         />
@@ -215,7 +351,7 @@ const Account = () => {
                           as="textarea"
                           rows={3}
                           name="bio"
-                          value={formData.bio}
+                          value={formData.bio || ""}
                           onChange={handleInputChange}
                         />
                       </Form.Group>
@@ -227,7 +363,9 @@ const Account = () => {
                         </Button>
                         <Button
                           variant="outline-secondary"
-                          onClick={() => setIsEditing(false)}
+                          onClick={() => {setIsEditing(false);
+                            setFieldErrors({});
+                            setError("");}}
                         >
                           Hủy
                         </Button>
@@ -349,7 +487,20 @@ const Account = () => {
                             </Button>
                             <Button
                               variant="outline-secondary"
-                              onClick={() => setIsChangingPassword(false)}
+                              onClick={() => {
+                                setIsChangingPassword(false);
+                                setErrors({
+                                  currentPassword: "",
+                                  newPassword: "",
+                                  confirmPassword: "",
+                                });
+                                setPasswordData({
+                                  currentPassword: "",
+                                  newPassword: "",
+                                  confirmPassword: "",
+                                });
+                                setError("");
+                              }}
                             >
                               Hủy
                             </Button>

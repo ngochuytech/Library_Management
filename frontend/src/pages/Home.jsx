@@ -20,86 +20,83 @@ import {
   Dropdown,
 } from "react-bootstrap";
 
-import "../styles/Home.css"; // Đường dẫn đến Home.css
+import "../styles/Home.css";
 
-import Sidebar from "../components/SideBar.jsx"; 
-import Quote from "../components/Quote.jsx"; 
-import SearchTab from "../components/SearchTab.jsx"; 
-import BookDetail from "../components/BookDetail.jsx"; 
-import MyBookshelf from "../components/MyBookshelf.jsx"; 
+import Sidebar from "../components/SideBar.jsx";
+import Quote from "../components/Quote.jsx";
+import SearchTab from "../components/SearchTab.jsx";
+import BookDetail from "../components/BookDetail.jsx";
+import MyBookshelf from "../components/MyBookshelf.jsx";
 import Contributions from "../components/Contributions.jsx";
 import Account from "../components/Account.jsx";
-import Liked from "../components/Liked.jsx"; 
-import History from "../components/History.jsx"; 
-import RecommendBooks from "../components/RecommendBooks.jsx";
+import Liked from "../components/Liked.jsx";
+import History from "../components/History.jsx";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [activeView, setActiveView] = useState("home"); 
+  const [activeView, setActiveView] = useState("home");
   const [selectedBook, setSelectedBook] = useState(null);
 
-  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState("title");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchResult, setSearchResult] = useState([]);
   const [totalPages, setTotalPages] = useState();
 
-  const [recommendedBooks, setRecommendedBooks] = useState([]); 
+  const [recommendedBooks, setRecommendedBooks] = useState([]);
+  const [recentlyBooks, setRecentlyBooks] = useState([]);
 
-  const [recentlyBooks, setRecentlyBooks] = useState([])
-
-  const BASE_URL = import.meta.env.VITE_API_URL
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchRecommendedBooks = async () => {
       try {
-
-        const response = await fetch(`${BASE_URL}/books/api`); 
+        const response = await fetch(`${BASE_URL}/books/api`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        
-        setRecommendedBooks(data.results);  
-              
+        setRecommendedBooks(data.results);
       } catch (error) {
         console.error("Failed to fetch recommended books:", error);
       }
     };
 
-    const fetchRecentlyBooks = async() => {
+    const fetchRecentlyBooks = async () => {
       setRecentlyBooks([]);
       try {
-
-        const response = await fetch(`${BASE_URL}/books/api?page=2`); 
+        const response = await fetch(`${BASE_URL}/books/api?page=2`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        
-        setRecentlyBooks(data.results);  
-              
+        setRecentlyBooks(data.results);
       } catch (error) {
         console.error("Failed to fetch recently books:", error);
       }
-    }
+    };
 
     fetchRecommendedBooks();
     fetchRecentlyBooks();
   }, []);
 
   useEffect(() => {
-    if(activeView=='search' && searchQuery.trim() == '')
+    searchBook()
+  }, [activeView, searchQuery, searchType, currentPage]);
+
+  const searchBook = () => {
+    if (activeView == "search" && searchQuery.trim() == "")
       fetchAllBook(currentPage);
     else
       fetchSearchResults(currentPage);
-  }, [activeView, searchQuery, searchType, currentPage])
+  }
 
-  const fetchSearchResults = async (page) =>{
+  const fetchSearchResults = async (page) => {
     try {
-      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
-      
+      const response = await fetch(
+        `${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -107,16 +104,14 @@ const HomePage = () => {
 
       setSearchResult(data.results);
       setTotalPages(Math.ceil(data.count / 6));
-
     } catch (error) {
       console.error("Failed to fetch search books:", error);
     }
-  }
+  };
 
-  const fetchAllBook = async (page) =>{
+  const fetchAllBook = async (page) => {
     try {
       const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
-      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -124,18 +119,16 @@ const HomePage = () => {
 
       setSearchResult(data.results);
       setTotalPages(Math.ceil(data.count / 6));
-
     } catch (error) {
       console.error("Failed to fetch all books:", error);
     }
-  }
+  };
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
     setActiveView("bookDetail");
   };
 
-  // Đổi tên hàm và cập nhật logic để phù hợp với cách tiếp cận mới
   const handleNavigation = (view) => {
     setActiveView(view);
     if (view !== "bookDetail") {
@@ -143,7 +136,15 @@ const HomePage = () => {
     }
   };
 
-  // Render BookSection giống file 2 dùng Bootstrap components
+  // Callback để xử lý tìm kiếm theo tác giả
+  const handleSearchByAuthor = (authorId, authorName) => {
+    setSearchType("author");
+    setSearchQuery(authorName); 
+    setCurrentPage(1);
+    setActiveView("search");
+    searchBook();
+  };
+
   const BookSection = ({ title, books, onBookClick }) => (
     <div className="mb-4">
       <Row className="mt-3 d-flex flex-nowrap overflow-auto pb-2">
@@ -154,7 +155,7 @@ const HomePage = () => {
               style={{ width: "100%" }}
               onClick={() => onBookClick(book)}
             >
-              <Card.Img variant="top" src={book.image.slice(16)} className="rounded-3" />
+              <Card.Img variant="top" src={`/image/${book.image}`} className="rounded-3" />
               <Card.Body className="text-center">
                 <Card.Title className="fs-6 fw-bold text-truncate">
                   {book.title}
@@ -175,12 +176,11 @@ const HomePage = () => {
   );
 
   const handleSearch = async (e) => {
-      e.preventDefault();
-      setCurrentPage(1); 
-      setActiveView("search");
+    e.preventDefault();
+    setCurrentPage(1);
+    setActiveView("search");
   };
 
-  // Render nội dung dựa trên activeView giống file 2
   const renderContent = () => {
     switch (activeView) {
       case "search":
@@ -200,7 +200,9 @@ const HomePage = () => {
       case "RecommendBooks":
         return <RecommendBooks />;
       case "bookDetail":
-        return selectedBook ? <BookDetail book={selectedBook} /> : null;
+        return selectedBook ? (
+          <BookDetail book={selectedBook} onSearchByAuthor={handleSearchByAuthor} />
+        ) : null;
       case "account":
         return <Account />;
       case "liked":
@@ -238,21 +240,17 @@ const HomePage = () => {
       className="p-0 min-vh-100"
       style={{ backgroundColor: "#f8f9fa" }}
     >
-      {/* Custom background overlay như file 2 */}
       <div className="position-relative min-vh-100">
-        {/* Content Shield - White overlay */}
         <div
           className="position-relative p-3 min-vh-100"
           style={{ backgroundColor: "rgba(255, 255, 255, 0.95)" }}
         >
-          {/* Top Nav */}
           <Navbar
             expand="lg"
             className="px-4 mb-3 rounded-4 shadow-sm"
             style={{ backgroundColor: "white" }}
           >
             <Row className="w-100 align-items-center">
-              {/* Logo */}
               <Col md={2} className="d-flex align-items-center">
                 <img
                   src="/icon.jpg"
@@ -267,25 +265,29 @@ const HomePage = () => {
                 </Navbar.Brand>
               </Col>
 
-              {/* Search and User controls */}
               <Col
                 md={10}
                 className="d-flex justify-content-between align-items-center"
               >
-                {/* Search with dropdown like file 2 */}
                 <div className="d-flex search-area">
                   <Dropdown className="me-2">
                     <Dropdown.Toggle variant="light" className="rounded-pill">
-                      {
-                        searchType === "title" ? "Tựa đề" : 
-                        searchType === "author" ? "Tác giả" : 
-                        "Thể loại"
-                      }
+                      {searchType === "title"
+                        ? "Tựa đề"
+                        : searchType === "author"
+                        ? "Tác giả"
+                        : "Thể loại"}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => setSearchType("title")}>Tựa đề</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setSearchType("author")}>Tác giả</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setSearchType("category")}>Thể loại</Dropdown.Item>
+                      <Dropdown.Item onClick={() => setSearchType("title")}>
+                        Tựa đề
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setSearchType("author")}>
+                        Tác giả
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setSearchType("category")}>
+                        Thể loại
+                      </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
 
@@ -311,24 +313,7 @@ const HomePage = () => {
                   </Form>
                 </div>
 
-                {/* User controls: Language, Notifications, Profile */}
                 <Nav className="d-flex align-items-center">
-                  {/* Language selector like file 2 */}
-                  <Dropdown className="me-3">
-                    <Dropdown.Toggle
-                      variant="light"
-                      className="border-0 rounded-pill"
-                    >
-                      <FontAwesomeIcon icon={faGlobe} className="me-1" />
-                      <span>Lang</span>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end">
-                      <Dropdown.Item>Tiếng Việt</Dropdown.Item>
-                      <Dropdown.Item>English</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  {/* Dropdown Thông báo */}
                   <Dropdown
                     show={showNotifications}
                     onToggle={() => setShowNotifications(!showNotifications)}
@@ -376,7 +361,6 @@ const HomePage = () => {
                     </Dropdown.Menu>
                   </Dropdown>
 
-                  {/* Dropdown User */}
                   <Dropdown
                     show={showUserMenu}
                     onToggle={() => setShowUserMenu(!showUserMenu)}
@@ -386,18 +370,26 @@ const HomePage = () => {
                       className="border-0 d-flex align-items-center rounded-pill"
                       style={{ textDecoration: "none" }}
                     >
-                      <div
-                        className="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
-                        style={{ width: "35px", height: "35px" }}
-                      >
-                        VT
-                      </div>
+                      {sessionStorage.getItem("avatar") ? (
+                        <img
+                          src={sessionStorage.getItem("avatar")}
+                          alt="Avatar"
+                          className="rounded-circle me-2"
+                          style={{ width: "35px", height: "35px", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div
+                          className="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
+                          style={{ width: "35px", height: "35px" }}
+                        >
+                          {sessionStorage.getItem("username")?.charAt(0).toUpperCase() || "K"}
+                        </div>
+                      )}
                       <div className="font-weight-bold">
-                        {sessionStorage.getItem("user") === null 
-                          ? "Nguyễn Văn A" 
+                        {sessionStorage.getItem("username") === null
+                          ? "Khách"
                           : sessionStorage.getItem("username")}
                       </div>
-
                     </Dropdown.Toggle>
                     <Dropdown.Menu align="end" className="shadow rounded">
                       <Dropdown.Item
@@ -433,7 +425,6 @@ const HomePage = () => {
           </Navbar>
 
           <Row className="mx-0">
-            {/* Sidebar */}
             <Col md={2} className="p-3">
               <Card className="border-0 shadow-sm rounded-4">
                 <Card.Body className="p-0">
@@ -445,11 +436,9 @@ const HomePage = () => {
               </Card>
             </Col>
 
-            {/* Main Content Area */}
             <Col md={10} className="p-3">
               <Card className="border-0 shadow-sm rounded-4">
                 <Card.Body className="p-4">
-                  {/* Content with view transition */}
                   <div className="view-transition">{renderContent()}</div>
                 </Card.Body>
               </Card>

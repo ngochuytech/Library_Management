@@ -32,11 +32,12 @@ class CustomUserManager(UserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.CharField(max_length=255, unique=True)
+    email = models.CharField(max_length=255, unique=True, error_messages={'unique':"Email này đã được đăng ký"})
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True) 
-    phone_number = models.CharField(max_length=15, unique=True)
-    avatar = models.ImageField(default='icon.png')
+    phone_number = models.CharField(max_length=15, unique=True, error_messages={'unique':"Số điện thoại này đã tồn tại"})
+    avatar = models.ImageField(default='icon.jpg')
+    
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -51,12 +52,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         
     def __str__(self) -> str:
         return self.name
+
+def get_default_expires_at():
+    return timezone.now() + timedelta(minutes=5)
+
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')
-    email = models.EmailField()
+    email = models.EmailField(default="defaultEmail")
     otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(default=get_default_expires_at)
     is_used = models.BooleanField(default=False)
     
     def is_valid(self):

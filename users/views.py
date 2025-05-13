@@ -4,16 +4,18 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken 
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from users.serializers import UserSerializer
 from users.models import User
 from django.core.mail import send_mail
 from django.conf import settings
+from datetime import timedelta
 import random
 import string
-import datetime
 from django.utils.crypto import get_random_string
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.hashers import check_password
+from users.exceptions import InvalidPhoneNumberException
 # Store OTPs temporarily (in production, use Redis or database)
 otp_store = {}
 User = get_user_model()
@@ -34,11 +36,22 @@ class LoginClass(APIView):
         if my_user and my_user.check_password(password):
             refresh = RefreshToken.for_user(my_user)
             access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
             user = get_user_from_token(access_token)
             userSerializer = UserSerializer(user, many=False)
-            return Response({"access_token": access_token, "user": userSerializer.data})
+
+            response = Response({"access_token": access_token, "user": userSerializer.data})
+            response.set_cookie(
+                key='refresh_token',
+                value=refresh_token,
+                max_age=timedelta(days=7).total_seconds(),
+                httponly=True,
+                secure=True,
+                samesite='Lax'
+            )
+            return response
         else:
-            return Response({"detail": "Invalid credentials"}, status=400)
+            return Response({"error": "Kiểm tra lại email và mật khẩu!"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class ReigsterClass(APIView):
     def get(self, request):
@@ -62,7 +75,20 @@ def get_user_from_token(token):
         return user
     except Exception as e:
         raise AuthenticationFailed('Invalid token or user not found')
-    
+
+class RefreshTokenView(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh_token')
+        if not refresh_token:
+            return Response({'error': 'No refresh token provided'}, status=400)
+        
+        try:
+            refresh = RefreshToken(refresh_token)
+            access_token = str(refresh.access_token)
+            return Response({'access_token': access_token}, status=200)
+        except Exception as e:
+            return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
+
 class ForgotPasswordView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -143,21 +169,98 @@ class ResetPasswordView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found', 'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
 
-class UserListView(APIView):
-    # permission_classes = [IsAuthenticated]
+@api_view(['GET'])
+def getUser(request):
+    id = request.GET.get('id')
+    try:
+        user = User.objects.get(id=id)
+        serializer = UserSerializer(user, many=False)
 
-    def get(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
+    except User.DoesNotExist:
+        return Response({
+            "error": f"Cannot find user with id: {id}",
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['PUT'])
+def updateUserInformation(request, id):
+    try:
+        user = User.objects.get(id=id)
+        name = request.data.get("name")
+        phone_number = request.data.get("phone_number")
 
-class UserDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+        data = {}
+        if name is not None and not name.strip():
+            return Response({
+                "error": "Name cannot be empty"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, id):
-        try:
-            user = User.objects.get(id=id)
-            serializer = UserSerializer(user)
-            return Response(serializer.data)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=404)
+        if phone_number is not None and not phone_number.strip():
+            raise InvalidPhoneNumberException("Số điện thoại không được để trống")
+        
+        data['name'] = name
+        data['phone_number'] = phone_number
+
+        serializer = UserSerializer(instance=user, data=data, partial=True)
+        if not serializer.is_valid():
+            print("serializer.errors = ", serializer.errors)
+            raise InvalidPhoneNumberException(serializer.errors)
+        
+        user.name = name
+        user.phone_number = phone_number
+        user.save()
+        serializer = UserSerializer(user)
+        print("data = ", serializer.data)
+        return Response(serializer.data)
+    
+    except User.DoesNotExist:
+        return Response({
+            "error": f"Cannot find user with id: {id}"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidPhoneNumberException as e:
+        return Response({
+            "error": e.message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def changePassword(request):
+    try:
+        user = request.user
+        current_password = request.data.get('currentPassword')
+        new_password = request.data.get('newPassword')
+        confirm_password = request.data.get('confirmPassword')
+
+        if not current_password or not new_password or not confirm_password:
+            return Response({
+                "error": "Vui lòng cung cấp đầy đủ mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not check_password(current_password, user.password):
+            return Response({
+                "error": "Mật khẩu hiện tại không đúng."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if new_password != confirm_password:
+            return Response({
+                "error": "Mật khẩu mới và xác nhận mật khẩu không khớp."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 6:
+            return Response({
+                "error": "Mật khẩu mới phải có ít nhất 6 ký tự."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        user.save()
+
+        return Response({
+            "message": "Đổi mật khẩu thành công."
+        })
+    
+    except Exception as e:
+        return Response({
+            "error": f"Đã xảy ra lỗi: {str(e)}"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
