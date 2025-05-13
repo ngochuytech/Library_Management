@@ -6,7 +6,7 @@ const Background = ({ children }) => {
     <div className="wave-container">
 
       {/* SVG Wave - Chính */}
-      <svg className="wave-svg" viewBox="100 200 1440 753" xmlns="http://www.w3.org/2000/svg">
+      <svg className="wave-svg" viewBox="100 200 1240 753" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" style={{ stopColor: "#18C4FF", stopOpacity: 1 }} />

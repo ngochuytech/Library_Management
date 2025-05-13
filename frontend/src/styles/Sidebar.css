@@ -39,26 +39,39 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s;
+  gap: 12px;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.nav-item span {
+  font-size: 14px;
+  color: #4b5563;
 }
 
 .nav-item:hover {
   background-color: #f3f4f6;
-  transform: translateX(5px);
 }
 
 .nav-item.active {
-  background-color: #e6f2ff;
-  color: #2563eb;
-  transform: translateX(5px);
+  background-color: #e5e7eb;
+  border-right: 3px solid #3b82f6;
 }
 
-.nav-icon {
-  font-size: 20px;
+.nav-item.active span {
+  color: #3b82f6;
+  font-weight: 500;
 }
 
 .sidebar-footer {
@@ -79,3 +92,4 @@
 .footer-item:hover {
   background-color: #f3f4f6;
 }
+

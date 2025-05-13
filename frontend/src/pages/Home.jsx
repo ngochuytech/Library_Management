@@ -31,6 +31,8 @@ import Contributions from "../components/Contributions.jsx";
 import Account from "../components/Account.jsx";
 import Liked from "../components/Liked.jsx";
 import History from "../components/History.jsx";
+import RecommendBooks from "../components/RecommendBooks.jsx";
+import Background from "../components/Background.jsx";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -45,19 +47,21 @@ const HomePage = () => {
   const [totalPages, setTotalPages] = useState();
 
   const [recommendedBooks, setRecommendedBooks] = useState([]);
-  const [recentlyBooks, setRecentlyBooks] = useState([]);
 
   const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchRecommendedBooks = async () => {
       try {
+
         const response = await fetch(`${BASE_URL}/books/api`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+
         setRecommendedBooks(data.results);
+
       } catch (error) {
         console.error("Failed to fetch recommended books:", error);
       }
@@ -66,12 +70,15 @@ const HomePage = () => {
     const fetchRecentlyBooks = async () => {
       setRecentlyBooks([]);
       try {
+
         const response = await fetch(`${BASE_URL}/books/api?page=2`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+
         setRecentlyBooks(data.results);
+
       } catch (error) {
         console.error("Failed to fetch recently books:", error);
       }
@@ -82,11 +89,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    searchBook()
-  }, [activeView, searchQuery, searchType, currentPage]);
-
-  const searchBook = () => {
-    if (activeView == "search" && searchQuery.trim() == "")
+    if (activeView == 'search' && searchQuery.trim() == '')
       fetchAllBook(currentPage);
     else
       fetchSearchResults(currentPage);
@@ -94,9 +97,8 @@ const HomePage = () => {
 
   const fetchSearchResults = async (page) => {
     try {
-      const response = await fetch(
-        `${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`
-      );
+      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -112,6 +114,7 @@ const HomePage = () => {
   const fetchAllBook = async (page) => {
     try {
       const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -235,218 +238,113 @@ const HomePage = () => {
   };
 
   return (
-    <Container
-      fluid
-      className="p-0 min-vh-100"
-      style={{ backgroundColor: "#f8f9fa" }}
-    >
-      <div className="position-relative min-vh-100">
-        <div
-          className="position-relative p-3 min-vh-100"
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.95)" }}
-        >
-          <Navbar
-            expand="lg"
-            className="px-4 mb-3 rounded-4 shadow-sm"
-            style={{ backgroundColor: "white" }}
-          >
-            <Row className="w-100 align-items-center">
-              <Col md={2} className="d-flex align-items-center">
-                <img
-                  src="/icon.jpg"
-                  alt="Logo"
-                  style={{ width: "40px", height: "40px", marginRight: "10px" }}
-                />
-                <Navbar.Brand
-                  onClick={() => handleNavigation("home")}
-                  className="fw-bold cursor-pointer"
-                >
-                  MYLIB
-                </Navbar.Brand>
-              </Col>
+    <Background>
+      <div className="home-container">
+        {/* Content Shield - White overlay */}
+        <div className="content-shield">
+          <div className="content-layout">
+            {/* Sidebar */}
+            <div className="sidebar-container">
+              <Sidebar activeView={activeView} onNavigate={handleNavigation} />
+            </div>
 
-              <Col
-                md={10}
-                className="d-flex justify-content-between align-items-center"
-              >
-                <div className="d-flex search-area">
-                  <Dropdown className="me-2">
-                    <Dropdown.Toggle variant="light" className="rounded-pill">
-                      {searchType === "title"
-                        ? "Tựa đề"
-                        : searchType === "author"
-                        ? "Tác giả"
-                        : "Thể loại"}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => setSearchType("title")}>
-                        Tựa đề
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => setSearchType("author")}>
-                        Tác giả
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => setSearchType("category")}>
-                        Thể loại
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  <Form
-                    className="d-flex position-relative"
-                    style={{ width: "400px" }}
-                    onSubmit={handleSearch}
-                  >
-                    <FormControl
-                      type="text"
-                      placeholder="Tìm kiếm"
-                      className="rounded-pill"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <Button
-                      type="submit"
-                      className="position-absolute end-0 rounded-pill"
-                      style={{ backgroundColor: "transparent", border: "none", color: "#333" }}
-                    >
-                      <FontAwesomeIcon icon={faSearch} />
-                    </Button>
-                  </Form>
+            {/* Main Content */}
+            <div className="main-container">
+              {/* Top Navigation */}
+              <div className="top-nav">
+                <div className="search-container">
+                  <div className="dropdown">
+                    <Dropdown className="me-2">
+                      <Dropdown.Toggle variant="light" className="rounded-pill">
+                        {
+                          searchType === "title" ? "Tựa đề" :
+                            searchType === "author" ? "Tác giả" :
+                              "Thể loại"
+                        }
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => setSearchType("title")}>Tựa đề</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("author")}>Tác giả</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("category")}>Thể loại</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </div>
+                  <div className="search-box">
+                    <Form onSubmit={handleSearch} style={{ width: "100%" }}>
+                      <input
+                        type="text"
+                        placeholder="Tìm kiếm"
+                        className="search-input"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ width: "100%" }}
+                      />
+                      <button className="search-icon" type="submit">
+                        <FontAwesomeIcon icon={faSearch} />
+                      </button>
+                    </Form>
+                  </div>
                 </div>
 
-                <Nav className="d-flex align-items-center">
-                  <Dropdown
-                    show={showNotifications}
-                    onToggle={() => setShowNotifications(!showNotifications)}
-                    className="me-3"
-                  >
-                    <Dropdown.Toggle
-                      variant="light"
-                      className="border-0 rounded-circle"
-                    >
+                <div className="user-section">
+                  <div className="lang-selector">
+                    <FontAwesomeIcon icon={faGlobe} className="me-1" />
+                    <span>Lang</span>
+                    <span className="dropdown-icon">▼</span>
+                  </div>
+
+                  <div className="notifications" onClick={() => setShowNotifications(!showNotifications)}>
+                    <span className="notification-icon">
                       <FontAwesomeIcon icon={faBell} />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end" style={{ width: "300px" }}>
-                      <Dropdown.Header className="d-flex justify-content-between align-items-center">
-                        <strong>Thông báo</strong>
-                        <a href="#" className="text-decoration-none">
-                          Xem tất cả
-                        </a>
-                      </Dropdown.Header>
-                      <Dropdown.Item
-                        className="p-2"
-                        style={{
-                          whiteSpace: "normal",
-                          wordWrap: "break-word",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <small>
-                          <strong>📘 'Don't Make Me Think'</strong> sẽ đến hạn
-                          trả vào ngày <strong>10/03/2025</strong>.
-                        </small>
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        className="p-2"
-                        style={{
-                          whiteSpace: "normal",
-                          wordWrap: "break-word",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <small>
-                          <strong>📕 'The Design of Everyday Things'</strong> đã
-                          quá hạn 2 ngày. Vui lòng trả sách để tránh phạt.
-                        </small>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  <Dropdown
-                    show={showUserMenu}
-                    onToggle={() => setShowUserMenu(!showUserMenu)}
-                  >
-                    <Dropdown.Toggle
-                      variant="light"
-                      className="border-0 d-flex align-items-center rounded-pill"
-                      style={{ textDecoration: "none" }}
-                    >
-                      {sessionStorage.getItem("avatar") ? (
-                        <img
-                          src={sessionStorage.getItem("avatar")}
-                          alt="Avatar"
-                          className="rounded-circle me-2"
-                          style={{ width: "35px", height: "35px", objectFit: "cover" }}
-                        />
-                      ) : (
-                        <div
-                          className="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
-                          style={{ width: "35px", height: "35px" }}
-                        >
-                          {sessionStorage.getItem("username")?.charAt(0).toUpperCase() || "K"}
+                    </span>
+                    {showNotifications && (
+                      <div className="notifications-dropdown">
+                        <div className="notification-header">
+                          <strong>Thông báo</strong>
+                          <a href="#" className="view-all">
+                            Xem tất cả
+                          </a>
                         </div>
-                      )}
-                      <div className="font-weight-bold">
-                        {sessionStorage.getItem("username") === null
-                          ? "Khách"
-                          : sessionStorage.getItem("username")}
+                        <div className="notification-item">
+                          <small>
+                            <strong>📘 'Don't Make Me Think'</strong> sẽ đến hạn trả vào ngày <strong>10/03/2025</strong>.
+                          </small>
+                        </div>
+                        <div className="notification-item">
+                          <small>
+                            <strong>📕 'The Design of Everyday Things'</strong> đã quá hạn 2 ngày. Vui lòng trả sách để tránh phạt.
+                          </small>
+                        </div>
                       </div>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end" className="shadow rounded">
-                      <Dropdown.Item
-                        href="#"
-                        className="py-2"
-                        onClick={() => handleNavigation("account")}
-                      >
-                        Trang cá nhân
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        href="#"
-                        className="py-2"
-                        onClick={() => handleNavigation("liked")}
-                      >
-                        Ưa thích
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        href="#"
-                        className="py-2"
-                        onClick={() => handleNavigation("History")}
-                      >
-                        Lịch sử mượn
-                      </Dropdown.Item>
-                      <Dropdown.Divider />
-                      <Dropdown.Item href="#" className="py-2 text-danger">
-                        Đăng xuất
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </Nav>
-              </Col>
-            </Row>
-          </Navbar>
+                    )}
+                  </div>
 
-          <Row className="mx-0">
-            <Col md={2} className="p-3">
-              <Card className="border-0 shadow-sm rounded-4">
-                <Card.Body className="p-0">
-                  <Sidebar
-                    activeView={activeView}
-                    onNavigate={handleNavigation}
-                  />
-                </Card.Body>
-              </Card>
-            </Col>
+                  <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
+                    <div className="avatar">VT</div>
+                    <span>{sessionStorage.getItem("user") === null ? "Nguyễn Văn A" : sessionStorage.getItem("username")}</span>
+                    <span className="dropdown-icon">▼</span>
+                    {showUserMenu && (
+                      <div className="user-dropdown">
+                        <div className="user-dropdown-item" onClick={() => handleNavigation("account")}>Trang cá nhân</div>
+                        <div className="user-dropdown-item" onClick={() => handleNavigation("liked")}>Ưa thích</div>
+                        <div className="user-dropdown-item" onClick={() => handleNavigation("History")}>Lịch sử mượn</div>
+                        <div className="divider"></div>
+                        <div className="user-dropdown-item logout">Đăng xuất</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            <Col md={10} className="p-3">
-              <Card className="border-0 shadow-sm rounded-4">
-                <Card.Body className="p-4">
-                  <div className="view-transition">{renderContent()}</div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+              {/* Content Area with Transition */}
+              <div className="content-area">
+                <div className="view-transition">{renderContent()}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </Container>
+    </Background>
   );
 };
 

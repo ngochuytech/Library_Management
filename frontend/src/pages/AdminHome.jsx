@@ -20,28 +20,34 @@ import {
   Dropdown,
 } from "react-bootstrap";
 
-import "../styles/Home.css"; // Đường dẫn đến Home.css
-
-import AdminSidebar from "../components/AdminSideBar.jsx"; // Đường dẫn đến AdminSidebar.jsx
-import Quote from "../components/Quote.jsx"; // Đường dẫn đến Quote.jsx
-import SearchTab from "../components/SearchTab.jsx"; // Đường dẫn đến SearchTab.jsx
-import BookDetail from "../components/BookDetail.jsx"; // Đường dẫn đến BookDetail.jsx
-import MyBookshelf from "../components/MyBookshelf.jsx"; // Import thêm component này
-import Contributions from "../components/Contributions.jsx"; // Import thêm component này
-import Account from "../components/Account.jsx"; // Đường dẫn đến Account.jsx
-import Liked from "../components/Liked.jsx"; // Đường dẫn đến Liked.jsx
-import History from "../components/History.jsx"; // Đường dẫn đến History.jsx
-import AdminBooks from "../components/AdminBooks.jsx"; // Đường dẫn đến AdminBooks.jsx
-import AdminUsers from "../components/AdminUsers.jsx"; // Đường dẫn đến AdminUsers.jsx
-import AdminBorrows from "../components/AdminBorrows.jsx"; // Đường dẫn đến AdminBorrows.jsx
-import AdminRecommendedBooks from "../components/AdminRecommendedBooks.jsx"; // Đường dẫn đến AdminRecommendedBooks.jsx
+import "../styles/Home.css"; // Chỉ sử dụng Home.css
+import AdminSidebar from "../components/AdminSideBar.jsx";
+import Quote from "../components/Quote.jsx";
+import SearchTab from "../components/SearchTab.jsx";
+import BookDetail from "../components/BookDetail.jsx";
+import MyBookshelf from "../components/MyBookshelf.jsx";
+import Contributions from "../components/Contributions.jsx";
+import Account from "../components/Account.jsx";
+import Liked from "../components/Liked.jsx";
+import History from "../components/History.jsx";
+import AdminBooks from "../components/AdminBooks.jsx";
+import AdminUsers from "../components/AdminUsers.jsx";
+import AdminBorrows from "../components/AdminBorrows.jsx";
+import AdminRecommendedBooks from "../components/AdminRecommendedBooks.jsx";
 import LibraryAdminSearch from "../components/LibraryAdminSearch";
+import Background from "../components/Background.jsx";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [activeView, setActiveView] = useState("home"); // Thêm state này để quản lý view
   const [selectedBook, setSelectedBook] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState("title");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchResult, setSearchResult] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [recommendedBooks, setRecommendedBooks] = useState([]); // State cho sách đề xuất từ API
   const [loadingRecommended, setLoadingRecommended] = useState(true); // State quản lý trạng thái loading
@@ -92,6 +98,47 @@ const HomePage = () => {
     fetchRecentlyBooks();
   }, []);
 
+  useEffect(() => {
+    if (activeView === 'search' && searchQuery.trim() === '')
+      fetchAllBook(currentPage);
+    else if (activeView === 'search')
+      fetchSearchResults(currentPage);
+  }, [activeView, searchQuery, searchType, currentPage]);
+
+  const fetchSearchResults = async (page) => {
+    try {
+      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setSearchResult(data.results);
+      setTotalPages(Math.ceil(data.count / 6));
+
+    } catch (error) {
+      console.error("Failed to fetch search books:", error);
+    }
+  }
+
+  const fetchAllBook = async (page) => {
+    try {
+      const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setSearchResult(data.results);
+      setTotalPages(Math.ceil(data.count / 6));
+
+    } catch (error) {
+      console.error("Failed to fetch all books:", error);
+    }
+  }
+
   const handleBookClick = (book) => {
     setSelectedBook(book);
     setActiveView("bookDetail");
@@ -103,6 +150,12 @@ const HomePage = () => {
     if (view !== "bookDetail") {
       setSelectedBook(null);
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    setActiveView("search");
   };
 
   // Render BookSection giống file 2 dùng Bootstrap components
@@ -151,18 +204,15 @@ const HomePage = () => {
         return <AdminBorrows />; // Thay thế bằng component quản lý mượn trả sách
       case "manageRecommended":
         return <AdminRecommendedBooks />; // Thay thế bằng component quản lý sách đề xuất
-
-      // case "search":
-      //   return (
-      //     <SearchTab
-      //       searchResult={searchResult}
-      //       currentPage={currentPage}
-      //       totalPages={totalPages}
-      //       onPageChange={setCurrentPage}
-      //       handleBookClick={handleBookClick}
-      //     />
-      //   );
       case "search":
+        return <SearchTab 
+          searchResult={searchResult}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          handleBookClick={handleBookClick}
+        />;
+      case "adminSearch":
         return <LibraryAdminSearch />;
       case "bookshelf":
         return <MyBookshelf books={recommendedBooks} />;
@@ -202,233 +252,100 @@ const HomePage = () => {
   };
 
   return (
-    <Container
-      fluid
-      className="p-0 min-vh-100"
-      style={{ backgroundColor: "#f8f9fa" }}
-    >
-      {/* Custom background overlay như file 2 */}
-      <div className="position-relative min-vh-100">
-        {/* Content Shield - White overlay */}
-        <div
-          className="position-relative p-3 min-vh-100"
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.95)" }}
-        >
-          {/* Top Nav */}
-          <Navbar
-            expand="lg"
-            className="px-4 mb-3 rounded-4 shadow-sm"
-            style={{ backgroundColor: "white" }}
-          >
-            <Row className="w-100 align-items-center">
-              {/* Logo */}
-              <Col md={2} className="d-flex align-items-center">
-                <img
-                  src="/icon.jpg"
-                  alt="Logo"
-                  style={{ width: "40px", height: "40px", marginRight: "10px" }}
-                />
-                <Navbar.Brand
-                  onClick={() => handleNavigation("home")}
-                  className="fw-bold cursor-pointer"
-                >
-                  MYLIB
-                </Navbar.Brand>
-              </Col>
+    <Background>
+      <div className="content-shield">
+      <div className="content-layout">
+        {/* Sidebar */}
+        <div className="sidebar-container">
+          <AdminSidebar
+            activeView={activeView}
+            onNavigate={handleNavigation}
+          />
+        </div>
 
-              {/* Search and User controls */}
-              <Col
-                md={10}
-                className="d-flex justify-content-between align-items-center"
-              >
-                {/* Search with dropdown like file 2 */}
-                <div className="d-flex search-area">
-                  <Dropdown className="me-2">
-                    <Dropdown.Toggle variant="light" className="rounded-pill">
-                      Tất cả <FontAwesomeIcon icon={faChevronDown} size="xs" />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item>Tất cả</Dropdown.Item>
-                      <Dropdown.Item>Tựa đề</Dropdown.Item>
-                      <Dropdown.Item>Tác giả</Dropdown.Item>
-                      <Dropdown.Item>Thể loại</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
+        {/* Main Container */}
+        <div className="main-container">
+          {/* Top Navigation */}
+          <div className="top-nav">
+            <div className="dropdown">
+              <button className="dropdown-button">
+                Tựa đề <span className="dropdown-icon">▼</span>
+              </button>
+            </div>
+            <div className="search-box">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Tìm kiếm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button className="search-icon" onClick={handleSearch}>
+                <FontAwesomeIcon icon={faSearch} />
+              </button>
+            </div>
 
-                  <Form
-                    className="d-flex position-relative"
-                    style={{ width: "400px" }}
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleNavigation("adminSearch");
-                    }}
-                  >
-                    <FormControl
-                      type="text"
-                      placeholder="Tìm kiếm"
-                      className="rounded-pill"
-                    />
-                    <Button
-                      className="position-absolute end-0 rounded-pill"
-                      style={{
-                        backgroundColor: "transparent",
-                        border: "none",
-                        color: "#333",
-                      }}
-                      type="submit"
-                    >
-                      <FontAwesomeIcon icon={faSearch} />
-                    </Button>
-                  </Form>
+            <div className="user-section">
+              <div className="lang-selector">
+                <FontAwesomeIcon icon={faGlobe} />
+                <span>Lang</span>
+              </div>
+
+              <div className="notifications" onClick={() => setShowNotifications(!showNotifications)}>
+                <FontAwesomeIcon icon={faBell} className="notification-icon" />
+                {showNotifications && (
+                  <div className="notifications-dropdown">
+                    <div className="notification-header">
+                      <span>Thông báo</span>
+                      <a href="#" className="view-all">Xem tất cả</a>
+                    </div>
+                    <div className="notification-item">
+                      Thông báo 1
+                    </div>
+                    <div className="notification-item">
+                      Thông báo 2
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
+                <div className="avatar">
+                  VT
                 </div>
+                <span>Nguyễn Văn A</span>
+                {showUserMenu && (
+                  <div className="user-dropdown">
+                    <div className="user-dropdown-item" onClick={() => handleNavigation("account")}>
+                      Trang cá nhân
+                    </div>
+                    <div className="user-dropdown-item" onClick={() => handleNavigation("liked")}>
+                      Ưa thích
+                    </div>
+                    <div className="user-dropdown-item" onClick={() => handleNavigation("History")}>
+                      Lịch sử mượn
+                    </div>
+                    <div className="divider"></div>
+                    <div className="user-dropdown-item logout">
+                      Đăng xuất
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-                {/* User controls: Language, Notifications, Profile */}
-                <Nav className="d-flex align-items-center">
-                  {/* Language selector like file 2 */}
-                  <Dropdown className="me-3">
-                    <Dropdown.Toggle
-                      variant="light"
-                      className="border-0 rounded-pill"
-                    >
-                      <FontAwesomeIcon icon={faGlobe} className="me-1" />
-                      <span>Lang</span>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end">
-                      <Dropdown.Item>Tiếng Việt</Dropdown.Item>
-                      <Dropdown.Item>English</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  {/* Dropdown Thông báo */}
-                  <Dropdown
-                    show={showNotifications}
-                    onToggle={() => setShowNotifications(!showNotifications)}
-                    className="me-3"
-                  >
-                    <Dropdown.Toggle
-                      variant="light"
-                      className="border-0 rounded-circle"
-                    >
-                      <FontAwesomeIcon icon={faBell} />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end" style={{ width: "300px" }}>
-                      <Dropdown.Header className="d-flex justify-content-between align-items-center">
-                        <strong>Thông báo</strong>
-                        <a href="#" className="text-decoration-none">
-                          Xem tất cả
-                        </a>
-                      </Dropdown.Header>
-                      <Dropdown.Item
-                        className="p-2"
-                        style={{
-                          whiteSpace: "normal",
-                          wordWrap: "break-word",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <small>
-                          <strong>📘 'Don't Make Me Think'</strong> sẽ đến hạn
-                          trả vào ngày <strong>10/03/2025</strong>.
-                        </small>
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        className="p-2"
-                        style={{
-                          whiteSpace: "normal",
-                          wordWrap: "break-word",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <small>
-                          <strong>📕 'The Design of Everyday Things'</strong> đã
-                          quá hạn 2 ngày. Vui lòng trả sách để tránh phạt.
-                        </small>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  {/* Dropdown User */}
-                  <Dropdown
-                    show={showUserMenu}
-                    onToggle={() => setShowUserMenu(!showUserMenu)}
-                  >
-                    <Dropdown.Toggle
-                      variant="light"
-                      className="border-0 d-flex align-items-center rounded-pill"
-                      style={{ textDecoration: "none" }}
-                    >
-                      <div
-                        className="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
-                        style={{ width: "35px", height: "35px" }}
-                      >
-                        VT
-                      </div>
-                      <div className="font-weight-bold">
-                        {sessionStorage.getItem("user") === null
-                          ? "Nguyễn Văn A"
-                          : sessionStorage.getItem("username")}
-                      </div>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end" className="shadow rounded">
-                      <Dropdown.Item
-                        href="#"
-                        className="py-2"
-                        onClick={() => handleNavigation("account")}
-                      >
-                        Trang cá nhân
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        href="#"
-                        className="py-2"
-                        onClick={() => handleNavigation("liked")}
-                      >
-                        Ưa thích
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        href="#"
-                        className="py-2"
-                        onClick={() => handleNavigation("History")}
-                      >
-                        Lịch sử mượn
-                      </Dropdown.Item>
-                      <Dropdown.Divider />
-                      <Dropdown.Item href="#" className="py-2 text-danger">
-                        Đăng xuất
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </Nav>
-              </Col>
-            </Row>
-          </Navbar>
-
-          <Row className="mx-0">
-            {/* AdminSidebar */}
-            <Col md={2} className="p-3">
-              <Card className="border-0 shadow-sm rounded-4">
-                <Card.Body className="p-0">
-                  <AdminSidebar
-                    activeView={activeView}
-                    onNavigate={handleNavigation}
-                  />
-                </Card.Body>
-              </Card>
-            </Col>
-
-            {/* Main Content Area */}
-            <Col md={10} className="p-3">
-              <Card className="border-0 shadow-sm rounded-4">
-                <Card.Body className="p-4">
-                  {/* Content with view transition */}
-                  <div className="view-transition">{renderContent()}</div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          {/* Content Area */}
+          <div className="content-area">
+            {renderContent()}
+          </div>
         </div>
       </div>
-    </Container>
+    </div>
+    </Background>
+    
   );
+
 };
 
 export default HomePage;
