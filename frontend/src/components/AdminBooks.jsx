@@ -25,7 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
-
+import api from "../api"; 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminBooks = () => {
@@ -65,12 +65,10 @@ const AdminBooks = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/books/api`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch books");
-        }
-        const data = await response.json();
-        setBooks(data.results);
+        const response = await api.get(`${BASE_URL}/books/api?page=${currentPage}`);
+        console.log("response = ", response);
+        
+        setBooks(response.data.results);
         setTotalPages(data.total_pages);
       } catch (err) {
         setError("Failed to load books. Please try again later.");

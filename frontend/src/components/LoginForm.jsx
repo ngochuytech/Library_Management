@@ -39,7 +39,8 @@ const LoginForm = () => {
       const response = await axios.post(`${BASE_URL}/users/login`, {email, password},
         {withCredentials: true}
       )
-  
+      console.log("access_token", response.data.access_token);
+      
       sessionStorage.setItem('access_token', response.data.access_token)
       sessionStorage.setItem('username', response.data.user.name)
       sessionStorage.setItem("idUser", response.data.user.id)

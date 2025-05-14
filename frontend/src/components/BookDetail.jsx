@@ -104,7 +104,6 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
         borrow_days: borrowDays,
       });
 
-      // Kiểm tra trạng thái phản hồi
       if (response.status === 201) {
         toast.success("Mượn sách thành công, chúng tôi sẽ liên hệ bạn!", {
             position: "top-right",
@@ -116,6 +115,11 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
         });
 
         await fetchBookDetails();
+        const responseNotification = await api.post('/notifications/api/create', {
+          user_id: user_id,
+          message: "Mượn sách thành công, chúng tôi sẽ liên hệ bạn!"
+        })
+        
       } else {
         throw new Error("Phản hồi không mong muốn từ server.");
       }

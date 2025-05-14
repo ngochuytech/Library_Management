@@ -71,9 +71,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = True  # Cho phép tất cả các domain
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173",]
+CORS_ALLOW_CREDENTIALS = True
+
 
 ROOT_URLCONF = 'LibraryManagement.urls'
 
@@ -96,9 +97,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'LibraryManagement.wsgi.application'
 
 
-SESSION_COOKIE_SECURE = True  
-SESSION_COOKIE_HTTPONLY = True  
-SESSION_COOKIE_SAMESITE = 'Lax'  
+SESSION_COOKIE_SECURE = False  # Tắt trong môi trường phát triển
+CSRF_COOKIE_SECURE = False     # Tắt trong môi trường phát triển
+SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = True
 
 SIMPLE_JWT = {

@@ -54,7 +54,6 @@ const HomePage = () => {
   useEffect(() => {
     const fetchRecommendedBooks = async () => {
       try {
-
         const response = await fetch(`${BASE_URL}/books/api`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -62,7 +61,6 @@ const HomePage = () => {
         const data = await response.json();
 
         setRecommendedBooks(data.results);
-
       } catch (error) {
         console.error("Failed to fetch recommended books:", error);
       }
@@ -71,7 +69,6 @@ const HomePage = () => {
     const fetchRecentlyBooks = async () => {
       setRecentlyBooks([]);
       try {
-
         const response = await fetch(`${BASE_URL}/books/api?page=2`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -79,7 +76,6 @@ const HomePage = () => {
         const data = await response.json();
 
         setRecentlyBooks(data.results);
-
       } catch (error) {
         console.error("Failed to fetch recently books:", error);
       }
@@ -93,7 +89,7 @@ const HomePage = () => {
       fetchAllBook(currentPage);
     else
       fetchSearchResults(currentPage);
-  },[]);
+  }, [activeView, searchQuery, searchType, currentPage]);
   const fetchSearchResults = async (page) => {
     try {
       const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
@@ -320,7 +316,7 @@ const HomePage = () => {
 
                   <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
                     <div className="avatar">VT</div>
-                    <span>{sessionStorage.getItem("user") === null ? "Nguyễn Văn A" : sessionStorage.getItem("username")}</span>
+                    <span>{sessionStorage.getItem("username") === null ? "Nguyễn Văn A" : sessionStorage.getItem("username")}</span>
                     <span className="dropdown-icon">▼</span>
                     {showUserMenu && (
                       <div className="user-dropdown">
