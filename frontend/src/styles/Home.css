@@ -240,9 +240,10 @@ body {
   width: 100%; /* Thay đổi từ 1600px thành 100% */
   max-width: 1600px; /* Thêm max-width để giới hạn chiều rộng tối đa */
   padding: 0 30px 24px;
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: hidden;
   margin: 0 auto;
+  height: calc(100vh - 120px);
 }
 
 .view-transition {
@@ -264,6 +265,20 @@ body {
   font-size: 24px;
   font-weight: 500;
   margin-bottom: 16px;
+}
+.card-img-top {
+  height: 300px;
+  object-fit: cover;
+  width: 100%;
+}
+.card-hover {
+  transition: transform 0.3s ease;
+  height: 100%;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 @media (max-width: 1650px) {
