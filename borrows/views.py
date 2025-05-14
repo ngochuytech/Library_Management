@@ -28,8 +28,8 @@ def getDetailBorrow(request, id):
         )
 
 
-# @permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getBorrowsByUserId(request, user_id):
     try:
         borrows = Borrow.objects.filter(user__id=user_id).order_by('exp_date')
