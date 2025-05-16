@@ -8,8 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'phone_number', 'avatar', 'created_at']
-        read_only_fields = ['email', 'created_at']
+        fields = ['id', 'name', 'email', 'phone_number', 'avatar', 'created_at', 'is_staff', 'is_superuser']
+        read_only_fields = ['email', 'created_at', 'is_staff', 'is_superuser']
 
     def validate_phone_number(self, value):
         if value and not re.match(r'^\d{9,15}$', value):

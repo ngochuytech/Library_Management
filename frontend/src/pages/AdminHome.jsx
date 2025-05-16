@@ -99,15 +99,16 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    if (activeView === 'search' && searchQuery.trim() === '')
+    if (activeView === "search" && searchQuery.trim() === "")
       fetchAllBook(currentPage);
-    else if (activeView === 'search')
-      fetchSearchResults(currentPage);
+    else if (activeView === "search") fetchSearchResults(currentPage);
   }, [activeView, searchQuery, searchType, currentPage]);
 
   const fetchSearchResults = async (page) => {
     try {
-      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
+      const response = await fetch(
+        `${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -116,11 +117,10 @@ const HomePage = () => {
 
       setSearchResult(data.results);
       setTotalPages(Math.ceil(data.count / 6));
-
     } catch (error) {
       console.error("Failed to fetch search books:", error);
     }
-  }
+  };
 
   const fetchAllBook = async (page) => {
     try {
@@ -133,11 +133,10 @@ const HomePage = () => {
 
       setSearchResult(data.results);
       setTotalPages(Math.ceil(data.count / 6));
-
     } catch (error) {
       console.error("Failed to fetch all books:", error);
     }
-  }
+  };
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
@@ -205,13 +204,15 @@ const HomePage = () => {
       case "manageRecommended":
         return <AdminRecommendedBooks />; // Thay thế bằng component quản lý sách đề xuất
       case "search":
-        return <SearchTab 
-          searchResult={searchResult}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          handleBookClick={handleBookClick}
-        />;
+        return (
+          <SearchTab
+            searchResult={searchResult}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            handleBookClick={handleBookClick}
+          />
+        );
       case "adminSearch":
         return <LibraryAdminSearch />;
       case "bookshelf":
@@ -254,98 +255,110 @@ const HomePage = () => {
   return (
     <Background>
       <div className="content-shield">
-      <div className="content-layout">
-        {/* Sidebar */}
-        <div className="sidebar-container">
-          <AdminSidebar
-            activeView={activeView}
-            onNavigate={handleNavigation}
-          />
-        </div>
-
-        {/* Main Container */}
-        <div className="main-container">
-          {/* Top Navigation */}
-          <div className="top-nav">
-            <div className="dropdown">
-              <button className="dropdown-button">
-                Tựa đề <span className="dropdown-icon">▼</span>
-              </button>
-            </div>
-            <div className="search-box">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Tìm kiếm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button className="search-icon" onClick={handleSearch}>
-                <FontAwesomeIcon icon={faSearch} />
-              </button>
-            </div>
-
-            <div className="user-section">
-              <div className="lang-selector">
-                <FontAwesomeIcon icon={faGlobe} />
-                <span>Lang</span>
-              </div>
-
-              <div className="notifications" onClick={() => setShowNotifications(!showNotifications)}>
-                <FontAwesomeIcon icon={faBell} className="notification-icon" />
-                {showNotifications && (
-                  <div className="notifications-dropdown">
-                    <div className="notification-header">
-                      <span>Thông báo</span>
-                      <a href="#" className="view-all">Xem tất cả</a>
-                    </div>
-                    <div className="notification-item">
-                      Thông báo 1
-                    </div>
-                    <div className="notification-item">
-                      Thông báo 2
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
-                <div className="avatar">
-                  VT
-                </div>
-                <span>Nguyễn Văn A</span>
-                {showUserMenu && (
-                  <div className="user-dropdown">
-                    <div className="user-dropdown-item" onClick={() => handleNavigation("account")}>
-                      Trang cá nhân
-                    </div>
-                    <div className="user-dropdown-item" onClick={() => handleNavigation("liked")}>
-                      Ưa thích
-                    </div>
-                    <div className="user-dropdown-item" onClick={() => handleNavigation("History")}>
-                      Lịch sử mượn
-                    </div>
-                    <div className="divider"></div>
-                    <div className="user-dropdown-item logout">
-                      Đăng xuất
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+        <div className="content-layout">
+          {/* Sidebar */}
+          <div className="sidebar-container">
+            <AdminSidebar
+              activeView={activeView}
+              onNavigate={handleNavigation}
+            />
           </div>
 
-          {/* Content Area */}
-          <div className="content-area">
-            {renderContent()}
+          {/* Main Container */}
+          <div className="main-container">
+            {/* Top Navigation */}
+            <div className="top-nav">
+              <div className="dropdown">
+                <button className="dropdown-button">
+                  Tựa đề <span className="dropdown-icon">▼</span>
+                </button>
+              </div>
+              <div className="search-box">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Tìm kiếm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button className="search-icon" onClick={handleSearch}>
+                  <FontAwesomeIcon icon={faSearch} />
+                </button>
+              </div>
+
+              <div className="user-section">
+                <div className="lang-selector">
+                  <FontAwesomeIcon icon={faGlobe} />
+                  <span>Lang</span>
+                </div>
+
+                <div
+                  className="notifications"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                >
+                  <FontAwesomeIcon
+                    icon={faBell}
+                    className="notification-icon"
+                  />
+                  {showNotifications && (
+                    <div className="notifications-dropdown">
+                      <div className="notification-header">
+                        <span>Thông báo</span>
+                        <a href="#" className="view-all">
+                          Xem tất cả
+                        </a>
+                      </div>
+                      <div className="notification-item">Thông báo 1</div>
+                      <div className="notification-item">Thông báo 2</div>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="user-profile"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                >
+                  <div className="avatar">VT</div>
+                  <span>
+                    {sessionStorage.getItem("username") === null
+                      ? "Nguyễn Văn A"
+                      : sessionStorage.getItem("username")}
+                  </span>
+                  {showUserMenu && (
+                    <div className="user-dropdown">
+                      <div
+                        className="user-dropdown-item"
+                        onClick={() => handleNavigation("account")}
+                      >
+                        Trang cá nhân
+                      </div>
+                      <div
+                        className="user-dropdown-item"
+                        onClick={() => handleNavigation("liked")}
+                      >
+                        Ưa thích
+                      </div>
+                      <div
+                        className="user-dropdown-item"
+                        onClick={() => handleNavigation("History")}
+                      >
+                        Lịch sử mượn
+                      </div>
+                      <div className="divider"></div>
+                      <div className="user-dropdown-item logout">Đăng xuất</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="content-area">{renderContent()}</div>
           </div>
         </div>
       </div>
-    </div>
     </Background>
-    
   );
-
 };
 
 export default HomePage;

@@ -25,29 +25,30 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
-import api from "../api"; 
+import api from "../api";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminBooks = () => {
   const navigate = useNavigate();
-
   // State quản lý danh sách sách
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // State danh sách tác giả và thể loại
+  const [authors, setAuthors] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+
   // State cho modal thêm/sửa sách
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
-  const [currentBook, setCurrentBook] = useState(null);
-
-  // State cho form
+  const [currentBook, setCurrentBook] = useState(null); // State cho form
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    category: "",
+    category: [],
     quantity: "",
-    available: "",
     description: "",
     image: null,
   });
@@ -60,16 +61,16 @@ const AdminBooks = () => {
   // State xác nhận xóa
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
-
-  // Fetch dữ liệu sách từ API
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await api.get(`${BASE_URL}/books/api?page=${currentPage}`);
+        const response = await api.get(
+          `${BASE_URL}/books/api?page=${currentPage}`
+        );
         console.log("response = ", response);
-        
+
         setBooks(response.data.results);
-        setTotalPages(data.total_pages);
+        setTotalPages(response.data.total_pages); // <-- Dòng này đúng
       } catch (err) {
         setError("Failed to load books. Please try again later.");
       } finally {
@@ -77,15 +78,48 @@ const AdminBooks = () => {
       }
     };
 
-    fetchBooks();
+    fetchBooks(); // <-- phải đặt bên ngoài hàm fetchBooks, nhưng trong useEffect
   }, [currentPage]);
 
+  // Lấy danh sách tác giả và thể loại khi component được mount
+  useEffect(() => {
+    const fetchOptions = async () => {
+      setLoadingOptions(true);
+      try {
+        // Fetch authors
+        const authorsResponse = await api.get(`${BASE_URL}/authors/api/`);
+        setAuthors(authorsResponse.data);
+
+        // Fetch categories
+        const categoriesResponse = await api.get(`${BASE_URL}/categories/api/`);
+        setCategories(categoriesResponse.data);
+      } catch (err) {
+        console.error("Error fetching authors or categories:", err);
+        setError("Failed to load options. Please try again later.");
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+
+    fetchOptions();
+  }, []);
   // Xử lý thay đổi form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
+    });
+  };
+
+  // Xử lý thay đổi khi chọn nhiều thể loại
+  const handleCategoryChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(
+      (option) => option.value
+    );
+    setFormData({
+      ...formData,
+      category: selectedOptions,
     });
   };
 
@@ -98,36 +132,34 @@ const AdminBooks = () => {
         image: file,
       });
     }
-  };
-
-  // Mở modal thêm sách
+  }; // Mở modal thêm sách
   const handleAddBook = () => {
     setModalTitle("Thêm sách mới");
     setCurrentBook(null);
     setFormData({
       title: "",
       author: "",
-      category: "",
+      category: [],
       quantity: "",
-      available: "",
       description: "",
       image: null,
+      publication_date: new Date().toISOString().split("T")[0], // Thêm ngày xuất bản mặc định là hôm nay
     });
     setShowModal(true);
-  };
-
-  // Mở modal sửa sách
+  }; // Mở modal sửa sách
   const handleEditBook = (book) => {
     setModalTitle("Chỉnh sửa sách");
     setCurrentBook(book);
     setFormData({
       title: book.title,
-      author: book.author,
-      category: book.category,
+      author: book.author.id,
+      category: book.category.map((cat) => cat.id),
       quantity: book.quantity,
       available: book.available,
       description: book.description,
       image: book.image,
+      publication_date:
+        book.publication_date || new Date().toISOString().split("T")[0],
     });
     setShowModal(true);
   };
@@ -141,36 +173,186 @@ const AdminBooks = () => {
   const confirmDeleteBook = (book) => {
     setBookToDelete(book);
     setShowDeleteConfirm(true);
-  };
-
-  // Thực hiện xóa sách
-  const handleDeleteBook = () => {
+  }; // Thực hiện xóa sách
+  const handleDeleteBook = async () => {
     if (bookToDelete) {
-      setBooks(books.filter((book) => book.id !== bookToDelete.id));
-      setShowDeleteConfirm(false);
-    }
-  };
+      try {
+        await api.delete(`${BASE_URL}/books/api/delete/${bookToDelete.id}`);
 
-  // Lưu sách (thêm hoặc sửa)
-  const handleSaveBook = () => {
-    if (currentBook) {
-      // Cập nhật sách
-      setBooks(
-        books.map((book) =>
-          book.id === currentBook.id ? { ...book, ...formData } : book
-        )
+        // Cập nhật state để xóa sách khỏi UI
+        setBooks(books.filter((book) => book.id !== bookToDelete.id));
+        setShowDeleteConfirm(false);
+      } catch (error) {
+        console.error("Error deleting book:", error);
+        alert("Đã xảy ra lỗi khi xóa sách");
+      }
+    }
+    // Lưu sách (thêm hoặc sửa)  const handleSaveBook = async () => {
+    try {
+      // Tạo formData để gửi lên server, bao gồm cả file ảnh
+      const bookFormData = new FormData();
+      bookFormData.append("title", formData.title);
+      bookFormData.append("author", formData.author);
+
+      // Xử lý category (multiple selection)
+      formData.category.forEach((catId) => {
+        bookFormData.append("category", catId);
+      });
+
+      bookFormData.append("quantity", formData.quantity);
+      bookFormData.append("description", formData.description);
+
+      // Thêm publication_date - field bắt buộc
+      bookFormData.append(
+        "publication_date",
+        formData.publication_date || new Date().toISOString().split("T")[0]
       );
-    } else {
-      // Thêm sách mới
-      const newBook = {
-        id: books.length > 0 ? Math.max(...books.map((b) => b.id)) + 1 : 1,
-        ...formData,
-      };
-      setBooks([...books, newBook]);
-    }
-    setShowModal(false);
-  };
 
+      // Chỉ append image nếu có file mới được chọn
+      if (formData.image && typeof formData.image !== "string") {
+        bookFormData.append("image", formData.image);
+      }
+
+      if (currentBook) {
+        // Cập nhật sách
+        await api.put(
+          `${BASE_URL}/books/api/edit/${currentBook.id}`,
+          bookFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        // Thêm sách mới
+        await api.post(`${BASE_URL}/books/api/create`, bookFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
+      // Reload danh sách sách
+      const response = await api.get(
+        `${BASE_URL}/books/api?page=${currentPage}`
+      );
+      setBooks(response.data.results);
+
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error saving book:", error);
+      alert("Đã xảy ra lỗi khi lưu sách");
+    }
+  };
+  const handleSaveBook = async () => {
+    try {
+      // 1. Tạo đối tượng FormData để gửi dữ liệu (bao gồm cả file)
+      const bookFormData = new FormData();
+
+      // 2. Append các trường dữ liệu vào FormData
+      bookFormData.append("title", formData.title);
+      bookFormData.append("author", formData.author); // Gửi ID của tác giả
+
+      // Xử lý category (là một mảng các ID)
+      if (formData.category && Array.isArray(formData.category)) {
+        formData.category.forEach((catId) => {
+          bookFormData.append("category", catId); // API sẽ nhận nhiều giá trị cho key 'category'
+        });
+      }
+
+      bookFormData.append("quantity", formData.quantity);
+      bookFormData.append("description", formData.description);
+
+      // Đảm bảo ngày xuất bản luôn được gửi và ở định dạng YYYY-MM-DD
+      const publicationDate = formData.publication_date
+        ? new Date(formData.publication_date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
+      bookFormData.append("publication_date", publicationDate);
+
+      // 3. Xử lý file ảnh: Chỉ append nếu có file mới được chọn
+      //    (formData.image sẽ là File object nếu mới, hoặc string (URL) nếu là ảnh cũ)
+      if (formData.image && typeof formData.image !== "string") {
+        bookFormData.append("image", formData.image);
+      }
+      // Trường hợp edit: Nếu formData.image là string (URL ảnh cũ) và không thay đổi,
+      // thì không cần append lại. API backend nên được thiết kế để giữ lại ảnh cũ nếu trường 'image' không được gửi.
+      // Nếu API yêu cầu gửi null hoặc giá trị đặc biệt để xóa ảnh, bạn cần xử lý thêm ở đây.
+
+      let response;
+      // 4. Phân biệt giữa tạo mới (POST) và cập nhật (PUT)
+      if (currentBook && currentBook.id) {
+        // Cập nhật sách đã tồn tại
+        response = await api.put(
+          `${BASE_URL}/books/api/edit/${currentBook.id}/`,
+          bookFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        // Thêm sách mới
+        response = await api.post(
+          `${BASE_URL}/books/api/create/`,
+          bookFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      }
+
+      // 5. Sau khi lưu thành công, làm mới danh sách sách trên trang hiện tại
+      const refreshResponse = await api.get(
+        `${BASE_URL}/books/api?page=${currentPage}${
+          searchTerm ? `&search=${searchTerm}` : ""
+        }`
+      );
+      setBooks(refreshResponse.data.results);
+      setTotalPages(refreshResponse.data.total_pages);
+
+      // 6. Đóng modal và reset trạng thái
+      setShowModal(false);
+      setCurrentBook(null); // Reset currentBook sau khi lưu
+
+      // Thông báo thành công (tùy chọn)
+      alert(
+        currentBook && currentBook.id
+          ? "Cập nhật sách thành công!"
+          : "Thêm sách mới thành công!"
+      );
+    } catch (error) {
+      console.error("Error saving book:", error);
+
+      // 7. Xử lý và hiển thị lỗi chi tiết từ server nếu có
+      let errorMessage = "Đã xảy ra lỗi khi lưu sách. ";
+      if (error.response && error.response.data) {
+        const errors = error.response.data;
+        // Lỗi có thể là một object với các key là tên trường và value là mảng các thông báo lỗi
+        // Hoặc một chuỗi lỗi đơn giản trong 'detail' hoặc 'message'
+        if (typeof errors === "object" && errors !== null) {
+          for (const key in errors) {
+            if (Array.isArray(errors[key])) {
+              errorMessage += `${key}: ${errors[key].join(", ")}. `;
+            } else if (typeof errors[key] === "string") {
+              errorMessage += `${key}: ${errors[key]}. `;
+            }
+          }
+          // Trường hợp lỗi chung không theo field
+          if (errors.detail) errorMessage += `${errors.detail}. `;
+          if (errors.message) errorMessage += `${errors.message}. `;
+        } else if (typeof errors === "string") {
+          errorMessage += errors;
+        }
+      } else {
+        errorMessage += error.message; // Lỗi mạng hoặc lỗi không có response từ server
+      }
+      alert(errorMessage.trim());
+    }
+  };
   if (loading) {
     return (
       <Container className="my-5 text-center">
@@ -223,8 +405,7 @@ const AdminBooks = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-              </InputGroup>
-
+              </InputGroup>{" "}
               {/* Bảng danh sách sách */}
               <Table striped bordered hover responsive>
                 <thead>
@@ -235,7 +416,6 @@ const AdminBooks = () => {
                     <th>Tác giả</th>
                     <th>Thể loại</th>
                     <th>Số lượng</th>
-                    <th>Có sẵn</th>
                     <th>Thao tác</th>
                   </tr>
                 </thead>
@@ -255,12 +435,12 @@ const AdminBooks = () => {
                         <td>{book.title}</td>
                         <td>{book.author.name}</td>
                         <td>
+                          {" "}
                           <Badge bg="info">
                             {book.category.map((cat) => cat.name).join(", ")}
                           </Badge>
                         </td>
                         <td>{book.quantity}</td>
-                        <td>{book.available}</td>
                         <td>
                           <Button
                             variant="outline-info"
@@ -290,14 +470,13 @@ const AdminBooks = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="text-center py-4">
+                      <td colSpan="7" className="text-center py-4">
                         Không tìm thấy sách phù hợp
                       </td>
                     </tr>
                   )}
                 </tbody>
               </Table>
-
               {/* Phân trang */}
               {books.length > 0 && (
                 <div className="d-flex justify-content-center mt-4">
@@ -337,133 +516,143 @@ const AdminBooks = () => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
-
+      </Row>{" "}
       {/* Modal thêm/sửa sách */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{modalTitle}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
-            <Row className="mb-3">
-              <Col md={4}>
-                {/* Hiển thị ảnh xem trước */}
-                <div className="text-center mb-3">
-                  {formData.image ? (
-                    <Image
-                      src={
-                        typeof formData.image === "string"
-                          ? formData.image
-                          : URL.createObjectURL(formData.image)
-                      }
-                      alt="Book cover preview"
-                      fluid
-                      className="rounded shadow-sm"
-                      style={{ maxHeight: "200px" }}
+          {loadingOptions ? (
+            <div className="text-center py-4">
+              <p>Đang tải dữ liệu...</p>
+            </div>
+          ) : (
+            <Form>
+              <Row className="mb-3">
+                <Col md={4}>
+                  {/* Hiển thị ảnh xem trước */}
+                  <div className="text-center mb-3">
+                    {formData.image ? (
+                      <Image
+                        src={
+                          typeof formData.image === "string"
+                            ? formData.image
+                            : URL.createObjectURL(formData.image)
+                        }
+                        alt="Book cover preview"
+                        fluid
+                        className="rounded shadow-sm"
+                        style={{ maxHeight: "200px" }}
+                      />
+                    ) : (
+                      <div className="border rounded p-5 text-muted bg-light">
+                        Chưa có ảnh
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Trường chọn ảnh */}
+                  <Form.Group>
+                    <Form.Label>Ảnh bìa sách</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
                     />
-                  ) : (
-                    <div className="border rounded p-5 text-muted bg-light">
-                      Chưa có ảnh
-                    </div>
-                  )}
-                </div>
+                    <Form.Text className="text-muted">
+                      Chọn ảnh có tỷ lệ 3:4 để hiển thị tốt nhất
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
 
-                {/* Trường chọn ảnh */}
-                <Form.Group>
-                  <Form.Label>Ảnh bìa sách</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                  <Form.Text className="text-muted">
-                    Chọn ảnh có tỷ lệ 3:4 để hiển thị tốt nhất
-                  </Form.Text>
-                </Form.Group>
-              </Col>
-
-              <Col md={8}>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Tên sách</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Tác giả</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="author"
-                        value={formData.author}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Thể loại</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Số lượng</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="quantity"
-                        value={formData.quantity}
-                        onChange={handleInputChange}
-                        min="1"
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Có sẵn</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="available"
-                        value={formData.available}
-                        onChange={handleInputChange}
-                        min="0"
-                        max={formData.quantity}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-                <Form.Group className="mb-3">
-                  <Form.Label>Mô tả</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Form>
+                <Col md={8}>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Tên sách</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="title"
+                          value={formData.title}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </Form.Group>
+                    </Col>{" "}
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Tác giả</Form.Label>
+                        <Form.Select
+                          name="author"
+                          value={formData.author}
+                          onChange={handleInputChange}
+                          required
+                          disabled={loadingOptions}
+                        >
+                          <option value="">Chọn tác giả</option>
+                          {authors.map((author) => (
+                            <option key={author.id} value={author.id}>
+                              {author.name}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    {" "}
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Thể loại</Form.Label>
+                        <Form.Select
+                          name="category"
+                          multiple
+                          onChange={handleCategoryChange}
+                          required
+                          disabled={loadingOptions}
+                          value={formData.category}
+                          style={{ height: "100px" }}
+                        >
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        <Form.Text className="text-muted">
+                          Giữ Ctrl để chọn nhiều thể loại
+                        </Form.Text>
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Số lượng</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="quantity"
+                          value={formData.quantity}
+                          onChange={handleInputChange}
+                          min="1"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Mô tả</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Form>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
@@ -474,7 +663,6 @@ const AdminBooks = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       {/* Modal xác nhận xóa */}
       <Modal
         show={showDeleteConfirm}

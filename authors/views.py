@@ -6,6 +6,12 @@ from authors.models import Author
 
 # Create your views here.
 @api_view(['GET'])
+def getAllAuthors(request):
+    authors = Author.objects.all()
+    serializer = AuthorSerializer(authors, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def getDetailAuthor(request, id):
     try:
         author = Author.objects.get(id=id)

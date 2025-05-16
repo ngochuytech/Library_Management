@@ -12,6 +12,7 @@ from django.conf import settings
 from datetime import timedelta
 import random
 import string
+import datetime
 from django.utils.crypto import get_random_string
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.hashers import check_password
@@ -39,7 +40,15 @@ class LoginClass(APIView):
             user = get_user_from_token(access_token)
             userSerializer = UserSerializer(user, many=False)
 
-            response = Response({"access_token": access_token, "user": userSerializer.data})
+            # Tạo response với thông tin user đầy đủ bao gồm vai trò
+            user_data = userSerializer.data
+            is_admin = user.is_staff or user.is_superuser
+            
+            response = Response({
+                "access_token": access_token, 
+                "user": user_data,
+                "is_admin": is_admin
+            })
             response.set_cookie(
                 key='refresh_token',
                 value=refresh_token,
@@ -265,4 +274,4 @@ def changePassword(request):
         return Response({
             "error": f"Đã xảy ra lỗi: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
