@@ -171,7 +171,21 @@ class ResetPasswordView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found', 'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
 
+# Thêm các import cần thiết
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from rest_framework import status
+from .models import User
+from .serializers import UserSerializer
+
+# API lấy danh sách người dùng (chỉ admin mới có quyền truy cập)
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
+def list_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
 def getUser(request):
     id = request.GET.get('id')
     try:
@@ -183,48 +197,56 @@ def getUser(request):
         return Response({
             "error": f"Cannot find user with id: {id}",
         }, status=status.HTTP_400_BAD_REQUEST)
-    
-@api_view(['PUT'])
-def updateUserInformation(request, id):
+# API cập nhật thông tin người dùng
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAdminUser])
+def update_user(request, id):
     try:
-        user = User.objects.get(id=id)
-        name = request.data.get("name")
-        phone_number = request.data.get("phone_number")
+        user = User.objects.get(id=id) # User là model của bạn
+        # Kiểm tra request.FILES nếu bạn gửi avatar bằng FormData
+        print("Request data:", request.data) 
+        print("Request FILES:", request.FILES)
 
-        data = {}
-        if name is not None and not name.strip():
-            return Response({
-                "error": "Name cannot be empty"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        if phone_number is not None and not phone_number.strip():
-            raise InvalidPhoneNumberException("Số điện thoại không được để trống")
-        
-        data['name'] = name
-        data['phone_number'] = phone_number
-
-        serializer = UserSerializer(instance=user, data=data, partial=True)
-        if not serializer.is_valid():
-            print("serializer.errors = ", serializer.errors)
-            raise InvalidPhoneNumberException(serializer.errors)
-        
-        user.name = name
-        user.phone_number = phone_number
-        user.save()
-        serializer = UserSerializer(user)
-        print("data = ", serializer.data)
-        return Response(serializer.data)
-    
+        # Khi có file upload, request.data sẽ chứa các trường non-file,
+        # và request.FILES sẽ chứa các trường file.
+        # ModelSerializer sẽ tự động xử lý việc này khi bạn truyền request.data.
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        print("Serializer errors:", serializer.errors) # Log lỗi serializer
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
-        return Response({
-            "error": f"Cannot find user with id: {id}"
-        }, status=status.HTTP_400_BAD_REQUEST)
-    except InvalidPhoneNumberException as e:
-        return Response({
-            "error": e.message,
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print("Exception in update_user:", str(e)) # Log lỗi chung
+        return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# API xóa người dùng
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def delete_user(request, id):
+    try:
+        user = User.objects.get(id=id) # User là model User của bạn
+
+        # Cân nhắc: Bạn có thể muốn thêm logic kiểm tra xem user có đang cố tự xóa mình không,
+        # hoặc không cho xóa superuser cuối cùng, v.v.
+        # Ví dụ:
+        # if request.user.id == user.id:
+        #     return Response({"error": "You cannot delete yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.delete()
+        # Theo chuẩn REST, DELETE thành công thường trả về 204 No Content và không có body.
+        # Hoặc bạn có thể trả về một thông báo thành công nếu muốn.
+        return Response(status=status.HTTP_204_NO_CONTENT) 
+        # return Response({"message": f"User with id {id} deleted successfully"}, status=status.HTTP_200_OK) # Nếu bạn muốn có message
+    except User.DoesNotExist:
+        return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e: # Bắt các lỗi không mong muốn khác
+        print(f"Error deleting user {id}: {str(e)}")
+        return Response({"error": "An error occurred while deleting the user."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def changePassword(request):
