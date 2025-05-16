@@ -7,5 +7,5 @@ urlpatterns=[
   path('api/create', views.BorrowCreateView.as_view(), name='borrow-create'),
   path('api/edit/<int:id>', views.editBorrowWithId),
   path('api/delete/<int:id>', views.deleteBorrowWithId),
-
+  path('api/user/<int:user_id>', views.getBorrowsByUserId, name='get-borrows-by-user-id'),
 ]
