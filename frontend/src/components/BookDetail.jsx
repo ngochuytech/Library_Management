@@ -93,49 +93,95 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
 
   const handleBorrowBook = async () => {
     try {
-      const user_id = sessionStorage.getItem("idUser");
-      if (!user_id) {
-          throw new Error("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.");
+      const currentUserId = sessionStorage.getItem("idUser"); // Đổi tên biến để rõ ràng hơn
+      if (!currentUserId) { // Kiểm tra null hoặc undefined
+        toast.error("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.");
+        // throw new Error("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại."); // Dùng toast thay throw để không bị finally sớm
+        return; // Thoát sớm nếu không có user_id
       }
 
-      const response = await api.post(`/borrows/api/create`, {
-        user: user_id,
-        book: book.id,
-        borrow_days: borrowDays,
-      });
+      if (!book || !book.id) { // Kiểm tra book và book.id
+        toast.error("Không tìm thấy thông tin sách để mượn.");
+        return; // Thoát sớm
+      }
+      const currentBookId = book.id;
 
-      if (response.status === 201) {
+      // Tạo payload với tên trường khớp với lỗi từ backend
+      const payload = {
+        user_id: parseInt(currentUserId, 10), // Đảm bảo user_id là số nếu serializer yêu cầu
+        book_id: currentBookId,              // book.id đã là số
+        borrow_days: borrowDays,
+        // status: 'Pending' // Backend đã có default='PENDING' cho status, không cần gửi
+      };
+
+      console.log("Sending borrow request with payload:", payload); // Để debug
+
+      // Sử dụng instance `api` đã cấu hình (có thể đã có token)
+      const response = await api.post(`/borrows/api/create`, payload);
+
+      // Kiểm tra status thành công (201 Created)
+      if (response.status === 201 && response.data) { // Kiểm tra cả response.data
         toast.success("Mượn sách thành công, chúng tôi sẽ liên hệ bạn!", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
+            position: "top-right", autoClose: 3000, hideProgressBar: false,
+            closeOnClick: true, pauseOnHover: true, draggable: true,
         });
 
-        await fetchBookDetails();
-        const responseNotification = await api.post('/notifications/api/create', {
-          user_id: user_id,
-          message: "Mượn sách thành công, chúng tôi sẽ liên hệ bạn!"
-        })
+        await fetchBookDetails(); // Cập nhật lại thông tin sách (ví dụ: số lượng còn lại)
+        
+        // Gửi thông báo (notification)
+        try {
+            await api.post('/notifications/api/create', {
+                user_id: parseInt(currentUserId, 10),
+                message: `Bạn đã yêu cầu mượn sách "${book.title}". Chúng tôi sẽ sớm liên hệ với bạn.`
+            });
+        } catch (notificationError) {
+            console.error("Error sending notification:", notificationError.response?.data || notificationError.message);
+            // Không cần làm người dùng lo lắng nếu chỉ thông báo lỗi
+        }
         
       } else {
-        throw new Error("Phản hồi không mong muốn từ server.");
+        // Xử lý các trường hợp status khác 201 nhưng không phải lỗi (ít gặp với POST create)
+        console.warn("Unexpected response status:", response.status, "Data:", response.data);
+        toast.error(response.data?.message || `Yêu cầu không thành công (mã lỗi: ${response.status}).`);
       }
 
     } catch (error) {
-        toast.error(error.message || error.response?.data?.error || "Không thể mượn sách. Vui lòng thử lại.", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-        });
-        console.error("Borrow error:", error.response?.data || error.message);
+      console.error("Borrow error object:", error); // Log toàn bộ object lỗi
+      if (error.response) {
+        console.error("Borrow error response data:", error.response.data);
+        // error.response.data chính là {user_id: Array(1), book_id: Array(1)}
+        let errorMessages = "Lỗi khi gửi yêu cầu mượn sách:\n";
+        const responseData = error.response.data;
+        if (typeof responseData === 'object' && responseData !== null) {
+          // Nếu backend trả về lỗi theo format { field: ["message1", "message2"], ...}
+          for (const key in responseData) {
+            if (Array.isArray(responseData[key])) {
+              errorMessages += `Trường ${key}: ${responseData[key].join('; ')}\n`;
+            } else if (typeof responseData[key] === 'string') { // Trường hợp message chung như { "detail": "Not found."}
+              errorMessages += `${responseData[key]}\n`;
+            }
+          }
+           // Nếu có message chung ở ngoài cùng
+           if (responseData.message && typeof responseData.message === 'string') {
+            errorMessages = responseData.message + "\n" + errorMessages;
+          } else if (responseData.detail && typeof responseData.detail === 'string') { // DRF hay dùng detail
+            errorMessages = responseData.detail + "\n" + errorMessages;
+          }
+        } else if (typeof responseData === 'string') {
+          errorMessages += responseData;
+        } else {
+          errorMessages += error.message || "Lỗi không xác định từ server.";
+        }
+        toast.error(errorMessages.trim(), { autoClose: 5000 });
+      } else if (error.request) {
+        console.error("Borrow error request:", error.request);
+        toast.error("Không nhận được phản hồi từ máy chủ. Vui lòng kiểm tra kết nối mạng.");
+      } else {
+        console.error('Borrow setup error message:', error.message);
+        toast.error(`Lỗi thiết lập yêu cầu: ${error.message}`);
+      }
     } finally {
-        setShowBorrowModal(false);
+      setShowBorrowModal(false);
     }
   };
 
