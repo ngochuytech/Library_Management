@@ -535,7 +535,9 @@ const AdminBooks = () => {
                         <td>{book.id}</td>
                         <td>
                           <Image
-                            src={book.image || "/placeholder-book.jpg"} // Placeholder nếu không có ảnh
+                            src={
+                              `/image/${book.image}` || "/placeholder-book.jpg"
+                            } // Placeholder nếu không có ảnh
                             alt={book.title}
                             width={50}
                             thumbnail // Hoặc className="rounded shadow-sm"

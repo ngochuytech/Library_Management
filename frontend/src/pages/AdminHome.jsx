@@ -163,6 +163,7 @@ const HomePage = () => {
       <Row className="mt-3 d-flex flex-nowrap overflow-auto pb-2">
         {books.map((book, index) => (
           <Col key={index} className="px-2" style={{ minWidth: "200px" }}>
+            {" "}
             <Card
               className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
               style={{ width: "100%" }}
@@ -170,7 +171,7 @@ const HomePage = () => {
             >
               <Card.Img
                 variant="top"
-                src={book.image.slice(16)}
+                src={`/image/${book.image}`}
                 className="rounded-3"
               />
               <Card.Body className="text-center">
