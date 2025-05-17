@@ -8,21 +8,18 @@ import {
   Image,
   Badge,
   Card,
-  Modal,
+  Modal, // Modal is still used for Preview
   ProgressBar,
   Alert,
   Tabs,
   Tab,
-  Form,
-  FormControl,
-  FloatingLabel,
+  // Form, FormControl, FloatingLabel are removed as they were for the edit modal
 } from "react-bootstrap";
 import {
   faStar,
   faHeart as fasHeart,
   faBookOpen,
-  faEdit,
-  faTrash,
+  // faEdit, faTrash are removed
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faStar as faStarRegular,
@@ -30,6 +27,7 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/BookDetail.css";
+// import { ACCESS_TOKEN } from "../constants"; // Removed as it was used in handleSubmit
 
 const AdminBookDetail = () => {
   const navigate = useNavigate();
@@ -39,16 +37,18 @@ const AdminBookDetail = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editedBook, setEditedBook] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [authors, setAuthors] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false); // Favorite toggle remains
+  const [showPreview, setShowPreview] = useState(false); // Preview modal remains
+  // Removed state related to editing: showEditModal, editedBook, categories, authors
   const [authorBooks, setAuthorBooks] = useState([]);
 
-  // Fetch books by author when the author is selected
+  // Fetch books by author when the author is selected (remains)
   const fetchBooksByAuthor = async () => {
+    if (!book || !book.author || !book.author.id) {
+      console.error("Thông tin tác giả không đầy đủ để tải sách.");
+      setAuthorBooks([]); // Clear or handle as appropriate
+      return;
+    }
     try {
       const response = await fetch(
         `${BASE_URL}/books/api/author/${book.author.id}`
@@ -57,6 +57,7 @@ const AdminBookDetail = () => {
       setAuthorBooks(data);
     } catch (err) {
       console.error("Lỗi khi tải sách của tác giả", err);
+      setAuthorBooks([]); // Clear or handle error appropriately
     }
   };
 
@@ -69,7 +70,7 @@ const AdminBookDetail = () => {
         }
         const data = await response.json();
         setBook(data);
-        setEditedBook(data);
+        // setEditedBook(data); // Removed: no longer editing
       } catch (err) {
         setError("Failed to load book. Please try again later.");
       } finally {
@@ -77,30 +78,9 @@ const AdminBookDetail = () => {
       }
     };
 
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/categories/api/`);
-        const data = await response.json();
-        setCategories(data);
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-      }
-    };
-
-    const fetchAuthors = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/authors/api/`);
-        const data = await response.json();
-        setAuthors(data);
-      } catch (err) {
-        console.error("Failed to fetch authors", err);
-      }
-    };
-
+    // fetchCategories and fetchAuthors are removed as they were for the edit modal
     fetchBook();
-    fetchCategories();
-    fetchAuthors();
-  }, [id]);
+  }, [id, BASE_URL]); // Added BASE_URL to dependencies as it's used in useEffect
 
   const renderRatingStars = (rating) => {
     const stars = [];
@@ -133,7 +113,6 @@ const AdminBookDetail = () => {
         />
       );
     }
-
     return stars;
   };
 
@@ -142,70 +121,7 @@ const AdminBookDetail = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleEdit = () => {
-    setShowEditModal(true);
-  };
-
-  const handleDelete = () => {
-    if (window.confirm(`Bạn có chắc muốn xóa sách "${book.title}"?`)) {
-      alert(`Đã xóa sách ID: ${book.id}`);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedBook((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleCategoryChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions).map(
-      (option) => ({
-        id: option.value,
-        name: option.label,
-      })
-    );
-    setEditedBook((prev) => ({
-      ...prev,
-      category: selectedOptions,
-    }));
-  };
-
-  const handleAuthorChange = (e) => {
-    const selectedAuthor = authors.find(
-      (author) => author.id === e.target.value
-    );
-    setEditedBook((prev) => ({
-      ...prev,
-      author: selectedAuthor,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${BASE_URL}/books/api/${id}/`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editedBook),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update book");
-      }
-
-      const updatedBook = await response.json();
-      setBook(updatedBook);
-      setShowEditModal(false);
-      alert("Cập nhật sách thành công!");
-    } catch (err) {
-      alert("Có lỗi xảy ra khi cập nhật sách: " + err.message);
-    }
-  };
+  // Removed handleEdit, handleDelete, handleInputChange, handleCategoryChange, handleAuthorChange, handleSubmit
 
   if (loading) return <div>Đang tải thông tin sách...</div>;
   if (error) return <Alert variant="danger">{error}</Alert>;
@@ -213,7 +129,7 @@ const AdminBookDetail = () => {
 
   return (
     <Container className="mt-3 mb-5 book-detail-container">
-      {/* Preview Modal */}
+      {/* Preview Modal (remains) */}
       <Modal
         show={showPreview}
         onHide={() => setShowPreview(false)}
@@ -233,196 +149,7 @@ const AdminBookDetail = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Edit Book Modal */}
-      <Modal
-        show={showEditModal}
-        onHide={() => setShowEditModal(false)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Chỉnh sửa sách: {book.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Row className="mb-3">
-              <Col md={6}>
-                <FloatingLabel
-                  controlId="title"
-                  label="Tiêu đề"
-                  className="mb-3"
-                >
-                  <FormControl
-                    type="text"
-                    name="title"
-                    value={editedBook.title || ""}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FloatingLabel>
-              </Col>
-              <Col md={6}>
-                <FloatingLabel
-                  controlId="author"
-                  label="Tác giả"
-                  className="mb-3"
-                >
-                  <Form.Select
-                    name="author"
-                    value={editedBook.author?.id || ""}
-                    onChange={handleAuthorChange}
-                    required
-                  >
-                    <option value="">Chọn tác giả</option>
-                    {authors.map((author) => (
-                      <option key={author.id} value={author.id}>
-                        {author.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </FloatingLabel>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <FloatingLabel
-                  controlId="image"
-                  label="URL hình ảnh"
-                  className="mb-3"
-                >
-                  <FormControl
-                    type="text"
-                    name="image"
-                    value={editedBook.image || ""}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FloatingLabel>
-              </Col>
-              <Col md={6}>
-                <FloatingLabel
-                  controlId="publication_date"
-                  label="Năm xuất bản"
-                  className="mb-3"
-                >
-                  <FormControl
-                    type="number"
-                    name="publication_date"
-                    value={editedBook.publication_date || ""}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FloatingLabel>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <FloatingLabel
-                  controlId="rating"
-                  label="Đánh giá (0-5)"
-                  className="mb-3"
-                >
-                  <FormControl
-                    type="number"
-                    name="rating"
-                    min="0"
-                    max="5"
-                    step="0.1"
-                    value={editedBook.rating || ""}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FloatingLabel>
-              </Col>
-              <Col md={6}>
-                <FloatingLabel
-                  controlId="quantity"
-                  label="Số lượng"
-                  className="mb-3"
-                >
-                  <FormControl
-                    type="number"
-                    name="quantity"
-                    min="0"
-                    value={editedBook.quantity || ""}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FloatingLabel>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col>
-                <FloatingLabel
-                  controlId="description"
-                  label="Mô tả"
-                  className="mb-3"
-                >
-                  <FormControl
-                    as="textarea"
-                    name="description"
-                    style={{ height: "100px" }}
-                    value={editedBook.description || ""}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FloatingLabel>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col>
-                <FloatingLabel
-                  controlId="preview"
-                  label="Nội dung xem trước"
-                  className="mb-3"
-                >
-                  <FormControl
-                    as="textarea"
-                    name="preview"
-                    style={{ height: "150px" }}
-                    value={editedBook.preview || ""}
-                    onChange={handleInputChange}
-                  />
-                </FloatingLabel>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col>
-                <Form.Label>Thể loại</Form.Label>
-                <Form.Select
-                  multiple
-                  name="category"
-                  value={editedBook.category?.map((c) => c.id) || []}
-                  onChange={handleCategoryChange}
-                  required
-                >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Form.Select>
-                <Form.Text className="text-muted">
-                  Giữ phím Ctrl để chọn nhiều thể loại
-                </Form.Text>
-              </Col>
-            </Row>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-            Hủy bỏ
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Lưu thay đổi
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Edit Book Modal and its Form have been removed */}
 
       {/* Main Content */}
       <Row>
@@ -493,11 +220,12 @@ const AdminBookDetail = () => {
                   </div>
 
                   <Alert
-                    variant="success"
+                    variant="success" // This should dynamically change based on availability
                     className="d-flex align-items-center"
                   >
                     <div className="me-3">
                       <Badge bg="success" className="me-2">
+                        {/* Consider making this dynamic e.g. book.available > 0 ? "Còn sách" : "Hết sách" */}
                         Còn sách
                       </Badge>
                       <span className="text-muted small">
@@ -505,23 +233,21 @@ const AdminBookDetail = () => {
                       </span>
                     </div>
                     <ProgressBar
-                      now={(book.available / book.quantity) * 100}
+                      now={
+                        book.quantity > 0
+                          ? (book.available / book.quantity) * 100
+                          : 0
+                      }
                       variant="success"
                       className="flex-grow-1"
                       style={{ height: "8px" }}
                     />
                   </Alert>
 
-                  <div className="d-flex gap-3 mb-4">
-                    <Button variant="primary" size="sm" onClick={handleEdit}>
-                      <FontAwesomeIcon icon={faEdit} className="me-2" />
-                      Chỉnh sửa
-                    </Button>
-                    <Button variant="danger" size="sm" onClick={handleDelete}>
-                      <FontAwesomeIcon icon={faTrash} className="me-2" />
-                      Xóa
-                    </Button>
-                  </div>
+                  {/* Edit and Delete buttons container removed */}
+                  {/* <div className="d-flex gap-3 mb-4"> */}
+                  {/* Buttons were here */}
+                  {/* </div> */}
                 </Col>
               </Row>
             </Card.Body>
@@ -544,7 +270,7 @@ const AdminBookDetail = () => {
             <Card.Body>
               <div className="d-flex mb-3">
                 <Image
-                  src={book.author?.avatar || "icon.png"}
+                  src={book.author?.avatar || "icon.png"} // Default icon if no avatar
                   roundedCircle
                   width={80}
                   height={80}
@@ -570,7 +296,7 @@ const AdminBookDetail = () => {
       {authorBooks.length > 0 && (
         <Card className="mt-4">
           <Card.Header>
-            <h5>Sách khác của {book.author.name}</h5>
+            <h5>Sách khác của {book.author?.name}</h5>
           </Card.Header>
           <Card.Body>
             <Row>

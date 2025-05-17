@@ -85,14 +85,15 @@ const HomePage = () => {
     fetchRecentlyBooks();
   }, []);
   useEffect(() => {
-    if (activeView == 'search' && searchQuery.trim() == '')
+    if (activeView == "search" && searchQuery.trim() == "")
       fetchAllBook(currentPage);
-    else
-      fetchSearchResults(currentPage);
+    else fetchSearchResults(currentPage);
   }, [activeView, searchQuery, searchType, currentPage]);
   const fetchSearchResults = async (page) => {
     try {
-      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
+      const response = await fetch(
+        `${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -137,7 +138,7 @@ const HomePage = () => {
   // Callback để xử lý tìm kiếm theo tác giả
   const handleSearchByAuthor = (authorId, authorName) => {
     setSearchType("author");
-    setSearchQuery(authorName); 
+    setSearchQuery(authorName);
     setCurrentPage(1);
     setActiveView("search");
     searchBook();
@@ -153,7 +154,11 @@ const HomePage = () => {
               style={{ width: "100%" }}
               onClick={() => onBookClick(book)}
             >
-              <Card.Img variant="top" src={`/image/${book.image}`} className="rounded-3" />
+              <Card.Img
+                variant="top"
+                src={`/image/${book.image}`}
+                className="rounded-3"
+              />
               <Card.Body className="text-center">
                 <Card.Title className="fs-6 fw-bold text-truncate">
                   {book.title}
@@ -199,7 +204,10 @@ const HomePage = () => {
         return <RecommendBooks />;
       case "bookDetail":
         return selectedBook ? (
-          <BookDetail book={selectedBook} onSearchByAuthor={handleSearchByAuthor} />
+          <BookDetail
+            book={selectedBook}
+            onSearchByAuthor={handleSearchByAuthor}
+          />
         ) : null;
       case "account":
         return <Account />;
@@ -251,16 +259,24 @@ const HomePage = () => {
                   <div className="dropdown">
                     <Dropdown className="me-2">
                       <Dropdown.Toggle variant="light" className="rounded-pill">
-                        {
-                          searchType === "title" ? "Tựa đề" :
-                            searchType === "author" ? "Tác giả" :
-                              "Thể loại"
-                        }
+                        {searchType === "title"
+                          ? "Tựa đề"
+                          : searchType === "author"
+                          ? "Tác giả"
+                          : "Thể loại"}
                       </Dropdown.Toggle>
                       <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => setSearchType("title")}>Tựa đề</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setSearchType("author")}>Tác giả</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setSearchType("category")}>Thể loại</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("title")}>
+                          Tựa đề
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("author")}>
+                          Tác giả
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => setSearchType("category")}
+                        >
+                          Thể loại
+                        </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
@@ -288,7 +304,10 @@ const HomePage = () => {
                     <span className="dropdown-icon">▼</span>
                   </div>
 
-                  <div className="notifications" onClick={() => setShowNotifications(!showNotifications)}>
+                  <div
+                    className="notifications"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                  >
                     <span className="notification-icon">
                       <FontAwesomeIcon icon={faBell} />
                     </span>
@@ -302,29 +321,55 @@ const HomePage = () => {
                         </div>
                         <div className="notification-item">
                           <small>
-                            <strong>📘 'Don't Make Me Think'</strong> sẽ đến hạn trả vào ngày <strong>10/03/2025</strong>.
+                            <strong>📘 'Don't Make Me Think'</strong> sẽ đến hạn
+                            trả vào ngày <strong>10/03/2025</strong>.
                           </small>
                         </div>
                         <div className="notification-item">
                           <small>
-                            <strong>📕 'The Design of Everyday Things'</strong> đã quá hạn 2 ngày. Vui lòng trả sách để tránh phạt.
+                            <strong>📕 'The Design of Everyday Things'</strong>{" "}
+                            đã quá hạn 2 ngày. Vui lòng trả sách để tránh phạt.
                           </small>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
+                  <div
+                    className="user-profile"
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                  >
                     <div className="avatar">VT</div>
-                    <span>{sessionStorage.getItem("username") === null ? "Nguyễn Văn A" : sessionStorage.getItem("username")}</span>
+                    <span>
+                      {sessionStorage.getItem("username") === null
+                        ? "Nguyễn Văn A"
+                        : sessionStorage.getItem("username")}
+                    </span>
                     <span className="dropdown-icon">▼</span>
                     {showUserMenu && (
                       <div className="user-dropdown">
-                        <div className="user-dropdown-item" onClick={() => handleNavigation("account")}>Trang cá nhân</div>
-                        <div className="user-dropdown-item" onClick={() => handleNavigation("liked")}>Ưa thích</div>
-                        <div className="user-dropdown-item" onClick={() => handleNavigation("History")}>Lịch sử mượn</div>
+                        <div
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("account")}
+                        >
+                          Trang cá nhân
+                        </div>
+                        <div
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("liked")}
+                        >
+                          Ưa thích
+                        </div>
+                        <div
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("History")}
+                        >
+                          Lịch sử mượn
+                        </div>
                         <div className="divider"></div>
-                        <div className="user-dropdown-item logout">Đăng xuất</div>
+                        <div className="user-dropdown-item logout">
+                          Đăng xuất
+                        </div>
                       </div>
                     )}
                   </div>

@@ -39,9 +39,41 @@ def getRandomBook(request, bookId):
 @permission_classes([IsAdminUser])
 def createBook(request):
     data = request.data
-    serializer = BookSerializer(data=data)
+    print("------------------------------------")
+    print("Data received in createBook view:", data)
+    # Đối với FormData, các trường có nhiều giá trị được lấy bằng getlist()
+    print("Categories from request.data.getlist('category'):", data.getlist('category'))
+    print("Author from request.data.get('author'):", data.get('author'))
+    print("Title from request.data.get('title'):", data.get('title'))
+    print("Image file from request.FILES.get('image'):", request.FILES.get('image')) # File thường nằm trong request.FILES
+    print("------------------------------------")
+    
+    # Convert form data to appropriate format
+    processed_data = data.dict() if hasattr(data, 'dict') else data.copy()
+    
+    # Handle multivalue fields (like category)
+    if hasattr(data, 'getlist'):
+        category_list = data.getlist('category')
+        if category_list:
+            # Convert string IDs to integers
+            category_ids = [int(cat_id) for cat_id in category_list if cat_id.isdigit()]
+            processed_data['category_ids'] = category_ids
+    
+    # Handle author ID
+    if 'author' in processed_data:
+        author_id = processed_data.pop('author', None)
+        if author_id and str(author_id).isdigit():
+            processed_data['author_id'] = int(author_id)
+    
+    # Handle file uploads
+    if 'image' in request.FILES:
+        processed_data['image'] = request.FILES.get('image')
+    
+    serializer = BookSerializer(data=processed_data)
     if not serializer.is_valid():
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        print("Serializer errors:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     serializer.save()
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -62,8 +94,32 @@ def getDetailBook(request, id):
 def editBookWithId(request, id):
     try:
         book = Book.objects.get(id=id)
-        serializer = BookSerializer(book, data=request.data)
+        data = request.data
+        
+        # Convert form data to appropriate format
+        processed_data = data.dict() if hasattr(data, 'dict') else data.copy()
+        
+        # Handle multivalue fields (like category)
+        if hasattr(data, 'getlist'):
+            category_list = data.getlist('category')
+            if category_list:
+                # Convert string IDs to integers
+                category_ids = [int(cat_id) for cat_id in category_list if cat_id.isdigit()]
+                processed_data['category_ids'] = category_ids
+        
+        # Handle author ID
+        if 'author' in processed_data:
+            author_id = processed_data.pop('author', None)
+            if author_id and str(author_id).isdigit():
+                processed_data['author_id'] = int(author_id)
+        
+        # Handle file uploads
+        if 'image' in request.FILES:
+            processed_data['image'] = request.FILES.get('image')
+            
+        serializer = BookSerializer(book, data=processed_data)
         if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
             return Response(
                 { "message" : "Edit book unsuccessfull!",
                   "error": serializer.errors},
