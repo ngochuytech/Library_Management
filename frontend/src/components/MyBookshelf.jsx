@@ -41,20 +41,20 @@ const PersonalLibrary = ({ userId }) => {
   const [filterDays, setFilterDays] = useState("all");
 
   useEffect(() => {
-    const fetchBookById = async (bookId) => {
-      try {
-        const BASE_URL = import.meta.env.VITE_API_URL;
-        const response = await axios.get(`${BASE_URL}/books/api/${bookId}`);
-        if (response.status === 200) {
-          return response.data;
-        } else {
-          throw new Error("Không lấy được thông tin sách");
-        }
-      } catch (error) {
-        console.error("Lỗi khi gọi API sách:", error.message);
-        return null;
-      }
-    };
+    // const fetchBookById = async (bookId) => {
+    //   try {
+    //     const BASE_URL = import.meta.env.VITE_API_URL;
+    //     const response = await axios.get(`${BASE_URL}/books/api/${bookId}`);
+    //     if (response.status === 200) {
+    //       return response.data;
+    //     } else {
+    //       throw new Error("Không lấy được thông tin sách");
+    //     }
+    //   } catch (error) {
+    //     console.error("Lỗi khi gọi API sách:", error.message);
+    //     return null;
+    //   }
+    // };
 
     const fetchBorrows = async () => {
       try {
@@ -62,36 +62,57 @@ const PersonalLibrary = ({ userId }) => {
         setError(null);
 
         const id = userId || sessionStorage.getItem("idUser");
-        if (!id) throw new Error("User ID not found");
+        if (!id) {
+          throw new Error("User ID not found");
+        }
 
         const BASE_URL = import.meta.env.VITE_API_URL;
         const token = sessionStorage.getItem("access_token");
-        if (!token) throw new Error("Authentication required");
+        if (!token) {
+          throw new Error("Authentication required");
+        }
 
         const response = await axios.get(`${BASE_URL}/borrows/api/user/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched borrows from database:", response.data);
+        console.log("Fetched borrows from database:", response.data); // Dòng 76 trong log của bạn
 
         const rawData = Array.isArray(response.data) ? response.data : [];
 
-        const enrichedData = await Promise.all(
-          rawData.map(async (borrow) => {
-            const book = await fetchBookById(borrow.book);
-            return {
-              ...borrow,
-              book,
-              remainingDays: calculateRemainingDays(borrow.exp_date),
-              isOverdue: new Date(borrow.exp_date) < new Date(),
-            };
-          })
-        );
-        console.log("Enriched borrows data:", enrichedData);
-        setBorrows(enrichedData);
-      } catch (error) {
-        console.error("Error fetching borrows:", error);
+        // Loại bỏ khối code gọi fetchBookById và khai báo enrichedData
+        // const enrichedData = await Promise.all(
+        //   rawData.map(async (borrow) => {
+        //     const book = await fetchBookById(borrow.book); // Không cần dòng này nữa
+        //     return {
+        //       ...borrow,
+        //       book,
+        //       remainingDays: calculateRemainingDays(borrow.exp_date),
+        //       isOverdue: new Date(borrow.exp_date) < new Date(),
+        //     };
+        //   })
+        // );
+
+        // Sử dụng processedData thay thế
+        const processedData = rawData.map((borrow) => {
+          // borrow.book từ rawData đã là đối tượng sách chi tiết
+          return {
+            ...borrow,
+            remainingDays: calculateRemainingDays(borrow.exp_date),
+            isOverdue: borrow.exp_date ? new Date(borrow.exp_date) < new Date() : false,
+          };
+        });
+        // Dòng 102 trong log của bạn:
+        console.log("Processed borrows data (should have book details directly):", processedData);
+
+        // Dòng 105 trong file của bạn có thể là dòng setBorrows dưới đây.
+        // Đảm bảo bạn sử dụng processedData ở đây:
+        setBorrows(processedData);
+
+      } catch (error) { // Dòng 108 trong log của bạn là console.error này
+        console.error("Error fetching borrows:", error); // Lỗi ReferenceError xảy ra TRƯỚC KHI tới catch này
+                                                        // và `error` object lúc này chính là ReferenceError đó.
         setError(error.message || "Failed to load borrow records");
         setBorrows([]);
       } finally {

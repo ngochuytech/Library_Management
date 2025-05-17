@@ -44,10 +44,12 @@ def getBorrowsByUserId(request, user_id):
 class BorrowCreateView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        serializer = BorrowSerializer(data=request.data)
+        serializer = BorrowSerializer(data=request.data) # Dữ liệu từ frontend được đưa vào đây
         if serializer.is_valid():
             borrow = serializer.save()
             return Response(BorrowSerializer(borrow).data, status=status.HTTP_201_CREATED)
+        # Nếu không valid, serializer.errors sẽ chứa lỗi chi tiết
+        # và đó chính là {user_id: [...], book_id: [...]} bạn thấy
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
@@ -76,3 +78,36 @@ def deleteBorrowWithId(request, id):
         return Response("Delete book successfully!")
     except Borrow.DoesNotExist:
         return Response({"message": f"Cannot find borrow with id = {id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser]) # Chỉ Admin mới được truy cập view này
+def get_admin_borrows_list(request):
+    borrows_queryset = Borrow.objects.all().order_by('-borrow_date', '-exp_date') # Sắp xếp mới nhất lên trước
+
+    # Lọc theo trạng thái (status)
+    status_param = request.GET.get('status')
+    if status_param:
+        statuses = status_param.split(',') # Cho phép lọc nhiều status, ví dụ: status=RETURNED,APPROVED
+        borrows_queryset = borrows_queryset.filter(status__in=statuses)
+
+    # Lọc theo trạng thái "không phải là" (status__ne)
+    status_not_equal_param = request.GET.get('status__ne')
+    if status_not_equal_param:
+        borrows_queryset = borrows_queryset.exclude(status=status_not_equal_param)
+        
+    # Lọc theo user name (nếu admin muốn tìm kiếm)
+    user_query = request.GET.get('user_name__icontains')
+    if user_query:
+        borrows_queryset = borrows_queryset.filter(user__username__icontains=user_query) # Giả sử user model có 'username'
+                                                                                    # hoặc user__first_name__icontains, user__last_name__icontains
+
+    # Lọc theo tiêu đề sách
+    book_title_query = request.GET.get('book_title__icontains')
+    if book_title_query:
+        borrows_queryset = borrows_queryset.filter(book__title__icontains=book_title_query)
+
+    # TODO: Thêm phân trang ở đây sau này
+
+    serializer = BorrowSerializer(borrows_queryset, many=True)
+    return Response(serializer.data)
+    
