@@ -26,6 +26,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { ACCESS_TOKEN } from "../constants";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminBooks = () => {
@@ -187,66 +188,35 @@ const AdminBooks = () => {
         alert("Đã xảy ra lỗi khi xóa sách");
       }
     }
-    // Lưu sách (thêm hoặc sửa)  const handleSaveBook = async () => {
-    try {
-      // Tạo formData để gửi lên server, bao gồm cả file ảnh
-      const bookFormData = new FormData();
-      bookFormData.append("title", formData.title);
-      bookFormData.append("author", formData.author);
 
-      // Xử lý category (multiple selection)
-      formData.category.forEach((catId) => {
-        bookFormData.append("category", catId);
-      });
+    // Reload danh sách sách
+    const response = await api.get(`${BASE_URL}/books/api?page=${currentPage}`);
+    setBooks(response.data.results);
 
-      bookFormData.append("quantity", formData.quantity);
-      bookFormData.append("description", formData.description);
-
-      // Thêm publication_date - field bắt buộc
-      bookFormData.append(
-        "publication_date",
-        formData.publication_date || new Date().toISOString().split("T")[0]
-      );
-
-      // Chỉ append image nếu có file mới được chọn
-      if (formData.image && typeof formData.image !== "string") {
-        bookFormData.append("image", formData.image);
-      }
-
-      if (currentBook) {
-        // Cập nhật sách
-        await api.put(
-          `${BASE_URL}/books/api/edit/${currentBook.id}`,
-          bookFormData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-      } else {
-        // Thêm sách mới
-        await api.post(`${BASE_URL}/books/api/create`, bookFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      }
-
-      // Reload danh sách sách
-      const response = await api.get(
-        `${BASE_URL}/books/api?page=${currentPage}`
-      );
-      setBooks(response.data.results);
-
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error saving book:", error);
-      alert("Đã xảy ra lỗi khi lưu sách");
-    }
+    setShowModal(false);
   };
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
   const handleSaveBook = async () => {
     try {
+      const token = sessionStorage.getItem(ACCESS_TOKEN);
+      const csrfToken = getCookie("csrftoken");
+
+      console.log("csrfToken = ", csrfToken);
+      console.log("token = ", token);
       // 1. Tạo đối tượng FormData để gửi dữ liệu (bao gồm cả file)
       const bookFormData = new FormData();
 
@@ -278,8 +248,14 @@ const AdminBooks = () => {
       // Trường hợp edit: Nếu formData.image là string (URL ảnh cũ) và không thay đổi,
       // thì không cần append lại. API backend nên được thiết kế để giữ lại ảnh cũ nếu trường 'image' không được gửi.
       // Nếu API yêu cầu gửi null hoặc giá trị đặc biệt để xóa ảnh, bạn cần xử lý thêm ở đây.
+      console.log("bookFormData = ", bookFormData.get("image"));
 
       let response;
+      const requestHeaders = {
+        // "Content-Type": "multipart/form-data",
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...(csrfToken && { "X-CSRFToken": csrfToken }), // Thêm CSRF token vào header
+      };
       // 4. Phân biệt giữa tạo mới (POST) và cập nhật (PUT)
       if (currentBook && currentBook.id) {
         // Cập nhật sách đã tồn tại
@@ -287,9 +263,7 @@ const AdminBooks = () => {
           `${BASE_URL}/books/api/edit/${currentBook.id}/`,
           bookFormData,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            headers: requestHeaders,
           }
         );
       } else {
@@ -298,9 +272,7 @@ const AdminBooks = () => {
           `${BASE_URL}/books/api/create/`,
           bookFormData,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            headers: requestHeaders,
           }
         );
       }

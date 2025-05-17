@@ -35,8 +35,8 @@ def getRandomBook(request, bookId):
     serializer = BookSerializer(random_books, many=True)
     return Response(serializer.data)
 
-# @permission_classes([IsAdminUser])
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def createBook(request):
     data = request.data
     serializer = BookSerializer(data=data)
