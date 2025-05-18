@@ -107,7 +107,7 @@ const HomePage = () => {
   const fetchSearchResults = async (page) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`
+        `${BASE_URL}/books/api/search?type=${searchType}&query=${searchQuery}&page=${page}`
       );
 
       if (!response.ok) {
@@ -124,7 +124,7 @@ const HomePage = () => {
 
   const fetchAllBook = async (page) => {
     try {
-      const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
+      const response = await fetch(`${BASE_URL}/books/api/search?page=${page}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -163,6 +163,7 @@ const HomePage = () => {
       <Row className="mt-3 d-flex flex-nowrap overflow-auto pb-2">
         {books.map((book, index) => (
           <Col key={index} className="px-2" style={{ minWidth: "200px" }}>
+            {" "}
             <Card
               className="shadow-sm border-0 rounded-4 overflow-hidden p-2 card-hover"
               style={{ width: "100%" }}
@@ -170,7 +171,7 @@ const HomePage = () => {
             >
               <Card.Img
                 variant="top"
-                src={book.image.slice(16)}
+                src={`/image/${book.image}`}
                 className="rounded-3"
               />
               <Card.Body className="text-center">
@@ -287,11 +288,6 @@ const HomePage = () => {
               </div>
 
               <div className="user-section">
-                <div className="lang-selector">
-                  <FontAwesomeIcon icon={faGlobe} />
-                  <span>Lang</span>
-                </div>
-
                 <div
                   className="notifications"
                   onClick={() => setShowNotifications(!showNotifications)}
@@ -318,7 +314,12 @@ const HomePage = () => {
                   className="user-profile"
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
-                  <div className="avatar">VT</div>
+                  <img
+                      className="avatar"
+                      src="/icon.jpg"
+                      alt="Avatar"
+                      style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
+                  />
                   <span>
                     {sessionStorage.getItem("username") === null
                       ? "Nguyễn Văn A"

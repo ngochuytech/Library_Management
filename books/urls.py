@@ -9,4 +9,6 @@ urlpatterns = [
     path('api/edit/<int:id>', views.editBookWithId),
     path('api/delete/<int:id>', views.deleteBookWithId),
     path('api/author/<int:author_id>', views.getBooksByAuthor),
+    path('api/quote', views.getBookByQuote),
+    path('api/search', views.searchBookByName),
 ]

@@ -10,7 +10,7 @@ import {
   Form,
   InputGroup,
   Badge,
-  Pagination,
+  Pagination, // Đã import
   Alert,
   Image,
 } from "react-bootstrap";
@@ -30,21 +30,20 @@ import { ACCESS_TOKEN } from "../constants";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminBooks = () => {
+  const PAGE_SIZE = 6;
+
   const navigate = useNavigate();
-  // State quản lý danh sách sách
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State danh sách tác giả và thể loại
   const [authors, setAuthors] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
 
-  // State cho modal thêm/sửa sách
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
-  const [currentBook, setCurrentBook] = useState(null); // State cho form
+  const [currentBook, setCurrentBook] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -52,59 +51,99 @@ const AdminBooks = () => {
     quantity: "",
     description: "",
     image: null,
+    preview: "", // Đảm bảo trường này có trong formData
+    publication_date: new Date().toISOString().split("T")[0], // Đã có
   });
 
-  // State tìm kiếm và phân trang
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // State xác nhận xóa
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
-  useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const response = await api.get(
-          `${BASE_URL}/books/api?page=${currentPage}`
-        );
-        console.log("response = ", response);
 
-        setBooks(response.data.results);
-        setTotalPages(response.data.total_pages); // <-- Dòng này đúng
-      } catch (err) {
-        setError("Failed to load books. Please try again later.");
-      } finally {
-        setLoading(false);
+  const fetchBooks = async (page, search = "") => {
+    setLoading(true);
+    setError(null); // Reset lỗi trước mỗi lần fetch
+    try {
+      let url = `${BASE_URL}/books/api?page=${page}`;
+
+      if (search) {
+        // Backend kỳ vọng 'query' cho nội dung tìm kiếm và 'type' cho loại tìm kiếm.
+        // Ở đây, chúng ta mặc định tìm kiếm theo 'title'.
+        // Nếu placeholder "Tìm kiếm sách theo tên hoặc tác giả..." ngụ ý tìm kiếm đa trường,
+        // backend cần được cập nhật để hỗ trợ điều đó với một tham số 'query' duy nhất,
+        // hoặc frontend cần có cách chọn 'type'.
+        url += `&query=${encodeURIComponent(search)}&type=title`;
       }
-    };
 
-    fetchBooks(); // <-- phải đặt bên ngoài hàm fetchBooks, nhưng trong useEffect
-  }, [currentPage]);
+      const response = await api.get(url);
+      console.log("API response for books:", response.data);
 
-  // Lấy danh sách tác giả và thể loại khi component được mount
+      if (response.data && response.data.results) {
+        setBooks(response.data.results);
+        const totalItems = response.data.count || 0;
+        const calculatedTotalPages = Math.ceil(totalItems / PAGE_SIZE);
+        setTotalPages(calculatedTotalPages > 0 ? calculatedTotalPages : 1);
+
+        // Xử lý trường hợp trang hiện tại vượt quá tổng số trang (ví dụ sau khi xóa/tìm kiếm)
+        if (page > calculatedTotalPages && calculatedTotalPages > 0) {
+          setCurrentPage(calculatedTotalPages); // Chuyển về trang cuối cùng hợp lệ
+        } else if (
+          page > 1 &&
+          calculatedTotalPages === 0 &&
+          response.data.results.length === 0
+        ) {
+          // Nếu đang yêu cầu trang > 1 nhưng không có kết quả nào (tổng item = 0)
+          setCurrentPage(1); // Reset về trang 1
+          // setTotalPages(1); // đã được xử lý ở trên
+        } else if (page > calculatedTotalPages && calculatedTotalPages > 0) {
+          setCurrentPage(calculatedTotalPages);
+        }
+        // Nếu calculatedTotalPages là 0 (không có item nào), totalPages sẽ được set là 1.
+        // currentPage nên là 1 trong trường hợp này.
+        // Logic hiện tại của bạn đã xử lý việc reset về trang 1 khi không có kết quả khá tốt.
+      } else {
+        // Xử lý trường hợp response không đúng định dạng mong đợi
+        setBooks([]);
+        setTotalPages(1);
+        setError("Dữ liệu sách trả về không hợp lệ.");
+      }
+    } catch (err) {
+      console.error("Error fetching books:", err);
+      setError("Không thể tải danh sách sách. Vui lòng thử lại sau.");
+      setBooks([]); // Reset books về mảng rỗng khi có lỗi
+      setTotalPages(1); // Reset phân trang khi có lỗi
+      setCurrentPage(1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks(currentPage, searchTerm);
+  }, [currentPage, searchTerm]); // Phụ thuộc chính xác
+
   useEffect(() => {
     const fetchOptions = async () => {
       setLoadingOptions(true);
       try {
-        // Fetch authors
         const authorsResponse = await api.get(`${BASE_URL}/authors/api/`);
         setAuthors(authorsResponse.data);
 
-        // Fetch categories
         const categoriesResponse = await api.get(`${BASE_URL}/categories/api/`);
         setCategories(categoriesResponse.data);
       } catch (err) {
         console.error("Error fetching authors or categories:", err);
-        setError("Failed to load options. Please try again later.");
+        // Cân nhắc việc không set lỗi chung ở đây nếu fetchBooks đã xử lý lỗi tải sách
+        // setError("Failed to load options. Please try again later.");
       } finally {
         setLoadingOptions(false);
       }
     };
-
     fetchOptions();
   }, []);
-  // Xử lý thay đổi form
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -113,7 +152,6 @@ const AdminBooks = () => {
     });
   };
 
-  // Xử lý thay đổi khi chọn nhiều thể loại
   const handleCategoryChange = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions).map(
       (option) => option.value
@@ -124,7 +162,6 @@ const AdminBooks = () => {
     });
   };
 
-  // Xử lý thay đổi ảnh
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -133,7 +170,8 @@ const AdminBooks = () => {
         image: file,
       });
     }
-  }; // Mở modal thêm sách
+  };
+
   const handleAddBook = () => {
     setModalTitle("Thêm sách mới");
     setCurrentBook(null);
@@ -143,154 +181,128 @@ const AdminBooks = () => {
       category: [],
       quantity: "",
       description: "",
+      preview: "", // Reset preview
       image: null,
-      publication_date: new Date().toISOString().split("T")[0], // Thêm ngày xuất bản mặc định là hôm nay
+      publication_date: new Date().toISOString().split("T")[0],
     });
     setShowModal(true);
-  }; // Mở modal sửa sách
+  };
+
   const handleEditBook = (book) => {
     setModalTitle("Chỉnh sửa sách");
     setCurrentBook(book);
     setFormData({
       title: book.title,
       author: book.author.id,
-      category: book.category.map((cat) => cat.id),
+      category: book.category.map((cat) => cat.id.toString()), // Đảm bảo là mảng string IDs
       quantity: book.quantity,
-      available: book.available,
+      // available: book.available, // available không có trong form, bỏ qua nếu không cần
       description: book.description,
-      image: book.image,
+      preview: book.preview || "", // Lấy preview, nếu không có thì là chuỗi rỗng
+      image: book.image, // Đây sẽ là URL nếu sách đã có ảnh
       publication_date:
         book.publication_date || new Date().toISOString().split("T")[0],
     });
     setShowModal(true);
   };
 
-  // Xem chi tiết sách
   const handleViewDetail = (bookId) => {
     navigate(`/admin/books/${bookId}`);
   };
 
-  // Xác nhận xóa sách
   const confirmDeleteBook = (book) => {
     setBookToDelete(book);
     setShowDeleteConfirm(true);
-  }; // Thực hiện xóa sách
+  };
+
   const handleDeleteBook = async () => {
     if (bookToDelete) {
       try {
-        await api.delete(`${BASE_URL}/books/api/delete/${bookToDelete.id}`);
+        const token = sessionStorage.getItem(ACCESS_TOKEN);
+        const requestHeaders = {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        };
+        await api.delete(`${BASE_URL}/books/api/delete/${bookToDelete.id}`, {
+          headers: requestHeaders,
+        });
 
-        // Cập nhật state để xóa sách khỏi UI
-        setBooks(books.filter((book) => book.id !== bookToDelete.id));
         setShowDeleteConfirm(false);
+        setBookToDelete(null);
+
+        // Sau khi xóa thành công:
+        // Nếu sách bị xóa là cuốn cuối cùng trên trang hiện tại (và không phải trang 1),
+        // thì lùi về trang trước đó.
+        // Ngược lại, tải lại dữ liệu cho trang hiện tại.
+        if (books.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1); // Sẽ trigger useEffect để fetchBooks
+        } else {
+          // Nếu là trang 1 hoặc còn sách trên trang hiện tại, fetch lại trang hiện tại
+          // Hoặc nếu searchTerm thay đổi, fetchBooks cũng sẽ được gọi với currentPage=1
+          fetchBooks(currentPage, searchTerm);
+        }
+        // Không cần reload toàn bộ danh sách nữa vì fetchBooks(currentPage) sẽ làm điều đó.
+        // setShowModal(false); // Dòng này không cần thiết vì đây là modal xác nhận xóa
       } catch (error) {
         console.error("Error deleting book:", error);
         alert("Đã xảy ra lỗi khi xóa sách");
+        setShowDeleteConfirm(false); // Đảm bảo modal đóng khi có lỗi
       }
     }
-
-    // Reload danh sách sách
-    const response = await api.get(`${BASE_URL}/books/api?page=${currentPage}`);
-    setBooks(response.data.results);
-
-    setShowModal(false);
   };
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        // Does this cookie string begin with the name we want?
-        if (cookie.substring(0, name.length + 1) === name + "=") {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
+
   const handleSaveBook = async () => {
+    // setLoading(true); // Cân nhắc thêm cờ loading cho nút Save
     try {
       const token = sessionStorage.getItem(ACCESS_TOKEN);
-      const csrfToken = getCookie("csrftoken");
-
-      console.log("csrfToken = ", csrfToken);
-      console.log("token = ", token);
-      // 1. Tạo đối tượng FormData để gửi dữ liệu (bao gồm cả file)
       const bookFormData = new FormData();
 
-      // 2. Append các trường dữ liệu vào FormData
       bookFormData.append("title", formData.title);
-      bookFormData.append("author", formData.author); // Gửi ID của tác giả
+      bookFormData.append("author", formData.author);
 
-      // Xử lý category (là một mảng các ID)
       if (formData.category && Array.isArray(formData.category)) {
         formData.category.forEach((catId) => {
-          bookFormData.append("category", catId); // API sẽ nhận nhiều giá trị cho key 'category'
+          bookFormData.append("category", catId);
         });
       }
 
       bookFormData.append("quantity", formData.quantity);
       bookFormData.append("description", formData.description);
+      bookFormData.append("preview", formData.preview); // Thêm preview
 
-      // Đảm bảo ngày xuất bản luôn được gửi và ở định dạng YYYY-MM-DD
       const publicationDate = formData.publication_date
         ? new Date(formData.publication_date).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0];
       bookFormData.append("publication_date", publicationDate);
 
-      // 3. Xử lý file ảnh: Chỉ append nếu có file mới được chọn
-      //    (formData.image sẽ là File object nếu mới, hoặc string (URL) nếu là ảnh cũ)
       if (formData.image && typeof formData.image !== "string") {
         bookFormData.append("image", formData.image);
       }
-      // Trường hợp edit: Nếu formData.image là string (URL ảnh cũ) và không thay đổi,
-      // thì không cần append lại. API backend nên được thiết kế để giữ lại ảnh cũ nếu trường 'image' không được gửi.
-      // Nếu API yêu cầu gửi null hoặc giá trị đặc biệt để xóa ảnh, bạn cần xử lý thêm ở đây.
-      console.log("bookFormData = ", bookFormData.get("image"));
 
-      let response;
       const requestHeaders = {
-        // "Content-Type": "multipart/form-data",
         ...(token && { Authorization: `Bearer ${token}` }),
-        ...(csrfToken && { "X-CSRFToken": csrfToken }), // Thêm CSRF token vào header
       };
-      // 4. Phân biệt giữa tạo mới (POST) và cập nhật (PUT)
+
       if (currentBook && currentBook.id) {
-        // Cập nhật sách đã tồn tại
-        response = await api.put(
-          `${BASE_URL}/books/api/edit/${currentBook.id}/`,
+        await api.put(
+          `${BASE_URL}/books/api/edit/${currentBook.id}`,
           bookFormData,
-          {
-            headers: requestHeaders,
-          }
+          { headers: requestHeaders }
         );
       } else {
-        // Thêm sách mới
-        response = await api.post(
-          `${BASE_URL}/books/api/create/`,
-          bookFormData,
-          {
-            headers: requestHeaders,
-          }
-        );
+        await api.post(`${BASE_URL}/books/api/create`, bookFormData, {
+          headers: requestHeaders,
+        });
+        // Khi thêm sách mới thành công, có thể muốn chuyển đến trang cuối cùng nếu API sắp xếp mới nhất lên đầu,
+        // hoặc đơn giản là ở lại trang 1 hoặc trang hiện tại.
+        // Để đơn giản, chúng ta sẽ fetch lại trang hiện tại.
+        // Nếu bạn muốn đi đến trang 1 sau khi thêm: setCurrentPage(1); (useEffect sẽ fetch)
       }
 
-      // 5. Sau khi lưu thành công, làm mới danh sách sách trên trang hiện tại
-      const refreshResponse = await api.get(
-        `${BASE_URL}/books/api?page=${currentPage}${
-          searchTerm ? `&search=${searchTerm}` : ""
-        }`
-      );
-      setBooks(refreshResponse.data.results);
-      setTotalPages(refreshResponse.data.total_pages);
+      await fetchBooks(currentPage, searchTerm); // Tải lại danh sách sách cho trang hiện tại
 
-      // 6. Đóng modal và reset trạng thái
       setShowModal(false);
-      setCurrentBook(null); // Reset currentBook sau khi lưu
+      setCurrentBook(null);
 
-      // Thông báo thành công (tùy chọn)
       alert(
         currentBook && currentBook.id
           ? "Cập nhật sách thành công!"
@@ -298,13 +310,9 @@ const AdminBooks = () => {
       );
     } catch (error) {
       console.error("Error saving book:", error);
-
-      // 7. Xử lý và hiển thị lỗi chi tiết từ server nếu có
       let errorMessage = "Đã xảy ra lỗi khi lưu sách. ";
       if (error.response && error.response.data) {
         const errors = error.response.data;
-        // Lỗi có thể là một object với các key là tên trường và value là mảng các thông báo lỗi
-        // Hoặc một chuỗi lỗi đơn giản trong 'detail' hoặc 'message'
         if (typeof errors === "object" && errors !== null) {
           for (const key in errors) {
             if (Array.isArray(errors[key])) {
@@ -313,19 +321,129 @@ const AdminBooks = () => {
               errorMessage += `${key}: ${errors[key]}. `;
             }
           }
-          // Trường hợp lỗi chung không theo field
           if (errors.detail) errorMessage += `${errors.detail}. `;
           if (errors.message) errorMessage += `${errors.message}. `;
         } else if (typeof errors === "string") {
           errorMessage += errors;
         }
       } else {
-        errorMessage += error.message; // Lỗi mạng hoặc lỗi không có response từ server
+        errorMessage += error.message;
       }
       alert(errorMessage.trim());
+    } finally {
+      // setLoading(false);
     }
   };
-  if (loading) {
+
+  // ***** BẮT ĐẦU LOGIC PHÂN TRANG *****
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const renderPaginationItems = () => {
+    if (totalPages <= 1) {
+      return null; // Không hiển thị phân trang nếu chỉ có 1 hoặc không có trang nào
+    }
+
+    let items = [];
+    const maxPagesToShow = 5; // Số lượng trang hiển thị trực tiếp (ví dụ: 1 ... 3 4 5 ... 10)
+    const halfMaxPages = Math.floor(maxPagesToShow / 2);
+
+    let startPage = Math.max(1, currentPage - halfMaxPages);
+    let endPage = Math.min(totalPages, currentPage + halfMaxPages);
+
+    // Điều chỉnh để luôn hiển thị `maxPagesToShow` nếu có thể
+    if (currentPage <= halfMaxPages) {
+      endPage = Math.min(totalPages, maxPagesToShow);
+    }
+    if (currentPage + halfMaxPages >= totalPages) {
+      startPage = Math.max(1, totalPages - maxPagesToShow + 1);
+    }
+
+    // Nút "First"
+    items.push(
+      <Pagination.First
+        key="first"
+        onClick={() => handlePageChange(1)}
+        disabled={currentPage === 1}
+      />
+    );
+
+    // Nút "Prev"
+    items.push(
+      <Pagination.Prev
+        key="prev"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      />
+    );
+
+    // Dấu "..." ở đầu nếu cần
+    if (startPage > 1) {
+      items.push(
+        <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
+          {1}
+        </Pagination.Item>
+      );
+      if (startPage > 2) {
+        items.push(<Pagination.Ellipsis key="start-ellipsis" disabled />);
+      }
+    }
+
+    // Các nút số trang
+    for (let number = startPage; number <= endPage; number++) {
+      items.push(
+        <Pagination.Item
+          key={number}
+          active={number === currentPage}
+          onClick={() => handlePageChange(number)}
+        >
+          {number}
+        </Pagination.Item>
+      );
+    }
+
+    // Dấu "..." ở cuối nếu cần
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        items.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
+      }
+      items.push(
+        <Pagination.Item
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </Pagination.Item>
+      );
+    }
+
+    // Nút "Next"
+    items.push(
+      <Pagination.Next
+        key="next"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages || totalPages === 0}
+      />
+    );
+
+    // Nút "Last"
+    items.push(
+      <Pagination.Last
+        key="last"
+        onClick={() => handlePageChange(totalPages)}
+        disabled={currentPage === totalPages || totalPages === 0}
+      />
+    );
+
+    return <Pagination>{items}</Pagination>;
+  };
+  // ***** KẾT THÚC LOGIC PHÂN TRANG *****
+
+  // Điều kiện loading ban đầu, chỉ hiển thị khi chưa có sách nào được tải
+  if (loading && books.length === 0 && !error) {
     return (
       <Container className="my-5 text-center">
         <p>Loading books...</p>
@@ -333,10 +451,20 @@ const AdminBooks = () => {
     );
   }
 
+  // Hiển thị lỗi nếu có
   if (error) {
     return (
       <Container className="my-5">
         <Alert variant="danger">{error}</Alert>
+        {/* Có thể thêm nút thử lại */}
+        <Button
+          onClick={() => {
+            setError(null);
+            fetchBooks(1, searchTerm);
+          }}
+        >
+          Thử lại
+        </Button>
       </Container>
     );
   }
@@ -366,19 +494,28 @@ const AdminBooks = () => {
               </Row>
             </Card.Header>
             <Card.Body>
-              {/* Thanh tìm kiếm */}
               <InputGroup className="mb-4">
                 <InputGroup.Text>
                   <FontAwesomeIcon icon={faSearch} />
                 </InputGroup.Text>
                 <Form.Control
                   type="text"
-                  placeholder="Tìm kiếm sách theo tên hoặc tác giả..."
+                  placeholder="Tìm kiếm sách theo tên sách"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
+                  }}
                 />
-              </InputGroup>{" "}
-              {/* Bảng danh sách sách */}
+              </InputGroup>
+
+              {/* Chỉ báo loading phụ khi đang tải dữ liệu (ví dụ khi chuyển trang) */}
+              {loading && (
+                <div className="text-center my-2">
+                  <p>Đang cập nhật danh sách...</p>
+                </div>
+              )}
+
               <Table striped bordered hover responsive>
                 <thead>
                   <tr>
@@ -398,42 +535,58 @@ const AdminBooks = () => {
                         <td>{book.id}</td>
                         <td>
                           <Image
-                            src={book.image || "/placeholder-book.jpg"}
+                            src={
+                              `/image/${book.image}` || "/placeholder-book.jpg"
+                            } // Placeholder nếu không có ảnh
                             alt={book.title}
                             width={50}
-                            className="rounded shadow-sm"
+                            thumbnail // Hoặc className="rounded shadow-sm"
                           />
                         </td>
                         <td>{book.title}</td>
-                        <td>{book.author.name}</td>
+                        <td>{book.author?.name || "N/A"}</td>{" "}
+                        {/* Xử lý nếu author null */}
                         <td>
-                          {" "}
-                          <Badge bg="info">
-                            {book.category.map((cat) => cat.name).join(", ")}
-                          </Badge>
+                          {book.category?.map(
+                            (
+                              cat // Xử lý nếu category null
+                            ) => (
+                              <Badge
+                                key={cat.id}
+                                bg="info"
+                                className="me-1 mb-1"
+                              >
+                                {cat.name}
+                              </Badge>
+                            )
+                          ) || "N/A"}
                         </td>
                         <td>{book.quantity}</td>
                         <td>
                           <Button
                             variant="outline-info"
                             size="sm"
-                            className="me-2"
+                            className="me-1 mb-1"
                             onClick={() => handleViewDetail(book.id)}
+                            title="Xem chi tiết"
                           >
                             <FontAwesomeIcon icon={faEye} />
                           </Button>
                           <Button
                             variant="outline-primary"
                             size="sm"
-                            className="me-2"
+                            className="me-1 mb-1"
                             onClick={() => handleEditBook(book)}
+                            title="Chỉnh sửa"
                           >
                             <FontAwesomeIcon icon={faEdit} />
                           </Button>
                           <Button
                             variant="outline-danger"
                             size="sm"
+                            className="mb-1"
                             onClick={() => confirmDeleteBook(book)}
+                            title="Xóa"
                           >
                             <FontAwesomeIcon icon={faTrash} />
                           </Button>
@@ -443,52 +596,24 @@ const AdminBooks = () => {
                   ) : (
                     <tr>
                       <td colSpan="7" className="text-center py-4">
-                        Không tìm thấy sách phù hợp
+                        {!loading && "Không tìm thấy sách phù hợp."}
                       </td>
                     </tr>
                   )}
                 </tbody>
               </Table>
-              {/* Phân trang */}
-              {books.length > 0 && (
+
+              {/* Phần phân trang */}
+              {totalPages > 1 && (
                 <div className="d-flex justify-content-center mt-4">
-                  <Pagination>
-                    <Pagination.First
-                      onClick={() => setCurrentPage(1)}
-                      disabled={currentPage === 1}
-                    />
-                    <Pagination.Prev
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
-                      disabled={currentPage === 1}
-                    />
-                    {Array.from({ length: totalPages }, (_, i) => (
-                      <Pagination.Item
-                        key={i + 1}
-                        active={i + 1 === currentPage}
-                        onClick={() => setCurrentPage(i + 1)}
-                      >
-                        {i + 1}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
-                      disabled={currentPage === totalPages}
-                    />
-                    <Pagination.Last
-                      onClick={() => setCurrentPage(totalPages)}
-                      disabled={currentPage === totalPages}
-                    />
-                  </Pagination>
+                  {renderPaginationItems()}
                 </div>
               )}
             </Card.Body>
           </Card>
         </Col>
-      </Row>{" "}
+      </Row>
+
       {/* Modal thêm/sửa sách */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
@@ -497,34 +622,34 @@ const AdminBooks = () => {
         <Modal.Body>
           {loadingOptions ? (
             <div className="text-center py-4">
-              <p>Đang tải dữ liệu...</p>
+              <p>Đang tải dữ liệu tùy chọn...</p>
             </div>
           ) : (
             <Form>
               <Row className="mb-3">
                 <Col md={4}>
-                  {/* Hiển thị ảnh xem trước */}
                   <div className="text-center mb-3">
                     {formData.image ? (
                       <Image
                         src={
                           typeof formData.image === "string"
-                            ? formData.image
-                            : URL.createObjectURL(formData.image)
+                            ? formData.image // URL cho ảnh cũ
+                            : URL.createObjectURL(formData.image) // URL tạm thời cho ảnh mới
                         }
-                        alt="Book cover preview"
+                        alt="Xem trước ảnh bìa"
                         fluid
                         className="rounded shadow-sm"
-                        style={{ maxHeight: "200px" }}
+                        style={{ maxHeight: "200px", objectFit: "contain" }}
                       />
                     ) : (
-                      <div className="border rounded p-5 text-muted bg-light">
+                      <div
+                        className="border rounded p-5 text-muted bg-light d-flex align-items-center justify-content-center"
+                        style={{ height: "200px" }}
+                      >
                         Chưa có ảnh
                       </div>
                     )}
                   </div>
-
-                  {/* Trường chọn ảnh */}
                   <Form.Group>
                     <Form.Label>Ảnh bìa sách</Form.Label>
                     <Form.Control
@@ -533,7 +658,7 @@ const AdminBooks = () => {
                       onChange={handleImageChange}
                     />
                     <Form.Text className="text-muted">
-                      Chọn ảnh có tỷ lệ 3:4 để hiển thị tốt nhất
+                      Nên chọn ảnh có tỷ lệ phù hợp (ví dụ: 3:4).
                     </Form.Text>
                   </Form.Group>
                 </Col>
@@ -551,7 +676,7 @@ const AdminBooks = () => {
                           required
                         />
                       </Form.Group>
-                    </Col>{" "}
+                    </Col>
                     <Col md={6}>
                       <Form.Group className="mb-3">
                         <Form.Label>Tác giả</Form.Label>
@@ -573,7 +698,6 @@ const AdminBooks = () => {
                     </Col>
                   </Row>
                   <Row>
-                    {" "}
                     <Col md={6}>
                       <Form.Group className="mb-3">
                         <Form.Label>Thể loại</Form.Label>
@@ -583,17 +707,21 @@ const AdminBooks = () => {
                           onChange={handleCategoryChange}
                           required
                           disabled={loadingOptions}
-                          value={formData.category}
+                          value={formData.category} // formData.category là mảng các string IDs
                           style={{ height: "100px" }}
                         >
+                          {/* <option value="" disabled>Chọn thể loại (có thể chọn nhiều)</option> */}
                           {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
+                            <option
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
                               {category.name}
                             </option>
                           ))}
                         </Form.Select>
                         <Form.Text className="text-muted">
-                          Giữ Ctrl để chọn nhiều thể loại
+                          Giữ Ctrl (Cmd trên Mac) để chọn nhiều.
                         </Form.Text>
                       </Form.Group>
                     </Col>
@@ -605,7 +733,21 @@ const AdminBooks = () => {
                           name="quantity"
                           value={formData.quantity}
                           onChange={handleInputChange}
-                          min="1"
+                          min="0"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Ngày xuất bản</Form.Label>
+                        <Form.Control
+                          type="date"
+                          name="publication_date"
+                          value={formData.publication_date}
+                          onChange={handleInputChange}
                           required
                         />
                       </Form.Group>
@@ -621,6 +763,16 @@ const AdminBooks = () => {
                       onChange={handleInputChange}
                     />
                   </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Preview (Nội dung xem trước)</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      name="preview"
+                      value={formData.preview}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
                 </Col>
               </Row>
             </Form>
@@ -630,11 +782,16 @@ const AdminBooks = () => {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleSaveBook}>
+          <Button
+            variant="primary"
+            onClick={handleSaveBook}
+            disabled={loadingOptions}
+          >
             Lưu
           </Button>
         </Modal.Footer>
       </Modal>
+
       {/* Modal xác nhận xóa */}
       <Modal
         show={showDeleteConfirm}

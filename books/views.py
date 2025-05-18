@@ -8,22 +8,12 @@ from books.serializers import BookSerializer
 
 class suggestBookPagination(PageNumberPagination):
     page_size = 6
+class searchBookPagination(PageNumberPagination):
+    page_size = 9
 
-# Create your views here.
 @api_view(['GET'])
 def getBook(request):
-    query = request.GET.get('query', '')
-    type = request.GET.get('type', '')
-    if(type=='title'):
-        books = Book.objects.filter(title__icontains=query)
-    elif(type=='author'):
-        books = Book.objects.filter(author__name__icontains=query)
-    elif(type=='category'):
-        books = Book.objects.filter(category__name__icontains=query)
-    else:
-        books = Book.objects.all()
-    
-    # Áp dụng phân trang
+    books = Book.objects.all()
     paginator = suggestBookPagination()
     paginated_books = paginator.paginate_queryset(books, request)
     serializer = BookSerializer(paginated_books, many=True)
@@ -39,9 +29,41 @@ def getRandomBook(request, bookId):
 @permission_classes([IsAdminUser])
 def createBook(request):
     data = request.data
-    serializer = BookSerializer(data=data)
+    print("------------------------------------")
+    print("Data received in createBook view:", data)
+    # Đối với FormData, các trường có nhiều giá trị được lấy bằng getlist()
+    print("Categories from request.data.getlist('category'):", data.getlist('category'))
+    print("Author from request.data.get('author'):", data.get('author'))
+    print("Title from request.data.get('title'):", data.get('title'))
+    print("Image file from request.FILES.get('image'):", request.FILES.get('image')) # File thường nằm trong request.FILES
+    print("------------------------------------")
+    
+    # Convert form data to appropriate format
+    processed_data = data.dict() if hasattr(data, 'dict') else data.copy()
+    
+    # Handle multivalue fields (like category)
+    if hasattr(data, 'getlist'):
+        category_list = data.getlist('category')
+        if category_list:
+            # Convert string IDs to integers
+            category_ids = [int(cat_id) for cat_id in category_list if cat_id.isdigit()]
+            processed_data['category_ids'] = category_ids
+    
+    # Handle author ID
+    if 'author' in processed_data:
+        author_id = processed_data.pop('author', None)
+        if author_id and str(author_id).isdigit():
+            processed_data['author_id'] = int(author_id)
+    
+    # Handle file uploads
+    if 'image' in request.FILES:
+        processed_data['image'] = request.FILES.get('image')
+    
+    serializer = BookSerializer(data=processed_data)
     if not serializer.is_valid():
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        print("Serializer errors:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     serializer.save()
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -62,8 +84,32 @@ def getDetailBook(request, id):
 def editBookWithId(request, id):
     try:
         book = Book.objects.get(id=id)
-        serializer = BookSerializer(book, data=request.data)
+        data = request.data
+        
+        # Convert form data to appropriate format
+        processed_data = data.dict() if hasattr(data, 'dict') else data.copy()
+        
+        # Handle multivalue fields (like category)
+        if hasattr(data, 'getlist'):
+            category_list = data.getlist('category')
+            if category_list:
+                # Convert string IDs to integers
+                category_ids = [int(cat_id) for cat_id in category_list if cat_id.isdigit()]
+                processed_data['category_ids'] = category_ids
+        
+        # Handle author ID
+        if 'author' in processed_data:
+            author_id = processed_data.pop('author', None)
+            if author_id and str(author_id).isdigit():
+                processed_data['author_id'] = int(author_id)
+        
+        # Handle file uploads
+        if 'image' in request.FILES:
+            processed_data['image'] = request.FILES.get('image')
+            
+        serializer = BookSerializer(book, data=processed_data)
         if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
             return Response(
                 { "message" : "Edit book unsuccessfull!",
                   "error": serializer.errors},
@@ -90,6 +136,26 @@ def getBooksByAuthor(request, author_id):
     serializer = BookSerializer(books, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def getBookByQuote(request):
+    books = Book.objects.all().order_by('-id')[:5]
+    serializer = BookSerializer(books, many=True)
+    return Response(serializer.data)
 
-
-
+@api_view(['GET'])
+def searchBookByName(request):
+    query = request.GET.get('query', '')
+    type = request.GET.get('type', '')
+    if(type=='title'):
+        books = Book.objects.filter(title__icontains=query)
+    elif(type=='author'):
+        books = Book.objects.filter(author__name__icontains=query)
+    elif(type=='category'):
+        books = Book.objects.filter(category__name__icontains=query)
+    else:
+        books = Book.objects.all()
+    
+    paginator = searchBookPagination()
+    paginated_books = paginator.paginate_queryset(books, request)
+    serializer = BookSerializer(paginated_books, many=True)
+    return paginator.get_paginated_response(serializer.data)

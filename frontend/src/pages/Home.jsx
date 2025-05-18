@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
 import {
   faBell,
   faSearch,
@@ -33,6 +34,7 @@ import Liked from "../components/Liked.jsx";
 import History from "../components/History.jsx";
 import RecommendBooks from "../components/RecommendBooks.jsx";
 import Background from "../components/Background.jsx";
+import api from "../api";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -49,50 +51,72 @@ const HomePage = () => {
   const [recommendedBooks, setRecommendedBooks] = useState([]);
   const [recentlyBooks, setRecentlyBooks] = useState([]);
 
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [accountTab, setAccountTab] = useState("profile");
+
   const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchRecommendedBooks = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/books/api`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-
-        setRecommendedBooks(data.results);
-      } catch (error) {
-        console.error("Failed to fetch recommended books:", error);
-      }
-    };
-
-    const fetchRecentlyBooks = async () => {
-      setRecentlyBooks([]);
-      try {
-        const response = await fetch(`${BASE_URL}/books/api?page=2`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-
-        setRecentlyBooks(data.results);
-      } catch (error) {
-        console.error("Failed to fetch recently books:", error);
-      }
-    };
-
+    fetchNotifications();
     fetchRecommendedBooks();
     fetchRecentlyBooks();
   }, []);
+
   useEffect(() => {
-    if (activeView == 'search' && searchQuery.trim() == '')
+    if (activeView == "search" && searchQuery.trim() == "")
       fetchAllBook(currentPage);
-    else
-      fetchSearchResults(currentPage);
+    else fetchSearchResults(currentPage);
   }, [activeView, searchQuery, searchType, currentPage]);
+
+
+  const fetchNotifications = async () => {
+
+    try {
+      const response = await api.get(`${BASE_URL}/notifications/api`);
+        
+      setNotifications(response.data.slice(0, 5));
+    } catch(error){
+      console.log(error);
+      
+      setNotifications([]);
+    }
+  };
+
+  const fetchRecommendedBooks = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/books/api`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setRecommendedBooks(data.results);
+    } catch (error) {
+      console.error("Failed to fetch recommended books:", error);
+    }
+  };
+
+  const fetchRecentlyBooks = async () => {
+    setRecentlyBooks([]);
+    try {
+      const response = await fetch(`${BASE_URL}/books/api?page=2`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      setRecentlyBooks(data.results);
+    } catch (error) {
+      console.error("Failed to fetch recently books:", error);
+    }
+  };
+
   const fetchSearchResults = async (page) => {
     try {
-      const response = await fetch(`${BASE_URL}/books/api?type=${searchType}&query=${searchQuery}&page=${page}`);
+      const response = await fetch(
+        `${BASE_URL}/books/api/search?type=${searchType}&query=${searchQuery}&page=${page}`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -108,7 +132,7 @@ const HomePage = () => {
 
   const fetchAllBook = async (page) => {
     try {
-      const response = await fetch(`${BASE_URL}/books/api?page=${page}`);
+      const response = await fetch(`${BASE_URL}/books/api/search?page=${page}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -127,8 +151,11 @@ const HomePage = () => {
     setActiveView("bookDetail");
   };
 
-  const handleNavigation = (view) => {
+  const handleNavigation = (view, tab = "profile") => {
     setActiveView(view);
+    if (view === "account") {
+      setAccountTab(tab);
+    }
     if (view !== "bookDetail") {
       setSelectedBook(null);
     }
@@ -137,10 +164,9 @@ const HomePage = () => {
   // Callback để xử lý tìm kiếm theo tác giả
   const handleSearchByAuthor = (authorId, authorName) => {
     setSearchType("author");
-    setSearchQuery(authorName); 
+    setSearchQuery(authorName);
     setCurrentPage(1);
     setActiveView("search");
-    searchBook();
   };
 
   const BookSection = ({ title, books, onBookClick }) => (
@@ -153,7 +179,11 @@ const HomePage = () => {
               style={{ width: "100%" }}
               onClick={() => onBookClick(book)}
             >
-              <Card.Img variant="top" src={`/image/${book.image}`} className="rounded-3" />
+              <Card.Img
+                variant="top"
+                src={`/image/${book.image}`}
+                className="rounded-3"
+              />
               <Card.Body className="text-center">
                 <Card.Title className="fs-6 fw-bold text-truncate">
                   {book.title}
@@ -199,10 +229,13 @@ const HomePage = () => {
         return <RecommendBooks />;
       case "bookDetail":
         return selectedBook ? (
-          <BookDetail book={selectedBook} onSearchByAuthor={handleSearchByAuthor} />
+          <BookDetail
+            book={selectedBook}
+            onSearchByAuthor={handleSearchByAuthor}
+          />
         ) : null;
       case "account":
-        return <Account />;
+        return <Account defaultTab={accountTab} />;
       case "liked":
         return <Liked />;
       case "History":
@@ -251,16 +284,24 @@ const HomePage = () => {
                   <div className="dropdown">
                     <Dropdown className="me-2">
                       <Dropdown.Toggle variant="light" className="rounded-pill">
-                        {
-                          searchType === "title" ? "Tựa đề" :
-                            searchType === "author" ? "Tác giả" :
-                              "Thể loại"
-                        }
+                        {searchType === "title"
+                          ? "Tựa đề"
+                          : searchType === "author"
+                          ? "Tác giả"
+                          : "Thể loại"}
                       </Dropdown.Toggle>
                       <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => setSearchType("title")}>Tựa đề</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setSearchType("author")}>Tác giả</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setSearchType("category")}>Thể loại</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("title")}>
+                          Tựa đề
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => setSearchType("author")}>
+                          Tác giả
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => setSearchType("category")}
+                        >
+                          Thể loại
+                        </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
@@ -281,50 +322,89 @@ const HomePage = () => {
                   </div>
                 </div>
 
-                <div className="user-section">
-                  <div className="lang-selector">
-                    <FontAwesomeIcon icon={faGlobe} className="me-1" />
-                    <span>Lang</span>
-                    <span className="dropdown-icon">▼</span>
+                  <div className="user-section">
+                    <div
+                      className="notifications"
+                      onClick={() => setShowNotifications(!showNotifications)}
+                    >
+                      <span className="notification-icon">
+                        <FontAwesomeIcon icon={faBell} />
+                      </span>
+                      {showNotifications && (
+                        <div className="notifications-dropdown">
+                          <div className="notification-header">
+                            <strong>Thông báo</strong>
+                            <a
+                              href="#"
+                              className="view-all"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setShowNotifications(false);
+                                handleNavigation("account", "notifications");
+                              }}
+                            >
+                              Xem tất cả
+                            </a>
+                          </div>
+                          {notifications.length === 0 ? (
+                            <div className="notification-item">
+                              <small>Không có thông báo nào.</small>
+                            </div>
+                          ) : (
+                            notifications.map((noti) => (
+                              <div className="notification-item" key={noti.id}>
+                                <small>{noti.message}</small>
+                                <br />
+                                <small className="text-muted">
+                                  {new Date(noti.date).toLocaleString("vi-VN")}
+                                </small>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
                   </div>
 
-                  <div className="notifications" onClick={() => setShowNotifications(!showNotifications)}>
-                    <span className="notification-icon">
-                      <FontAwesomeIcon icon={faBell} />
+                  <div
+                    className="user-profile"
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                  >
+                    <img
+                      className="avatar"
+                      src="public/icon.jpg"
+                      alt="Avatar"
+                      style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
+                    />
+                    <span>
+                      {sessionStorage.getItem("username") === null
+                        ? "Khách"
+                        : sessionStorage.getItem("username")}
                     </span>
-                    {showNotifications && (
-                      <div className="notifications-dropdown">
-                        <div className="notification-header">
-                          <strong>Thông báo</strong>
-                          <a href="#" className="view-all">
-                            Xem tất cả
-                          </a>
-                        </div>
-                        <div className="notification-item">
-                          <small>
-                            <strong>📘 'Don't Make Me Think'</strong> sẽ đến hạn trả vào ngày <strong>10/03/2025</strong>.
-                          </small>
-                        </div>
-                        <div className="notification-item">
-                          <small>
-                            <strong>📕 'The Design of Everyday Things'</strong> đã quá hạn 2 ngày. Vui lòng trả sách để tránh phạt.
-                          </small>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="user-profile" onClick={() => setShowUserMenu(!showUserMenu)}>
-                    <div className="avatar">VT</div>
-                    <span>{sessionStorage.getItem("username") === null ? "Nguyễn Văn A" : sessionStorage.getItem("username")}</span>
                     <span className="dropdown-icon">▼</span>
                     {showUserMenu && (
                       <div className="user-dropdown">
-                        <div className="user-dropdown-item" onClick={() => handleNavigation("account")}>Trang cá nhân</div>
-                        <div className="user-dropdown-item" onClick={() => handleNavigation("liked")}>Ưa thích</div>
-                        <div className="user-dropdown-item" onClick={() => handleNavigation("History")}>Lịch sử mượn</div>
+                        <div
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("account")}
+                        >
+                          Trang cá nhân
+                        </div>
+                        <div
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("liked")}
+                        >
+                          Ưa thích
+                        </div>
+                        <div
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("History")}
+                        >
+                          Lịch sử mượn
+                        </div>
                         <div className="divider"></div>
-                        <div className="user-dropdown-item logout">Đăng xuất</div>
+                        <div className="user-dropdown-item logout">
+                          Đăng xuất
+                        </div>
                       </div>
                     )}
                   </div>
