@@ -94,15 +94,14 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
   const handleBorrowBook = async () => {
     try {
       const currentUserId = sessionStorage.getItem("idUser"); // Đổi tên biến để rõ ràng hơn
-      if (!currentUserId) { // Kiểm tra null hoặc undefined
+      if (!currentUserId) {
         toast.error("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.");
-        // throw new Error("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại."); // Dùng toast thay throw để không bị finally sớm
-        return; // Thoát sớm nếu không có user_id
+        return;
       }
 
-      if (!book || !book.id) { // Kiểm tra book và book.id
+      if (!book || !book.id) {
         toast.error("Không tìm thấy thông tin sách để mượn.");
-        return; // Thoát sớm
+        return; 
       }
       const currentBookId = book.id;
 

@@ -1,6 +1,18 @@
-import "../styles/Quote.css"
+import React, { useEffect, useState } from "react";
+import "../styles/Quote.css";
+
+const BASE_URL = import.meta.env.VITE_API_URL
 
 const Quote = () => {
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+    fetch(`${BASE_URL}/books/api/quote`)
+      .then((res) => res.json())
+      .then((data) => setBooks(data.results || data))
+      .catch((err) => setBooks([]));
+  }, []);
+
   return (
     <div className="quote-container">
       <div className="quote-content">
@@ -20,17 +32,19 @@ const Quote = () => {
 
       <div className="new-books">
         <div className="new-books-title">Sách mới ra</div>
-
         <div className="book-thumbnails">
-          <img src="/book.jpg" alt="Holy Bible" className="book-thumbnail" />
-          <img src="/book.jpg" alt="Harry Potter" className="book-thumbnail" />
-          <img src="/book.jpg" alt="Lean UX" className="book-thumbnail" />
-          <img src="/book.jpg" alt="Don't Make Me Think" className="book-thumbnail" />
+          {books.map((book, idx) => (
+            <img
+              key={book.id || idx}
+              src={`/image/${book.image}`}
+              alt={book.title}
+              className="book-thumbnail"
+            />
+          ))}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Quote
-
+export default Quote;

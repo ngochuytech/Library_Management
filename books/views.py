@@ -8,22 +8,12 @@ from books.serializers import BookSerializer
 
 class suggestBookPagination(PageNumberPagination):
     page_size = 6
+class searchBookPagination(PageNumberPagination):
+    page_size = 9
 
-# Create your views here.
 @api_view(['GET'])
 def getBook(request):
-    query = request.GET.get('query', '')
-    type = request.GET.get('type', '')
-    if(type=='title'):
-        books = Book.objects.filter(title__icontains=query)
-    elif(type=='author'):
-        books = Book.objects.filter(author__name__icontains=query)
-    elif(type=='category'):
-        books = Book.objects.filter(category__name__icontains=query)
-    else:
-        books = Book.objects.all()
-    
-    # Áp dụng phân trang
+    books = Book.objects.all()
     paginator = suggestBookPagination()
     paginated_books = paginator.paginate_queryset(books, request)
     serializer = BookSerializer(paginated_books, many=True)
@@ -146,6 +136,26 @@ def getBooksByAuthor(request, author_id):
     serializer = BookSerializer(books, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def getBookByQuote(request):
+    books = Book.objects.all().order_by('-id')[:5]
+    serializer = BookSerializer(books, many=True)
+    return Response(serializer.data)
 
-
-
+@api_view(['GET'])
+def searchBookByName(request):
+    query = request.GET.get('query', '')
+    type = request.GET.get('type', '')
+    if(type=='title'):
+        books = Book.objects.filter(title__icontains=query)
+    elif(type=='author'):
+        books = Book.objects.filter(author__name__icontains=query)
+    elif(type=='category'):
+        books = Book.objects.filter(category__name__icontains=query)
+    else:
+        books = Book.objects.all()
+    
+    paginator = searchBookPagination()
+    paginated_books = paginator.paginate_queryset(books, request)
+    serializer = BookSerializer(paginated_books, many=True)
+    return paginator.get_paginated_response(serializer.data)

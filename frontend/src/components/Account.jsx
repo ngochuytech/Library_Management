@@ -28,7 +28,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import api from '../api'
 
-const Account = () => {
+const Account = ({ defaultTab = "profile" }) => {
   const navigate = useNavigate()
   const BASE_URL = import.meta.env.VITE_API_URL
 
@@ -41,22 +41,41 @@ const Account = () => {
   const [success, setSuccess] = useState(""); 
   const [fieldErrors, setFieldErrors] = useState({});
 
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
     const access_token = sessionStorage.getItem("access_token");
     if(access_token){
       setIsAuthenticated(true);
-      fetchUser();
+      fetchUser();      
     }
     else
       setIsAuthenticated(false);
   }, [])
 
+  useEffect(() => {
+    fetchNotifications();
+  }, [isAuthenticated, key]);
+  
+  useEffect(() => {
+    setKey(defaultTab);
+  }, [defaultTab]);
+
   const [formData, setFormData] = useState({ ...userData });
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await api.get(`/notifications/api`);
+      setNotifications(response.data);      
+    } catch (error) {      
+      setNotifications([])
+    }
+  }
 
   const fetchUser = async () => {
     try {
       const id = sessionStorage.getItem("idUser");
-      const response = await api.get(`/users/api?id=${id}`);
+      const response = await api.get(`/users/api/infor?id=${id}`);
 
       setUserData({
         name: response.data.name,
@@ -96,12 +115,12 @@ const Account = () => {
   const handleSave = async () => {
     try {
       const idUser = sessionStorage.getItem("idUser");
-      const response = await api.put(`/users/api/${idUser}`,{
+      const response = await api.put(`/users/api/update/${idUser}`,{
         name: formData.name,
         phone_number: formData.phone
-      }, {withCredentials: true});
+      });
+      const updatedData = response.data;
       
-      const updatedData = await response.json();
       setUserData({
         ...userData,
         name: updatedData.name,
@@ -112,7 +131,7 @@ const Account = () => {
       setFieldErrors({});
       toast.success("Cập nhật thông tin thành công!");
       sessionStorage.setItem("username", updatedData.name)
-    } catch (error) {
+    } catch (error) {      
       console.error("Failed to update user:", error.response.data.error);
       if(error.response.data.error.phone_number)
         toast.error("Cập nhật thông tin thất bại. Số điện thoại này đã tồn tại" )
@@ -280,7 +299,7 @@ const Account = () => {
                   <FontAwesomeIcon icon={faBell} className="me-2" />
                   Thông báo
                   <Badge bg="primary" pill className="ms-2">
-                    3
+                    {notifications.length}
                   </Badge>
                 </ListGroup.Item>
               </ListGroup>
@@ -325,6 +344,7 @@ const Account = () => {
                           value={formData.phone || ""}
                           onChange={handleInputChange}
                           isInvalid={!!fieldErrors.phone}
+                          disabled
                         />
                         <Form.Control.Feedback type="invalid">
                           {fieldErrors.phone}
@@ -527,7 +547,6 @@ const Account = () => {
 
                 <Tab eventKey="notifications" title="Thông báo">
                   <h5 className="mb-4">Thông báo của bạn</h5>
-
                   <div
                     style={{
                       maxHeight: "400px",
@@ -537,123 +556,21 @@ const Account = () => {
                     }}
                   >
                     <ListGroup variant="flush">
-                      <ListGroup.Item>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <p className="mb-1">
-                              <strong>📘 'Don't Make Me Think'</strong> sẽ đến
-                              hạn trả vào ngày <strong>10/03/2025</strong>.
-                            </p>
-                            <small className="text-muted">2 giờ trước</small>
+                      {notifications.length === 0 && (
+                        <ListGroup.Item>Không có thông báo nào.</ListGroup.Item>
+                      )}
+                      {notifications.map((noti) => (
+                        <ListGroup.Item key={noti.id}>
+                          <div className="d-flex justify-content-between align-items-start">
+                            <div>
+                              <p className="mb-1">{noti.message}</p>
+                              <small className="text-muted">
+                                {new Date(noti.date).toLocaleString("vi-VN")}
+                              </small>
+                            </div>
                           </div>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="text-danger p-0"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </div>
-                      </ListGroup.Item>
-
-                      <ListGroup.Item>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <p className="mb-1">
-                              <strong>
-                                📕 'The Design of Everyday Things'
-                              </strong>{" "}
-                              đã quá hạn 2 ngày. Vui lòng trả sách để tránh
-                              phạt.
-                            </p>
-                            <small className="text-muted">1 ngày trước</small>
-                          </div>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="text-danger p-0"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </div>
-                      </ListGroup.Item>
-
-                      <ListGroup.Item>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <p className="mb-1">
-                              <strong>📙 'Clean Code'</strong> đã được trả thành
-                              công.
-                            </p>
-                            <small className="text-muted">5 ngày trước</small>
-                          </div>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="text-danger p-0"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </div>
-                      </ListGroup.Item>
-
-                      <ListGroup.Item>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <p className="mb-1">
-                              <strong>📘 'JavaScript: The Good Parts'</strong>{" "}
-                              sẽ đến hạn trả vào ngày{" "}
-                              <strong>18/03/2025</strong>.
-                            </p>
-                            <small className="text-muted">1 tuần trước</small>
-                          </div>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="text-danger p-0"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </div>
-                      </ListGroup.Item>
-                      <ListGroup.Item>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <p className="mb-1">
-                              <strong>📘 'JavaScript: The Good Parts'</strong>{" "}
-                              sẽ đến hạn trả vào ngày{" "}
-                              <strong>18/03/2025</strong>.
-                            </p>
-                            <small className="text-muted">1 tuần trước</small>
-                          </div>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="text-danger p-0"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </div>
-                      </ListGroup.Item>
-                      <ListGroup.Item>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <p className="mb-1">
-                              <strong>📘 'JavaScript: The Good Parts'</strong>{" "}
-                              sẽ đến hạn trả vào ngày{" "}
-                              <strong>18/03/2025</strong>.
-                            </p>
-                            <small className="text-muted">1 tuần trước</small>
-                          </div>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            className="text-danger p-0"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </div>
-                      </ListGroup.Item>
+                        </ListGroup.Item>
+                      ))}
                     </ListGroup>
                   </div>
                 </Tab>

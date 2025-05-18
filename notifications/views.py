@@ -10,7 +10,7 @@ from users.models import User
 
 # Create your views here.
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def getNotification(request):
     notification = Notification.objects.all()
     serializer = NotificationSerializer(notification, many=True)

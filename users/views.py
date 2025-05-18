@@ -195,6 +195,9 @@ def list_users(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getUser(request):
     id = request.GET.get('id')
     try:
@@ -206,6 +209,48 @@ def getUser(request):
         return Response({
             "error": f"Cannot find user with id: {id}",
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateUserInformation(request, id):
+    try:
+        user = User.objects.get(id=id)
+        name = request.data.get("name")
+        phone_number = request.data.get("phone_number")
+
+        data = {}
+        if name is not None and not name.strip():
+            return Response({
+                "error": "Tên không được để trống"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if phone_number is not None and not phone_number.strip():
+            raise InvalidPhoneNumberException("Số điện thoại không được để trống")
+        
+        data['name'] = name
+        data['phone_number'] = phone_number
+
+        serializer = UserSerializer(instance=user, data=data, partial=True)
+        if not serializer.is_valid():
+            print("serializer.errors = ", serializer.errors)
+            raise InvalidPhoneNumberException(serializer.errors)
+        
+        user.name = name
+        user.phone_number = phone_number
+        user.save()
+        serializer = UserSerializer(user)
+        print("data = ", serializer.data)
+        return Response(serializer.data)
+    
+    except User.DoesNotExist:
+        return Response({
+            "error": f"Cannot find user with id: {id}"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidPhoneNumberException as e:
+        return Response({
+            "error": e.message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 # API cập nhật thông tin người dùng
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAdminUser])
