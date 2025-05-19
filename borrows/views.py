@@ -110,4 +110,4 @@ def get_admin_borrows_list(request):
 
     serializer = BorrowSerializer(borrows_queryset, many=True)
     return Response(serializer.data)
-    
+

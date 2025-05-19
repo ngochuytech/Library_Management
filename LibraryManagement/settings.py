@@ -168,7 +168,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173', # Thêm địa chỉ frontend React của bạn
+    # 'https://your-production-frontend-domain.com', # Nếu có tên miền production
+]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 

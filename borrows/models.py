@@ -7,13 +7,13 @@ from books.models import Book
 from users.models import User
 
 BORROWED_STATUS = (
-    ("Pending", "Pending"),
-    ("Approved", "Approved"),
-    ("Borrowed", "Borrowed"),
-    ("Overdue", "Overdue"),
-    ("Returned", "Returned"),
-    ("Lost", "Lost"),
-    ("Canceled", "Canceled")
+    ("PENDING", "PENDING"),
+    ("APPROVED", "APPROVED"),
+    ("BORROWED", "BORROWED"),
+    ("OVERDUE", "OVERDUE"),
+    ("RETURNED", "RETURNED"),
+    ("LOST", "LOST"),
+    ("CANCELED", "RETURNED")
 )
 # 
 def default_exp_date():

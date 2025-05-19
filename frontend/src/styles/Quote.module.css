@@ -59,7 +59,19 @@ h5 {
   border-radius: 8px; /* Bo góc nhẹ cho phần Col */
   color: #ffffff; /* Màu chữ trắng cho phần trích dẫn */
 }
+.quote-container {
+  /* Các thuộc tính CSS hiện có của bạn cho quote-container */
+  /* Ví dụ: */
+  display: flex; /* Hoặc bất kỳ display nào bạn đang dùng */
+  flex-direction: column; /* Hoặc row tùy theo layout */
+  /* ... các style khác ... */
 
+  /* Thêm dòng này để tắt scroll */
+  overflow: hidden;
+  /* Bạn cũng có thể muốn giới hạn chiều cao nếu nội dung có khả năng vượt quá màn hình */
+  /* Ví dụ: max-height: 100vh; (100% chiều cao của viewport) */
+  /* Hoặc một giá trị chiều cao cố định nếu muốn: height: 500px; */
+}
 /* Định dạng cho phần Card.Text */
 .customCol .cardText {
   font-size: 1.1rem; /* Kích thước chữ của phần trích dẫn */
