@@ -11,6 +11,8 @@ import {
   Spinner,
   Alert,
   ListGroup,
+  Modal,
+  Table,
 } from "react-bootstrap";
 import {
   faPhone,
@@ -22,10 +24,16 @@ import {
   faTrash,
   faArrowLeft,
   faCalendarAlt,
+  faSignInAlt,
   faBook,
-  faIdCard,
+  faCheckCircle,
+  faTimesCircle,
+  faClock,
+  faExclamationCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -35,6 +43,33 @@ const AdminUsersDetail = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [borrows, setBorrows] = useState([]);
+  const [showBorrowHistory, setShowBorrowHistory] = useState(false);
+  const [borrowsLoading, setBorrowsLoading] = useState(false);
+
+  const handleViewBorrowHistory = async () => {
+    try {
+      setBorrowsLoading(true);
+      const token = sessionStorage.getItem("access_token");
+      const response = await fetch(`${BASE_URL}/borrows/api/user/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Không thể lấy lịch sử mượn sách của người dùng.");
+      }
+      const data = await response.json();
+      setBorrows(data);
+      setShowBorrowHistory(true);
+      toast.success("Lấy lịch sử mượn sách thành công!");
+    } catch (error) {
+      toast.error(error.message || "Đã xảy ra lỗi khi lấy lịch sử mượn sách.");
+    } finally {
+      setBorrowsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchUserDetail = async () => {
@@ -61,27 +96,155 @@ const AdminUsersDetail = () => {
     fetchUserDetail();
   }, [id]);
 
-  const handleViewHistory = () => {
-    navigate("/admin", {
-      state: {
-        activeView: "manageBorrows",
-        userId: user.id,
-      },
-    });
+  const handleToggleStatus = async () => {
+    try {
+      if (!user || typeof user.id === "undefined") {
+        toast.error(
+          "Không thể cập nhật trạng thái người dùng: Dữ liệu người dùng không hợp lệ."
+        );
+        return;
+      }
+
+      const newStatus = !user.is_active;
+      const token = sessionStorage.getItem("access_token");
+      const url = `${BASE_URL}/users/update/${id}/`;
+
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          is_active: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorData = { detail: "Failed to parse error response." };
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          console.error(
+            "toggleUserStatus - Could not parse error JSON:",
+            parseError
+          );
+        }
+        const errorMessage =
+          errorData.detail || response.statusText || "Unknown error occurred";
+        throw new Error(`${errorMessage}`);
+      }
+
+      const updatedUser = await response.json();
+      setUser((prevUser) => ({
+        ...prevUser,
+        is_active: updatedUser.is_active,
+      }));
+
+      toast.success(
+        `Đã ${newStatus ? "kích hoạt" : "vô hiệu hóa"} tài khoản ${user.name}.`
+      );
+    } catch (error) {
+      console.error("Error in toggleUserStatus function:", error);
+      toast.error(
+        error.message || "Đã xảy ra lỗi khi cập nhật trạng thái người dùng."
+      );
+    }
   };
 
-  const handleToggleStatus = () => {
-    const newStatus = user.status === "Active" ? "Inactive" : "Active";
-    setUser((prevUser) => ({ ...prevUser, status: newStatus }));
-  };
-
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     const confirmDelete = window.confirm(
       `Bạn có chắc muốn xóa người dùng ${user.name}?`
     );
-    if (confirmDelete) {
-      alert(`Đã xóa người dùng ID: ${user.id}`);
+    if (!confirmDelete) return;
+
+    try {
+      const token = sessionStorage.getItem("access_token");
+
+      if (!user || typeof user.id === "undefined") {
+        toast.error(
+          "Không thể xóa người dùng: Dữ liệu người dùng không hợp lệ."
+        );
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/users/delete/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        let errorData = { detail: "Failed to parse error response." };
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          console.error(
+            "handleDeleteUser - Could not parse error JSON:",
+            parseError
+          );
+        }
+        const errorMessage =
+          errorData.detail ||
+          Object.values(errorData).join("; ") ||
+          response.statusText ||
+          "Unknown error occurred";
+        throw new Error(errorMessage);
+      }
+
+      toast.success("Xóa người dùng thành công!");
       navigate("/admin/users");
+    } catch (error) {
+      console.error("Error in handleDeleteUser function:", error);
+      toast.error(error.message || "Đã xảy ra lỗi khi xóa người dùng.");
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Chưa có thông tin";
+    const date = new Date(dateString);
+    return date.toLocaleString("vi-VN");
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return (
+          <FontAwesomeIcon icon={faCheckCircle} className="text-success" />
+        );
+      case "PENDING":
+        return <FontAwesomeIcon icon={faClock} className="text-warning" />;
+      case "REJECTED":
+        return <FontAwesomeIcon icon={faTimesCircle} className="text-danger" />;
+      case "CANCELED":
+        return (
+          <FontAwesomeIcon icon={faTimesCircle} className="text-secondary" />
+        );
+      case "RETURNED":
+        return <FontAwesomeIcon icon={faCheckCircle} className="text-info" />;
+      default:
+        return (
+          <FontAwesomeIcon icon={faExclamationCircle} className="text-muted" />
+        );
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return "Đã duyệt";
+      case "PENDING":
+        return "Đang chờ";
+      case "REJECTED":
+        return "Đã từ chối";
+      case "CANCELED":
+        return "Đã hủy";
+      case "RETURNED":
+        return "Đã trả";
+      default:
+        return status;
     }
   };
 
@@ -144,18 +307,16 @@ const AdminUsersDetail = () => {
             </Col>
             <Col xs="auto">
               <Badge
-                bg={user.status === "Active" ? "light" : "secondary"}
-                className="text-dark"
+                bg={user.is_active ? "success" : "secondary"}
+                className="text-white"
               >
-                {user.status === "Active" ? "HOẠT ĐỘNG" : "VÔ HIỆU HÓA"}
+                {user.is_active ? "HOẠT ĐỘNG" : "VÔ HIỆU HÓA"}
               </Badge>
             </Col>
           </Row>
         </Card.Header>
-
         <Card.Body>
           <Row>
-            {/* Left Column - Avatar and Stats */}
             <Col md={4} className="mb-4 mb-md-0">
               <div className="text-center mb-4">
                 <Image
@@ -171,6 +332,7 @@ const AdminUsersDetail = () => {
                   }}
                 />
                 <h3 className="mt-3">{user.name}</h3>
+                <p className="text-muted">ID: {user.id}</p>
               </div>
 
               <ListGroup variant="flush" className="shadow-sm">
@@ -179,23 +341,19 @@ const AdminUsersDetail = () => {
                     icon={faCalendarAlt}
                     className="me-2 text-muted"
                   />
-                  <strong>Ngày tham gia:</strong> {user.joinDate}
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <FontAwesomeIcon icon={faBook} className="me-2 text-muted" />
-                  <strong>Sách đã mượn:</strong> {user.borrowedBooks}
+                  <strong>Ngày tạo:</strong> {formatDate(user.created_at)}
                 </ListGroup.Item>
                 <ListGroup.Item>
                   <FontAwesomeIcon
-                    icon={faIdCard}
+                    icon={faSignInAlt}
                     className="me-2 text-muted"
                   />
-                  <strong>ID người dùng:</strong> {user.id}
+                  <strong>Lần đăng nhập cuối:</strong>{" "}
+                  {formatDate(user.last_login) || "Chưa đăng nhập"}
                 </ListGroup.Item>
               </ListGroup>
             </Col>
 
-            {/* Right Column - User Details */}
             <Col md={8}>
               <Card className="mb-4 shadow-sm">
                 <Card.Header className="bg-light">
@@ -205,25 +363,18 @@ const AdminUsersDetail = () => {
                   <ListGroup variant="flush">
                     <ListGroup.Item>
                       <FontAwesomeIcon
+                        icon={faEnvelope}
+                        className="me-2 text-primary"
+                      />
+                      <strong>Email:</strong> {user.email}
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <FontAwesomeIcon
                         icon={faPhone}
                         className="me-2 text-primary"
                       />
                       <strong>Số điện thoại:</strong>{" "}
-                      {user.phone || "Chưa cập nhật"}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <FontAwesomeIcon
-                        icon={faEnvelope}
-                        className="me-2 text-primary"
-                      />
-                      <strong>Email:</strong> {user.email || "Chưa cập nhật"}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <FontAwesomeIcon
-                        icon={faCalendarAlt}
-                        className="me-2 text-primary"
-                      />
-                      <strong>Hoạt động cuối:</strong> {user.lastActive}
+                      {user.phone_number || "Chưa cập nhật"}
                     </ListGroup.Item>
                   </ListGroup>
                 </Card.Body>
@@ -231,42 +382,43 @@ const AdminUsersDetail = () => {
 
               <Card className="shadow-sm">
                 <Card.Header className="bg-light">
-                  <h5 className="mb-0">Giới thiệu</h5>
+                  <h5 className="mb-0">Trạng thái tài khoản</h5>
                 </Card.Header>
                 <Card.Body>
-                  <p className="text-muted" style={{ whiteSpace: "pre-wrap" }}>
-                    {user.bio ||
-                      "Người dùng chưa cập nhật thông tin giới thiệu."}
-                  </p>
+                  <ListGroup variant="flush">
+                    <ListGroup.Item>
+                      <strong>Trạng thái:</strong>{" "}
+                      <Badge
+                        bg={user.is_active ? "success" : "secondary"}
+                        className="ms-2"
+                      >
+                        {user.is_active ? "Hoạt động" : "Vô hiệu hóa"}
+                      </Badge>
+                    </ListGroup.Item>
+                  </ListGroup>
                 </Card.Body>
               </Card>
             </Col>
           </Row>
         </Card.Body>
-
         <Card.Footer className="d-flex justify-content-between bg-light">
-          <Button
-            variant="outline-info"
-            onClick={handleViewHistory}
-            className="d-flex align-items-center"
-          >
+          <Button variant="outline-primary" onClick={handleViewBorrowHistory}>
+            <FontAwesomeIcon icon={faBook} className="me-2" />
             <FontAwesomeIcon icon={faHistory} className="me-2" />
-            Lịch sử mượn sách
+            Xem lịch sử mượn sách
           </Button>
 
           <div>
             <Button
-              variant={
-                user.status === "Active" ? "outline-warning" : "outline-success"
-              }
+              variant={user.is_active ? "outline-warning" : "outline-success"}
               onClick={handleToggleStatus}
               className="me-2"
             >
               <FontAwesomeIcon
-                icon={user.status === "Active" ? faToggleOff : faToggleOn}
+                icon={user.is_active ? faToggleOff : faToggleOn}
                 className="me-2"
               />
-              {user.status === "Active" ? "Vô hiệu hóa" : "Kích hoạt"}
+              {user.is_active ? "Vô hiệu hóa" : "Kích hoạt"}
             </Button>
 
             <Button variant="outline-danger" onClick={handleDeleteUser}>
@@ -276,6 +428,79 @@ const AdminUsersDetail = () => {
           </div>
         </Card.Footer>
       </Card>
+
+      {/* Modal hiển thị lịch sử mượn sách */}
+      <Modal
+        show={showBorrowHistory}
+        onHide={() => setShowBorrowHistory(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton className="bg-primary text-white">
+          <Modal.Title>
+            <FontAwesomeIcon icon={faHistory} className="me-2" />
+            Lịch sử mượn sách của {user.name}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {borrowsLoading ? (
+            <div className="text-center py-4">
+              <Spinner animation="border" variant="primary" />
+              <p className="mt-2">Đang tải lịch sử mượn sách...</p>
+            </div>
+          ) : borrows.length === 0 ? (
+            <Alert variant="info" className="text-center">
+              Người dùng chưa có lịch sử mượn sách
+            </Alert>
+          ) : (
+            <div className="table-responsive">
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Tên sách</th>
+                    <th>Tác giả</th>
+                    <th>Ngày yêu cầu</th>
+                    <th>Ngày mượn</th>
+                    <th>Hạn trả</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {borrows.map((borrow, index) => (
+                    <tr key={borrow.id}>
+                      <td>{index + 1}</td>
+                      <td>{borrow.book.title}</td>
+                      <td>{borrow.book.author.name}</td>
+                      <td>{formatDate(borrow.require_date)}</td>
+                      <td>
+                        {borrow.borrow_date
+                          ? formatDate(borrow.borrow_date)
+                          : "N/A"}
+                      </td>
+                      <td>
+                        {borrow.exp_date ? formatDate(borrow.exp_date) : "N/A"}
+                      </td>
+                      <td>
+                        {getStatusIcon(borrow.status)}{" "}
+                        {getStatusText(borrow.status)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowBorrowHistory(false)}
+          >
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
