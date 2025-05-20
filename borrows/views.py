@@ -74,6 +74,13 @@ def editBorrowWithId(request, id):
 def deleteBorrowWithId(request, id):
     try:
         borrow = Borrow.objects.get(id=id)
+        
+        # Nếu trạng thái là PENDING hoặc APPROVED, tăng số lượng sách available trước khi xóa
+        if borrow.status in ['PENDING', 'APPROVED']:
+            book = borrow.book
+            book.avaliable += 1
+            book.save(update_fields=['avaliable'])
+            
         borrow.delete()
         # Nếu trạng thái là PENDING hoặc APPROVED, tăng số lượng sách available trước khi xóa
         if borrow.status in ['PENDING', 'APPROVED']:
@@ -130,11 +137,12 @@ def cancelBorrowWithId(request, id):
         if borrow.status != 'PENDING':
             return Response({"message": "Chỉ có thể hủy yêu cầu đang ở trạng thái chờ duyệt"}, 
                             status=status.HTTP_400_BAD_REQUEST)
-        # Nếu trạng thái là PENDING hoặc APPROVED, tăng số lượng sách available trước khi xóa
-        if borrow.status in ['PENDING', 'APPROVED']:
-            book = borrow.book
-            book.avaliable += 1
-            book.save(update_fields=['avaliable'])
+        
+        # Tăng số lượng sách available khi hủy yêu cầu mượn
+        book = borrow.book
+        book.avaliable += 1
+        book.save(update_fields=['avaliable'])
+        
         # Cập nhật trạng thái thành CANCELED
         borrow.status = 'CANCELED'
         borrow.save()

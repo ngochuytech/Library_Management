@@ -12,7 +12,7 @@ import {
   Tab,
   Spinner,
   Alert,
-  Form, // Thêm Form
+  Form,
 } from "react-bootstrap";
 import {
   faBook,
@@ -24,9 +24,9 @@ import {
   faTimes,
   faSync,
   faClock,
-  faSort, // Icon cho sắp xếp
-  faFilter, // Icon cho lọc
-  faEraser, // Icon cho xóa lọc
+  faSort,
+  faFilter,
+  faEraser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,6 @@ const sortData = (data, config) => {
     let valA = a;
     let valB = b;
 
-    // Xử lý key lồng nhau (ví dụ: 'book.title')
     if (config.key.includes(".")) {
       const keys = config.key.split(".");
       valA = keys.reduce(
@@ -66,11 +65,9 @@ const sortData = (data, config) => {
       valB = b[config.key];
     }
 
-    // Xử lý giá trị null hoặc undefined, đẩy xuống cuối
     if (valA === null || typeof valA === "undefined") return 1;
     if (valB === null || typeof valB === "undefined") return -1;
 
-    // Xử lý sắp xếp ngày
     const dateKeys = ["borrow_date", "exp_date", "return_date", "require_date"];
     if (dateKeys.includes(config.key)) {
       const dateA = new Date(valA).getTime();
@@ -80,14 +77,12 @@ const sortData = (data, config) => {
       return 0;
     }
 
-    // Xử lý sắp xếp số (ví dụ: borrow_days)
     if (typeof valA === "number" && typeof valB === "number") {
       if (valA < valB) return config.direction === "asc" ? -1 : 1;
       if (valA > valB) return config.direction === "asc" ? 1 : -1;
       return 0;
     }
 
-    // Xử lý sắp xếp chuỗi (không phân biệt chữ hoa/thường)
     if (typeof valA === "string" && typeof valB === "string") {
       const strA = valA.toLowerCase();
       const strB = valB.toLowerCase();
@@ -96,7 +91,7 @@ const sortData = (data, config) => {
       return 0;
     }
 
-    return 0; // Mặc định không thay đổi thứ tự nếu kiểu dữ liệu không xác định
+    return 0;
   });
   return sortedData;
 };
@@ -105,7 +100,7 @@ const sortData = (data, config) => {
  * Lọc dữ liệu dựa trên văn bản tìm kiếm.
  * @param {Array} data - Mảng cần lọc.
  * @param {string} text - Văn bản tìm kiếm.
- * @param {Array<string>} fieldsToSearch - Các trường cần tìm kiếm (có thể lồng nhau, ví dụ: 'book.title').
+ * @param {Array<string>} fieldsToSearch - Các trường cần tìm kiếm.
  * @returns {Array} Mảng đã lọc.
  */
 const filterDataByText = (data, text, fieldsToSearch) => {
@@ -166,22 +161,20 @@ const AdminBorrows = () => {
 
   const [activeTabKey, setActiveTabKey] = useState("history");
 
-  // States cho Sắp xếp và Lọc - Tab Lịch sử
   const [historySortConfig, setHistorySortConfig] = useState({
     key: "borrow_date",
     direction: "desc",
-  }); // Mặc định sắp xếp ngày mượn mới nhất
+  });
   const [historyFilterText, setHistoryFilterText] = useState("");
   const [historyFilterDate, setHistoryFilterDate] = useState({
     field: "",
     date: "",
   });
 
-  // States cho Sắp xếp và Lọc - Tab Yêu cầu
   const [requestsSortConfig, setRequestsSortConfig] = useState({
     key: "require_date",
     direction: "desc",
-  }); // Mặc định sắp xếp ngày yêu cầu mới nhất
+  });
   const [requestsFilterText, setRequestsFilterText] = useState("");
   const [requestsFilterDate, setRequestsFilterDate] = useState({
     field: "",
@@ -259,7 +252,6 @@ const AdminBorrows = () => {
     }
   }, [activeTabKey, fetchBorrowingHistory, fetchBorrowingRequests, navigate]);
 
-  // Xử lý danh sách Lịch sử với Sắp xếp và Lọc
   const processedHistoryList = useMemo(() => {
     let list = [...borrowingHistoryList];
     list = filterDataByText(list, historyFilterText, [
@@ -283,7 +275,6 @@ const AdminBorrows = () => {
     historySortConfig,
   ]);
 
-  // Xử lý danh sách Yêu cầu với Sắp xếp và Lọc
   const processedRequestsList = useMemo(() => {
     let list = [...borrowingRequestsList];
     list = filterDataByText(list, requestsFilterText, [
@@ -308,22 +299,20 @@ const AdminBorrows = () => {
   ]);
 
   const renderStatus = (status) => {
-    // ... (giữ nguyên hàm renderStatus của bạn)
-    const normalizedStatus = status ? status.toUpperCase() : "UNKNOWN"; // Chuẩn hóa status về uppercase
+    const normalizedStatus = status ? status.toUpperCase() : "UNKNOWN";
     switch (normalizedStatus) {
       case "RETURNED":
         return (
           <Badge bg="success" className="d-flex align-items-center">
-                       {" "}
-            <FontAwesomeIcon icon={faCheckCircle} className="me-1" />           
-            Đã trả          {" "}
+            <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
+            Đã trả
           </Badge>
         );
       case "APPROVED":
         return (
           <Badge bg="info" text="dark" className="d-flex align-items-center">
-                        <FontAwesomeIcon icon={faCheck} className="me-1" />     
-                  Đã duyệt          {" "}
+            <FontAwesomeIcon icon={faCheck} className="me-1" />
+            Đã duyệt
           </Badge>
         );
       case "BORROWED":
@@ -336,24 +325,23 @@ const AdminBorrows = () => {
       case "OVERDUE":
         return (
           <Badge bg="danger" className="d-flex align-items-center">
-                       {" "}
-            <FontAwesomeIcon icon={faTimesCircle} className="me-1" />           
-            Trả trễ          {" "}
+            <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
+            Trả trễ
           </Badge>
         );
       case "PENDING":
         return (
           <Badge bg="warning" text="dark" className="d-flex align-items-center">
-                        <FontAwesomeIcon icon={faClock} className="me-1" />     
-                  Chờ duyệt          {" "}
+            <FontAwesomeIcon icon={faClock} className="me-1" />
+            Chờ duyệt
           </Badge>
         );
       case "REJECTED":
-      case "CANCELED": // Gom chung CANCELED và REJECTED nếu backend xử lý tương tự
+      case "CANCELED":
         return (
           <Badge bg="secondary" className="d-flex align-items-center">
-                        <FontAwesomeIcon icon={faTimes} className="me-1" />     
-                  Đã từ chối/Hủy          {" "}
+            <FontAwesomeIcon icon={faTimes} className="me-1" />
+            Đã từ chối/Hủy
           </Badge>
         );
       default:
@@ -375,7 +363,6 @@ const AdminBorrows = () => {
     successMessage,
     errorMessagePrefix
   ) => {
-    // ... (giữ nguyên hàm updateBorrowStatus của bạn)
     if (isUpdatingStatus === item.id) return;
     setIsUpdatingStatus(item.id);
 
@@ -386,6 +373,7 @@ const AdminBorrows = () => {
         setIsUpdatingStatus(null);
         return;
       }
+
       if (!item || !item.id || !item.user?.id || !item.book?.id) {
         console.error("Dữ liệu phiếu mượn không đầy đủ:", item);
         alert(
@@ -488,7 +476,7 @@ const AdminBorrows = () => {
   const handleRejectRequest = (requestItem) => {
     updateBorrowStatus(
       requestItem,
-      "REJECTED",
+      "CANCELED",
       "Yêu cầu đã được từ chối!",
       "Lỗi khi từ chối yêu cầu"
     );
@@ -530,8 +518,7 @@ const AdminBorrows = () => {
                   title={
                     <span>
                       <FontAwesomeIcon icon={faHistory} className="me-2" />
-                      Lịch sử ({processedHistoryList.length}){" "}
-                      {/* Sử dụng processed list */}
+                      Lịch sử ({processedHistoryList.length})
                     </span>
                   }
                 >
@@ -552,7 +539,6 @@ const AdminBorrows = () => {
                       </Button>
                     </div>
 
-                    {/* BỘ LỌC VÀ SẮP XẾP CHO TAB LỊCH SỬ */}
                     <Card body className="mb-3 bg-light">
                       <Row className="g-2 align-items-end">
                         <Col md={6} lg={3}>
@@ -720,8 +706,6 @@ const AdminBorrows = () => {
                       !errorHistory &&
                       processedHistoryList.length > 0 && (
                         <Table hover responsive className="mb-0 align-middle">
-                          {" "}
-                          {/* align-middle cho nội dung căn giữa theo chiều dọc */}
                           <thead>
                             <tr>
                               <th>Sách</th>
@@ -734,160 +718,150 @@ const AdminBorrows = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {processedHistoryList.map(
-                              (
-                                record // Sử dụng processed list
-                              ) => (
-                                <tr key={record.id}>
-                                  <td>
-                                    <div className="d-flex align-items-center">
-                                      <Image
-                                        src={
-                                          record.book?.image
-                                            ? `${API_BASE_URL}${record.book.image}`
-                                            : "/book_placeholder.jpg"
-                                        }
-                                        alt={record.book?.title}
-                                        width={40} // Giảm kích thước ảnh một chút
-                                        height={60}
-                                        style={{ objectFit: "cover" }}
-                                        className="me-2 rounded shadow-sm"
-                                        onError={(e) => {
-                                          e.target.onerror = null;
-                                          e.target.src =
-                                            "/book_placeholder.jpg";
-                                        }}
-                                      />
-                                      <div>
-                                        <h6 className="mb-0 small">
-                                          {record.book?.title || "N/A"}
-                                        </h6>
-                                        <p className="text-muted small mb-0">
-                                          {record.book?.author?.name || "N/A"}
-                                        </p>
-                                        {record.book?.category &&
-                                          record.book.category.length > 0 && (
-                                            <Badge
-                                              pill
-                                              bg="light"
-                                              text="dark"
-                                              className="mt-1 me-1 small"
-                                              key={record.id + "-catpill"}
-                                            >
-                                              {record.book.category
-                                                .map((cat) => cat.name)
-                                                .join(", ")}
-                                            </Badge>
-                                          )}
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="small">
-                                    {record.user?.username ||
-                                      record.user?.name ||
-                                      "N/A"}
-                                  </td>
-                                  <td className="small">
-                                    {record.borrow_date
-                                      ? new Date(
-                                          record.borrow_date
-                                        ).toLocaleDateString()
-                                      : "-"}
-                                  </td>
-                                  <td className="small">
-                                    {record.exp_date
-                                      ? new Date(
-                                          record.exp_date
-                                        ).toLocaleDateString()
-                                      : "-"}
-                                  </td>
-                                  <td className="small">
-                                    {record.return_date
-                                      ? new Date(
-                                          record.return_date
-                                        ).toLocaleDateString()
-                                      : "-"}
-                                  </td>
-                                  <td>{renderStatus(record.status)}</td>
-                                  <td>
-                                    {record.status === "APPROVED" && (
-                                      <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        className="me-1 mb-1"
-                                        onClick={() =>
-                                          handleConfirmBorrowing(record)
-                                        }
-                                        disabled={
-                                          isUpdatingStatus === record.id ||
-                                          (!!isUpdatingStatus &&
-                                            isUpdatingStatus !== record.id)
-                                        }
-                                        title="Xác nhận cho mượn (cập nhật ngày mượn/trả)"
-                                      >
-                                        <FontAwesomeIcon
-                                          icon={faCheck}
-                                          className="me-1"
-                                        />
-                                        {isUpdatingStatus === record.id &&
-                                        record.status === "APPROVED" ? (
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                          />
-                                        ) : (
-                                          "Cho mượn"
-                                        )}
-                                      </Button>
-                                    )}{" "}
-                                    {(record.status === "BORROWED" ||
-                                      record.status === "OVERDUE") && (
-                                      <Button
-                                        variant="outline-success"
-                                        size="sm"
-                                        className="me-1 mb-1"
-                                        onClick={() => handleReturnBook(record)}
-                                        disabled={
-                                          isUpdatingStatus === record.id ||
-                                          (!!isUpdatingStatus &&
-                                            isUpdatingStatus !== record.id)
-                                        }
-                                        title="Xác nhận sách đã được trả"
-                                      >
-                                        <FontAwesomeIcon
-                                          icon={faCheckCircle}
-                                          className="me-1"
-                                        />
-                                        {isUpdatingStatus === record.id &&
-                                        (record.status === "BORROWED" ||
-                                          record.status === "OVERDUE") ? (
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                          />
-                                        ) : (
-                                          "Xác nhận trả"
-                                        )}
-                                      </Button>
-                                    )}
-                                    <Button
-                                      variant="outline-info"
-                                      size="sm"
-                                      className="mb-1"
-                                      onClick={() =>
-                                        handleViewDetail(record.id)
+                            {processedHistoryList.map((record) => (
+                              <tr key={record.id}>
+                                <td>
+                                  <div className="d-flex align-items-center">
+                                    <Image
+                                      src={
+                                        record.book?.image
+                                          ? `${API_BASE_URL}${record.book.image}`
+                                          : "/book_placeholder.jpg"
                                       }
-                                      disabled={!!isUpdatingStatus}
-                                      title="Xem chi tiết phiếu mượn"
+                                      alt={record.book?.title}
+                                      width={40}
+                                      height={60}
+                                      style={{ objectFit: "cover" }}
+                                      className="me-2 rounded shadow-sm"
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = "/book_placeholder.jpg";
+                                      }}
+                                    />
+                                    <div>
+                                      <h6 className="mb-0 small">
+                                        {record.book?.title || "N/A"}
+                                      </h6>
+                                      <p className="text-muted small mb-0">
+                                        {record.book?.author?.name || "N/A"}
+                                      </p>
+                                      {record.book?.category &&
+                                        record.book.category.length > 0 && (
+                                          <Badge
+                                            pill
+                                            bg="light"
+                                            text="dark"
+                                            className="mt-1 me-1 small"
+                                            key={record.id + "-catpill"}
+                                          >
+                                            {record.book.category
+                                              .map((cat) => cat.name)
+                                              .join(", ")}
+                                          </Badge>
+                                        )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="small">
+                                  {record.user?.username ||
+                                    record.user?.name ||
+                                    "N/A"}
+                                </td>
+                                <td className="small">
+                                  {record.borrow_date
+                                    ? new Date(
+                                        record.borrow_date
+                                      ).toLocaleDateString()
+                                    : "-"}
+                                </td>
+                                <td className="small">
+                                  {record.exp_date
+                                    ? new Date(
+                                        record.exp_date
+                                      ).toLocaleDateString()
+                                    : "-"}
+                                </td>
+                                <td className="small">
+                                  {record.return_date
+                                    ? new Date(
+                                        record.return_date
+                                      ).toLocaleDateString()
+                                    : "-"}
+                                </td>
+                                <td>{renderStatus(record.status)}</td>
+                                <td>
+                                  {record.status === "APPROVED" && (
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      className="me-1 mb-1"
+                                      onClick={() =>
+                                        handleConfirmBorrowing(record)
+                                      }
+                                      disabled={
+                                        isUpdatingStatus === record.id ||
+                                        (!!isUpdatingStatus &&
+                                          isUpdatingStatus !== record.id)
+                                      }
+                                      title="Xác nhận cho mượn (cập nhật ngày mượn/trả)"
                                     >
-                                      <FontAwesomeIcon icon={faEye} />
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="me-1"
+                                      />
+                                      {isUpdatingStatus === record.id ? (
+                                        <Spinner
+                                          as="span"
+                                          animation="border"
+                                          size="sm"
+                                        />
+                                      ) : (
+                                        "Cho mượn"
+                                      )}
                                     </Button>
-                                  </td>
-                                </tr>
-                              )
-                            )}
+                                  )}
+                                  {(record.status === "BORROWED" ||
+                                    record.status === "OVERDUE") && (
+                                    <Button
+                                      variant="outline-success"
+                                      size="sm"
+                                      className="me-1 mb-1"
+                                      onClick={() => handleReturnBook(record)}
+                                      disabled={
+                                        isUpdatingStatus === record.id ||
+                                        (!!isUpdatingStatus &&
+                                          isUpdatingStatus !== record.id)
+                                      }
+                                      title="Xác nhận sách đã được trả"
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheckCircle}
+                                        className="me-1"
+                                      />
+                                      {isUpdatingStatus === record.id ? (
+                                        <Spinner
+                                          as="span"
+                                          animation="border"
+                                          size="sm"
+                                        />
+                                      ) : (
+                                        "Xác nhận trả"
+                                      )}
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="outline-info"
+                                    size="sm"
+                                    className="mb-1"
+                                    onClick={() => handleViewDetail(record.id)}
+                                    disabled={!!isUpdatingStatus}
+                                    title="Xem chi tiết phiếu mượn"
+                                  >
+                                    <FontAwesomeIcon icon={faEye} />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </Table>
                       )}
@@ -900,8 +874,7 @@ const AdminBorrows = () => {
                   title={
                     <span>
                       <FontAwesomeIcon icon={faBook} className="me-2" />
-                      Yêu cầu ({processedRequestsList.length}){" "}
-                      {/* Sử dụng processed list */}
+                      Yêu cầu ({processedRequestsList.length})
                     </span>
                   }
                 >
@@ -922,7 +895,6 @@ const AdminBorrows = () => {
                       </Button>
                     </div>
 
-                    {/* BỘ LỌC VÀ SẮP XẾP CHO TAB YÊU CẦU */}
                     <Card body className="mb-3 bg-light">
                       <Row className="g-2 align-items-end">
                         <Col md={6} lg={3}>
@@ -1098,128 +1070,128 @@ const AdminBorrows = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {processedRequestsList.map(
-                              (
-                                request // Sử dụng processed list
-                              ) => (
-                                <tr key={request.id}>
-                                  <td>
-                                    <div className="d-flex align-items-center">
-                                      <Image
-                                        src={
-                                          request.book?.image
-                                            ? `${API_BASE_URL}${request.book.image}`
-                                            : "/book_placeholder.jpg"
-                                        }
-                                        alt={request.book?.title}
-                                        width={40}
-                                        height={60}
-                                        style={{ objectFit: "cover" }}
-                                        className="me-2 rounded shadow-sm"
-                                        onError={(e) => {
-                                          e.target.onerror = null;
-                                          e.target.src =
-                                            "/book_placeholder.jpg";
-                                        }}
-                                      />
-                                      <div>
-                                        <h6 className="mb-0 small">
-                                          {request.book?.title || "N/A"}
-                                        </h6>
-                                      </div>
+                            {processedRequestsList.map((request) => (
+                              <tr key={request.id}>
+                                <td>
+                                  <div className="d-flex align-items-center">
+                                    <Image
+                                      src={
+                                        request.book?.image
+                                          ? `${API_BASE_URL}${request.book.image}`
+                                          : "/book_placeholder.jpg"
+                                      }
+                                      alt={request.book?.title}
+                                      width={40}
+                                      height={60}
+                                      style={{ objectFit: "cover" }}
+                                      className="me-2 rounded shadow-sm"
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = "/book_placeholder.jpg";
+                                      }}
+                                    />
+                                    <div>
+                                      <h6 className="mb-0 small">
+                                        {request.book?.title || "N/A"}
+                                      </h6>
                                     </div>
-                                  </td>
-                                  <td className="small">
-                                    {request.user?.username ||
-                                      request.user?.name ||
-                                      "N/A"}
-                                  </td>
-                                  <td className="small">
-                                    {request.require_date
-                                      ? new Date(
-                                          request.require_date
-                                        ).toLocaleString()
-                                      : "N/A"}
-                                  </td>
-                                  <td className="small">
-                                    {request.borrow_days} ngày
-                                  </td>
-                                  <td>
-                                    <Button
-                                      variant="outline-success"
-                                      size="sm"
-                                      className="me-1 mb-1"
-                                      onClick={() =>
-                                        handleApproveRequest(request)
-                                      }
-                                      disabled={
-                                        isUpdatingStatus === request.id ||
-                                        (!!isUpdatingStatus &&
-                                          isUpdatingStatus !== request.id)
-                                      }
-                                    >
-                                      <FontAwesomeIcon
-                                        icon={faCheck}
-                                        className="me-1"
-                                      />
-                                      {isUpdatingStatus === request.id &&
-                                      request.status === "PENDING" ? (
-                                        <Spinner
-                                          as="span"
-                                          animation="border"
-                                          size="sm"
+                                  </div>
+                                </td>
+                                <td className="small">
+                                  {request.user?.username ||
+                                    request.user?.name ||
+                                    "N/A"}
+                                </td>
+                                <td className="small">
+                                  {request.require_date
+                                    ? new Date(
+                                        request.require_date
+                                      ).toLocaleString()
+                                    : "N/A"}
+                                </td>
+                                <td className="small">
+                                  {request.borrow_days} ngày
+                                </td>
+                                <td>
+                                  {request.status === "PENDING" && (
+                                    <>
+                                      <Button
+                                        variant="outline-success"
+                                        size="sm"
+                                        className="me-1 mb-1"
+                                        onClick={() =>
+                                          handleApproveRequest(request)
+                                        }
+                                        disabled={
+                                          isUpdatingStatus === request.id ||
+                                          (!!isUpdatingStatus &&
+                                            isUpdatingStatus !== request.id)
+                                        }
+                                        title="Duyệt yêu cầu"
+                                      >
+                                        <FontAwesomeIcon
+                                          icon={faCheck}
+                                          className="me-1"
                                         />
-                                      ) : (
-                                        "Duyệt"
-                                      )}
-                                    </Button>
-                                    <Button
-                                      variant="outline-danger"
-                                      size="sm"
-                                      className="me-1 mb-1"
-                                      onClick={() =>
-                                        handleRejectRequest(request)
-                                      }
-                                      disabled={
-                                        isUpdatingStatus === request.id ||
-                                        (!!isUpdatingStatus &&
-                                          isUpdatingStatus !== request.id)
-                                      }
-                                    >
-                                      <FontAwesomeIcon
-                                        icon={faTimes}
-                                        className="me-1"
-                                      />
-                                      {isUpdatingStatus === request.id &&
-                                      request.status === "PENDING" ? (
-                                        <Spinner
-                                          as="span"
-                                          animation="border"
-                                          size="sm"
+                                        {isUpdatingStatus === request.id ? (
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                          />
+                                        ) : (
+                                          "Duyệt"
+                                        )}
+                                      </Button>
+                                      <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        className="me-1 mb-1"
+                                        onClick={() =>
+                                          handleRejectRequest(request)
+                                        }
+                                        disabled={
+                                          isUpdatingStatus === request.id ||
+                                          (!!isUpdatingStatus &&
+                                            isUpdatingStatus !== request.id)
+                                        }
+                                        title="Từ chối yêu cầu"
+                                      >
+                                        <FontAwesomeIcon
+                                          icon={faTimes}
+                                          className="me-1"
                                         />
-                                      ) : (
-                                        "Từ chối"
-                                      )}
-                                    </Button>
-                                    <Button
-                                      variant="outline-info"
-                                      size="sm"
-                                      className="mb-1"
-                                      onClick={() =>
-                                        handleViewRequestDetail(request.id)
-                                      }
-                                      disabled={!!isUpdatingStatus}
-                                    >
-                                      <FontAwesomeIcon
-                                        icon={faEye}
-                                        className="me-1"
-                                      />{" "}
-                                      Xem
-                                    </Button>
-                                  </td>
-                                </tr>
-                              )
-                            )}
+                                        {isUpdatingStatus === request.id ? (
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                          />
+                                        ) : (
+                                          "Từ chối"
+                                        )}
+                                      </Button>
+                                    </>
+                                  )}
+                                  <Button
+                                    variant="outline-info"
+                                    size="sm"
+                                    className="mb-1"
+                                    onClick={() =>
+                                      handleViewRequestDetail(request.id)
+                                    }
+                                    disabled={!!isUpdatingStatus}
+                                    title="Xem chi tiết yêu cầu"
+                                  >
+                                    <FontAwesomeIcon
+                                      icon={faEye}
+                                      className="me-1"
+                                    />{" "}
+                                    Xem
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </Table>
                       )}
