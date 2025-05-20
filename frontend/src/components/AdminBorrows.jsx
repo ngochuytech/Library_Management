@@ -30,9 +30,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // --- HÀM TIỆN ÍCH CHO SẮP XẾP VÀ LỌC ---
 
@@ -51,42 +51,48 @@ const sortData = (data, config) => {
     let valB = b;
 
     // Xử lý key lồng nhau (ví dụ: 'book.title')
-    if (config.key.includes('.')) {
-      const keys = config.key.split('.');
-      valA = keys.reduce((obj, k) => (obj && typeof obj[k] !== 'undefined') ? obj[k] : null, a);
-      valB = keys.reduce((obj, k) => (obj && typeof obj[k] !== 'undefined') ? obj[k] : null, b);
+    if (config.key.includes(".")) {
+      const keys = config.key.split(".");
+      valA = keys.reduce(
+        (obj, k) => (obj && typeof obj[k] !== "undefined" ? obj[k] : null),
+        a
+      );
+      valB = keys.reduce(
+        (obj, k) => (obj && typeof obj[k] !== "undefined" ? obj[k] : null),
+        b
+      );
     } else {
       valA = a[config.key];
       valB = b[config.key];
     }
 
     // Xử lý giá trị null hoặc undefined, đẩy xuống cuối
-    if (valA === null || typeof valA === 'undefined') return 1;
-    if (valB === null || typeof valB === 'undefined') return -1;
-    
+    if (valA === null || typeof valA === "undefined") return 1;
+    if (valB === null || typeof valB === "undefined") return -1;
+
     // Xử lý sắp xếp ngày
-    const dateKeys = ['borrow_date', 'exp_date', 'return_date', 'require_date'];
+    const dateKeys = ["borrow_date", "exp_date", "return_date", "require_date"];
     if (dateKeys.includes(config.key)) {
       const dateA = new Date(valA).getTime();
       const dateB = new Date(valB).getTime();
-      if (dateA < dateB) return config.direction === 'asc' ? -1 : 1;
-      if (dateA > dateB) return config.direction === 'asc' ? 1 : -1;
+      if (dateA < dateB) return config.direction === "asc" ? -1 : 1;
+      if (dateA > dateB) return config.direction === "asc" ? 1 : -1;
       return 0;
     }
-    
+
     // Xử lý sắp xếp số (ví dụ: borrow_days)
-    if (typeof valA === 'number' && typeof valB === 'number') {
-        if (valA < valB) return config.direction === 'asc' ? -1 : 1;
-        if (valA > valB) return config.direction === 'asc' ? 1 : -1;
-        return 0;
+    if (typeof valA === "number" && typeof valB === "number") {
+      if (valA < valB) return config.direction === "asc" ? -1 : 1;
+      if (valA > valB) return config.direction === "asc" ? 1 : -1;
+      return 0;
     }
 
     // Xử lý sắp xếp chuỗi (không phân biệt chữ hoa/thường)
-    if (typeof valA === 'string' && typeof valB === 'string') {
+    if (typeof valA === "string" && typeof valB === "string") {
       const strA = valA.toLowerCase();
       const strB = valB.toLowerCase();
-      if (strA < strB) return config.direction === 'asc' ? -1 : 1;
-      if (strA > strB) return config.direction === 'asc' ? 1 : -1;
+      if (strA < strB) return config.direction === "asc" ? -1 : 1;
+      if (strA > strB) return config.direction === "asc" ? 1 : -1;
       return 0;
     }
 
@@ -107,12 +113,15 @@ const filterDataByText = (data, text, fieldsToSearch) => {
     return data;
   }
   const lowercasedText = text.toLowerCase();
-  return data.filter(item => {
-    return fieldsToSearch.some(field => {
+  return data.filter((item) => {
+    return fieldsToSearch.some((field) => {
       let value;
-      if (field.includes('.')) {
-        const keys = field.split('.');
-        value = keys.reduce((obj, k) => (obj && typeof obj[k] !== 'undefined') ? obj[k] : null, item);
+      if (field.includes(".")) {
+        const keys = field.split(".");
+        value = keys.reduce(
+          (obj, k) => (obj && typeof obj[k] !== "undefined" ? obj[k] : null),
+          item
+        );
       } else {
         value = item[field];
       }
@@ -132,12 +141,12 @@ const filterDataByDate = (data, dateField, selectedDate) => {
   if (!selectedDate || !dateField) {
     return data;
   }
-  const filterDay = new Date(selectedDate).toISOString().split('T')[0];
+  const filterDay = new Date(selectedDate).toISOString().split("T")[0];
 
-  return data.filter(item => {
+  return data.filter((item) => {
     const itemDateValue = item[dateField];
     if (!itemDateValue) return false;
-    const itemDay = new Date(itemDateValue).toISOString().split('T')[0];
+    const itemDay = new Date(itemDateValue).toISOString().split("T")[0];
     return itemDay === filterDay;
   });
 };
@@ -155,18 +164,29 @@ const AdminBorrows = () => {
   const [errorHistory, setErrorHistory] = useState(null);
   const [errorRequests, setErrorRequests] = useState(null);
 
-  const [activeTabKey, setActiveTabKey] = useState('history');
+  const [activeTabKey, setActiveTabKey] = useState("history");
 
   // States cho Sắp xếp và Lọc - Tab Lịch sử
-  const [historySortConfig, setHistorySortConfig] = useState({ key: 'borrow_date', direction: 'desc' }); // Mặc định sắp xếp ngày mượn mới nhất
-  const [historyFilterText, setHistoryFilterText] = useState('');
-  const [historyFilterDate, setHistoryFilterDate] = useState({ field: '', date: '' });
+  const [historySortConfig, setHistorySortConfig] = useState({
+    key: "borrow_date",
+    direction: "desc",
+  }); // Mặc định sắp xếp ngày mượn mới nhất
+  const [historyFilterText, setHistoryFilterText] = useState("");
+  const [historyFilterDate, setHistoryFilterDate] = useState({
+    field: "",
+    date: "",
+  });
 
   // States cho Sắp xếp và Lọc - Tab Yêu cầu
-  const [requestsSortConfig, setRequestsSortConfig] = useState({ key: 'require_date', direction: 'desc' }); // Mặc định sắp xếp ngày yêu cầu mới nhất
-  const [requestsFilterText, setRequestsFilterText] = useState('');
-  const [requestsFilterDate, setRequestsFilterDate] = useState({ field: '', date: '' });
-
+  const [requestsSortConfig, setRequestsSortConfig] = useState({
+    key: "require_date",
+    direction: "desc",
+  }); // Mặc định sắp xếp ngày yêu cầu mới nhất
+  const [requestsFilterText, setRequestsFilterText] = useState("");
+  const [requestsFilterDate, setRequestsFilterDate] = useState({
+    field: "",
+    date: "",
+  });
 
   const fetchBorrowingHistory = useCallback(async () => {
     setIsLoadingHistory(true);
@@ -174,13 +194,22 @@ const AdminBorrows = () => {
     try {
       const token = sessionStorage.getItem("access_token");
       if (!token) throw new Error("Yêu cầu xác thực.");
-      const response = await axios.get(`${API_BASE_URL}/borrows/api/admin/all`, {
-        params: { status__ne: 'PENDING' },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setBorrowingHistoryList(Array.isArray(response.data) ? response.data : []);
+      const response = await axios.get(
+        `${API_BASE_URL}/borrows/api/admin/all`,
+        {
+          params: { status__ne: "PENDING" },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setBorrowingHistoryList(
+        Array.isArray(response.data) ? response.data : []
+      );
     } catch (err) {
-      setErrorHistory(err.response?.data?.message || err.message || "Không thể tải lịch sử mượn sách.");
+      setErrorHistory(
+        err.response?.data?.message ||
+          err.message ||
+          "Không thể tải lịch sử mượn sách."
+      );
       setBorrowingHistoryList([]);
     } finally {
       setIsLoadingHistory(false);
@@ -193,13 +222,22 @@ const AdminBorrows = () => {
     try {
       const token = sessionStorage.getItem("access_token");
       if (!token) throw new Error("Yêu cầu xác thực.");
-      const response = await axios.get(`${API_BASE_URL}/borrows/api/admin/all`, {
-        params: { status: 'PENDING' },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setBorrowingRequestsList(Array.isArray(response.data) ? response.data : []);
+      const response = await axios.get(
+        `${API_BASE_URL}/borrows/api/admin/all`,
+        {
+          params: { status: "PENDING" },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setBorrowingRequestsList(
+        Array.isArray(response.data) ? response.data : []
+      );
     } catch (err) {
-      setErrorRequests(err.response?.data?.message || err.message || "Không thể tải yêu cầu mượn sách.");
+      setErrorRequests(
+        err.response?.data?.message ||
+          err.message ||
+          "Không thể tải yêu cầu mượn sách."
+      );
       setBorrowingRequestsList([]);
     } finally {
       setIsLoadingRequests(false);
@@ -209,12 +247,14 @@ const AdminBorrows = () => {
   useEffect(() => {
     const token = sessionStorage.getItem("access_token");
     if (!token) {
-        navigate('/login', { state: { message: "Vui lòng đăng nhập để truy cập trang này." } });
-        return;
+      navigate("/login", {
+        state: { message: "Vui lòng đăng nhập để truy cập trang này." },
+      });
+      return;
     }
-    if (activeTabKey === 'history') {
+    if (activeTabKey === "history") {
       fetchBorrowingHistory();
-    } else if (activeTabKey === 'requests') {
+    } else if (activeTabKey === "requests") {
       fetchBorrowingRequests();
     }
   }, [activeTabKey, fetchBorrowingHistory, fetchBorrowingRequests, navigate]);
@@ -222,76 +262,103 @@ const AdminBorrows = () => {
   // Xử lý danh sách Lịch sử với Sắp xếp và Lọc
   const processedHistoryList = useMemo(() => {
     let list = [...borrowingHistoryList];
-    list = filterDataByText(list, historyFilterText, ['book.title', 'user.username', 'user.name']);
+    list = filterDataByText(list, historyFilterText, [
+      "book.title",
+      "user.username",
+      "user.name",
+    ]);
     if (historyFilterDate.field && historyFilterDate.date) {
-      list = filterDataByDate(list, historyFilterDate.field, historyFilterDate.date);
+      list = filterDataByDate(
+        list,
+        historyFilterDate.field,
+        historyFilterDate.date
+      );
     }
     list = sortData(list, historySortConfig);
     return list;
-  }, [borrowingHistoryList, historyFilterText, historyFilterDate, historySortConfig]);
+  }, [
+    borrowingHistoryList,
+    historyFilterText,
+    historyFilterDate,
+    historySortConfig,
+  ]);
 
   // Xử lý danh sách Yêu cầu với Sắp xếp và Lọc
   const processedRequestsList = useMemo(() => {
     let list = [...borrowingRequestsList];
-    list = filterDataByText(list, requestsFilterText, ['book.title', 'user.username', 'user.name']);
+    list = filterDataByText(list, requestsFilterText, [
+      "book.title",
+      "user.username",
+      "user.name",
+    ]);
     if (requestsFilterDate.field && requestsFilterDate.date) {
-      list = filterDataByDate(list, requestsFilterDate.field, requestsFilterDate.date);
+      list = filterDataByDate(
+        list,
+        requestsFilterDate.field,
+        requestsFilterDate.date
+      );
     }
     list = sortData(list, requestsSortConfig);
     return list;
-  }, [borrowingRequestsList, requestsFilterText, requestsFilterDate, requestsSortConfig]);
-
+  }, [
+    borrowingRequestsList,
+    requestsFilterText,
+    requestsFilterDate,
+    requestsSortConfig,
+  ]);
 
   const renderStatus = (status) => {
     // ... (giữ nguyên hàm renderStatus của bạn)
-    const normalizedStatus = status ? status.toUpperCase() : 'UNKNOWN'; // Chuẩn hóa status về uppercase
-    switch (normalizedStatus) {
-      case "RETURNED":
-        return (
-          <Badge bg="success" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
-            Đã trả
-          </Badge>
-        );
-      case "APPROVED":
-        return (
-          <Badge bg="info" text="dark" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faCheck} className="me-1" />
-            Đã duyệt
-          </Badge>
-        );
-      case "BORROWING":
-        return (
-          <Badge bg="primary" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faBook} className="me-1" />
-            Đang mượn
-          </Badge>
-        );
-      case "OVERDUE":
-        return (
-          <Badge bg="danger" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
-            Trả trễ
-          </Badge>
-        );
-      case "PENDING":
-        return (
-          <Badge bg="warning" text="dark" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faClock} className="me-1" />
-            Chờ duyệt
-          </Badge>
-        );
-      case "REJECTED":
-      case "CANCELED": // Gom chung CANCELED và REJECTED nếu backend xử lý tương tự
-        return (
-          <Badge bg="secondary" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faTimes} className="me-1" />
-            Đã từ chối/Hủy
-          </Badge>
-        );
-      default:
-        return <Badge bg="dark">{status || "Không rõ"}</Badge>;
-    }
+    const normalizedStatus = status ? status.toUpperCase() : "UNKNOWN"; // Chuẩn hóa status về uppercase
+    switch (normalizedStatus) {
+      case "RETURNED":
+        return (
+          <Badge bg="success" className="d-flex align-items-center">
+                       {" "}
+            <FontAwesomeIcon icon={faCheckCircle} className="me-1" />           
+            Đã trả          {" "}
+          </Badge>
+        );
+      case "APPROVED":
+        return (
+          <Badge bg="info" text="dark" className="d-flex align-items-center">
+                        <FontAwesomeIcon icon={faCheck} className="me-1" />     
+                  Đã duyệt          {" "}
+          </Badge>
+        );
+      case "BORROWED":
+        return (
+          <Badge bg="primary" className="d-flex align-items-center">
+            <FontAwesomeIcon icon={faBook} className="me-1" />
+            Đang mượn
+          </Badge>
+        );
+      case "OVERDUE":
+        return (
+          <Badge bg="danger" className="d-flex align-items-center">
+                       {" "}
+            <FontAwesomeIcon icon={faTimesCircle} className="me-1" />           
+            Trả trễ          {" "}
+          </Badge>
+        );
+      case "PENDING":
+        return (
+          <Badge bg="warning" text="dark" className="d-flex align-items-center">
+                        <FontAwesomeIcon icon={faClock} className="me-1" />     
+                  Chờ duyệt          {" "}
+          </Badge>
+        );
+      case "REJECTED":
+      case "CANCELED": // Gom chung CANCELED và REJECTED nếu backend xử lý tương tự
+        return (
+          <Badge bg="secondary" className="d-flex align-items-center">
+                        <FontAwesomeIcon icon={faTimes} className="me-1" />     
+                  Đã từ chối/Hủy          {" "}
+          </Badge>
+        );
+      default:
+        return <Badge bg="dark">{status || "Không rõ"}</Badge>;
+    }
   };
 
   const handleViewDetail = (borrowId) => {
@@ -302,99 +369,148 @@ const AdminBorrows = () => {
     navigate(`/admin/requestDetail/${requestId}`);
   };
 
-  const updateBorrowStatus = async (item, newStatus, successMessage, errorMessagePrefix) => {
+  const updateBorrowStatus = async (
+    item,
+    newStatus,
+    successMessage,
+    errorMessagePrefix
+  ) => {
     // ... (giữ nguyên hàm updateBorrowStatus của bạn)
-    if (isUpdatingStatus === item.id) return; 
-    setIsUpdatingStatus(item.id); 
+    if (isUpdatingStatus === item.id) return;
+    setIsUpdatingStatus(item.id);
 
-    try {
-      const token = sessionStorage.getItem("access_token");
-      if (!token) {
-        alert("Yêu cầu xác thực. Vui lòng đăng nhập lại.");
-        setIsUpdatingStatus(null);
-        return;
-      }
-      
-      if (!item || !item.id || !item.user?.id || !item.book?.id) {
-        console.error("Dữ liệu phiếu mượn không đầy đủ:", item);
-        alert("Dữ liệu phiếu mượn không hợp lệ (thiếu ID, User ID hoặc Book ID).");
-        setIsUpdatingStatus(null);
-        return;
-      }
+    try {
+      const token = sessionStorage.getItem("access_token");
+      if (!token) {
+        alert("Yêu cầu xác thực. Vui lòng đăng nhập lại.");
+        setIsUpdatingStatus(null);
+        return;
+      }
+      if (!item || !item.id || !item.user?.id || !item.book?.id) {
+        console.error("Dữ liệu phiếu mượn không đầy đủ:", item);
+        alert(
+          "Dữ liệu phiếu mượn không hợp lệ (thiếu ID, User ID hoặc Book ID)."
+        );
+        setIsUpdatingStatus(null);
+        return;
+      }
 
-      const payload = {
-        user_id: item.user.id,
-        book_id: item.book.id,
-        status: newStatus,
-        borrow_days: item.borrow_days,
-      };
+      const payload = {
+        user_id: item.user.id,
+        book_id: item.book.id,
+        status: newStatus,
+        borrow_days: item.borrow_days,
+      };
 
-      console.log(`Attempting to update item ID: ${item.id} to status: ${newStatus}`);
-      console.log("Sending payload:", payload);
+      console.log(
+        `Attempting to update item ID: ${item.id} to status: ${newStatus}`
+      );
+      console.log("Sending payload:", payload);
 
-      await axios.put(
-        `${API_BASE_URL}/borrows/api/edit/${item.id}`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.put(`${API_BASE_URL}/borrows/api/edit/${item.id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      alert(successMessage);
-      fetchBorrowingRequests(); 
-      fetchBorrowingHistory(); 
-
-    }  catch (err) {
-      console.error(`${errorMessagePrefix} ID ${item.id}:`, err); 
+      alert(successMessage);
+      fetchBorrowingRequests();
+      fetchBorrowingHistory();
+    } catch (err) {
+      console.error(`${errorMessagePrefix} ID ${item.id}:`, err);
       if (err.response) {
-        console.error("Lỗi chi tiết từ server (err.response.data):", err.response.data); 
+        console.error(
+          "Lỗi chi tiết từ server (err.response.data):",
+          err.response.data
+        );
         let detailedErrors = "";
-        if (err.response.data && typeof err.response.data === 'object') {
-            if (err.response.data.message) {
-                detailedErrors = err.response.data.message;
-            } else if (err.response.data.detail) {
-                detailedErrors = err.response.data.detail;
-            } else {
-                for (const key in err.response.data) {
-                    if (Array.isArray(err.response.data[key])) {
-                        detailedErrors += `${key}: ${err.response.data[key].join(', ')}\n`;
-                    } else {
-                        detailedErrors += `${key}: ${String(err.response.data[key])}\n`;
-                    }
-                }
+        if (err.response.data && typeof err.response.data === "object") {
+          if (err.response.data.message) {
+            detailedErrors = err.response.data.message;
+          } else if (err.response.data.detail) {
+            detailedErrors = err.response.data.detail;
+          } else {
+            for (const key in err.response.data) {
+              if (Array.isArray(err.response.data[key])) {
+                detailedErrors += `${key}: ${err.response.data[key].join(
+                  ", "
+                )}\n`;
+              } else {
+                detailedErrors += `${key}: ${String(err.response.data[key])}\n`;
+              }
             }
-            if (err.response.data.message === "Edit book unsuccessfull!" && err.response.data.error) {
-                detailedErrors = "Edit book unsuccessfull! Specific error: " + JSON.stringify(err.response.data.error);
-            }
+          }
+          if (
+            err.response.data.message === "Edit book unsuccessfull!" &&
+            err.response.data.error
+          ) {
+            detailedErrors =
+              "Edit book unsuccessfull! Specific error: " +
+              JSON.stringify(err.response.data.error);
+          }
         } else if (err.response.data) {
-            detailedErrors = String(err.response.data);
+          detailedErrors = String(err.response.data);
         }
         if (!detailedErrors && err.message) detailedErrors = err.message;
-        const displayMessage = err.response.data?.message === "Edit book unsuccessfull!" && err.response.data?.error
-                                ? `Lỗi khi duyệt yêu cầu: Edit book unsuccessfull! Chi tiết: ${JSON.stringify(err.response.data.error)}`
-                                : `${errorMessagePrefix}: ${detailedErrors || 'Lỗi không xác định từ server.'}`;
+        const displayMessage =
+          err.response.data?.message === "Edit book unsuccessfull!" &&
+          err.response.data?.error
+            ? `Lỗi khi duyệt yêu cầu: Edit book unsuccessfull! Chi tiết: ${JSON.stringify(
+                err.response.data.error
+              )}`
+            : `${errorMessagePrefix}: ${
+                detailedErrors || "Lỗi không xác định từ server."
+              }`;
         alert(displayMessage);
       } else {
         alert(`${errorMessagePrefix}: ${err.message}`);
       }
     } finally {
-    setIsUpdatingStatus(null);
+      setIsUpdatingStatus(null);
     }
   };
 
   const handleReturnBook = (item) => {
     if (!window.confirm(`Xác nhận sách đã được trả?`)) return;
-    updateBorrowStatus(item, 'RETURNED', 'Đã xác nhận trả sách thành công!', 'Lỗi khi xác nhận trả sách');
+    updateBorrowStatus(
+      item,
+      "RETURNED",
+      "Đã xác nhận trả sách thành công!",
+      "Lỗi khi xác nhận trả sách"
+    );
   };
   const handleApproveRequest = (requestItem) => {
-    updateBorrowStatus(requestItem, 'APPROVED', 'Yêu cầu đã được duyệt thành công!', 'Lỗi khi duyệt yêu cầu');
+    updateBorrowStatus(
+      requestItem,
+      "APPROVED",
+      "Yêu cầu đã được duyệt thành công!",
+      "Lỗi khi duyệt yêu cầu"
+    );
   };
   const handleRejectRequest = (requestItem) => {
-    updateBorrowStatus(requestItem, 'REJECTED', 'Yêu cầu đã được từ chối!', 'Lỗi khi từ chối yêu cầu');
+    updateBorrowStatus(
+      requestItem,
+      "REJECTED",
+      "Yêu cầu đã được từ chối!",
+      "Lỗi khi từ chối yêu cầu"
+    );
   };
   const handleConfirmBorrowing = (historyItem) => {
-    if (!window.confirm(`Xác nhận cho người dùng "${historyItem.user?.username || historyItem.user?.name}" mượn sách "${historyItem.book?.title}"?\nHành động này sẽ cập nhật ngày mượn và hạn trả.`)) return;
-    updateBorrowStatus(historyItem, 'BORROWING', 'Đã xác nhận cho mượn sách và cập nhật ngày!', 'Lỗi khi xác nhận cho mượn');
+    if (
+      !window.confirm(
+        `Xác nhận cho người dùng "${
+          historyItem.user?.username || historyItem.user?.name
+        }" mượn sách "${
+          historyItem.book?.title
+        }"?\nHành động này sẽ cập nhật ngày mượn và hạn trả.`
+      )
+    )
+      return;
+    updateBorrowStatus(
+      historyItem,
+      "BORROWED",
+      "Đã xác nhận cho mượn sách và cập nhật ngày!",
+      "Lỗi khi xác nhận cho mượn"
+    );
   };
-
 
   return (
     <Container className="my-5">
@@ -414,201 +530,367 @@ const AdminBorrows = () => {
                   title={
                     <span>
                       <FontAwesomeIcon icon={faHistory} className="me-2" />
-                      Lịch sử ({processedHistoryList.length}) {/* Sử dụng processed list */}
+                      Lịch sử ({processedHistoryList.length}){" "}
+                      {/* Sử dụng processed list */}
                     </span>
                   }
                 >
                   <div className="p-3">
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <h4 className="mb-0">Lịch sử mượn sách</h4>
-                      <Button variant="outline-primary" size="sm" onClick={fetchBorrowingHistory} disabled={isLoadingHistory || !!isUpdatingStatus}>
-                        <FontAwesomeIcon icon={faSync} className={isLoadingHistory ? "fa-spin" : ""} /> Tải lại
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={fetchBorrowingHistory}
+                        disabled={isLoadingHistory || !!isUpdatingStatus}
+                      >
+                        <FontAwesomeIcon
+                          icon={faSync}
+                          className={isLoadingHistory ? "fa-spin" : ""}
+                        />{" "}
+                        Tải lại
                       </Button>
                     </div>
 
                     {/* BỘ LỌC VÀ SẮP XẾP CHO TAB LỊCH SỬ */}
                     <Card body className="mb-3 bg-light">
-                        <Row className="g-2 align-items-end">
-                            <Col md={6} lg={3}>
-                                <Form.Group controlId="historyFilterName">
-                                    <Form.Label className="small mb-1"><FontAwesomeIcon icon={faFilter} className="me-1"/> Lọc tên sách/người mượn</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        size="sm"
-                                        placeholder="Nhập tên..."
-                                        value={historyFilterText}
-                                        onChange={(e) => setHistoryFilterText(e.target.value)}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} lg={2}>
-                                <Form.Group controlId="historyFilterDateField">
-                                    <Form.Label className="small mb-1"><FontAwesomeIcon icon={faFilter} className="me-1"/> Lọc theo trường ngày</Form.Label>
-                                    <Form.Select
-                                        size="sm"
-                                        value={historyFilterDate.field}
-                                        onChange={(e) => setHistoryFilterDate(prev => ({ ...prev, field: e.target.value, date: e.target.value ? prev.date : '' }))}
-                                    >
-                                        <option value="">Chọn trường</option>
-                                        <option value="borrow_date">Ngày mượn</option>
-                                        <option value="exp_date">Hạn trả</option>
-                                        <option value="return_date">Ngày trả</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} lg={2}>
-                                <Form.Group controlId="historyFilterDateValue">
-                                     <Form.Label className="small mb-1">Chọn ngày</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        size="sm"
-                                        value={historyFilterDate.date}
-                                        onChange={(e) => setHistoryFilterDate(prev => ({ ...prev, date: e.target.value }))}
-                                        disabled={!historyFilterDate.field}
-                                    />
-                                </Form.Group>
-                            </Col>
-                             <Col md={6} lg={2}>
-                                <Form.Group controlId="historySortField">
-                                    <Form.Label className="small mb-1"><FontAwesomeIcon icon={faSort} className="me-1"/> Sắp xếp</Form.Label>
-                                    <Form.Select
-                                        size="sm"
-                                        value={historySortConfig.key || ''}
-                                        onChange={(e) => setHistorySortConfig(prev => ({ ...prev, key: e.target.value || null }))}
-                                    >
-                                        <option value="">Chọn trường</option>
-                                        <option value="book.title">Tên sách</option>
-                                        <option value="user.username">Người mượn</option>
-                                        <option value="borrow_date">Ngày mượn</option>
-                                        <option value="exp_date">Hạn trả</option>
-                                        <option value="return_date">Ngày trả</option>
-                                        <option value="status">Trạng thái</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} lg={2}>
-                                <Form.Group controlId="historySortDirection">
-                                     <Form.Label className="small mb-1">Thứ tự</Form.Label>
-                                    <Form.Select
-                                        size="sm"
-                                        value={historySortConfig.direction}
-                                        onChange={(e) => setHistorySortConfig(prev => ({ ...prev, direction: e.target.value }))}
-                                        disabled={!historySortConfig.key}
-                                    >
-                                        <option value="asc">Tăng dần / Cũ nhất</option>
-                                        <option value="desc">Giảm dần / Mới nhất</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={12} lg={1} className="text-end">
-                                <Button variant="outline-secondary" size="sm" onClick={() => {
-                                    setHistoryFilterText('');
-                                    setHistoryFilterDate({ field: '', date: '' });
-                                    setHistorySortConfig({ key: 'borrow_date', direction: 'desc' });
-                                }} title="Xóa bộ lọc & sắp xếp">
-                                    <FontAwesomeIcon icon={faEraser}/>
-                                </Button>
-                            </Col>
-                        </Row>
+                      <Row className="g-2 align-items-end">
+                        <Col md={6} lg={3}>
+                          <Form.Group controlId="historyFilterName">
+                            <Form.Label className="small mb-1">
+                              <FontAwesomeIcon
+                                icon={faFilter}
+                                className="me-1"
+                              />{" "}
+                              Lọc tên sách/người mượn
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              size="sm"
+                              placeholder="Nhập tên..."
+                              value={historyFilterText}
+                              onChange={(e) =>
+                                setHistoryFilterText(e.target.value)
+                              }
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="historyFilterDateField">
+                            <Form.Label className="small mb-1">
+                              <FontAwesomeIcon
+                                icon={faFilter}
+                                className="me-1"
+                              />{" "}
+                              Lọc theo trường ngày
+                            </Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={historyFilterDate.field}
+                              onChange={(e) =>
+                                setHistoryFilterDate((prev) => ({
+                                  ...prev,
+                                  field: e.target.value,
+                                  date: e.target.value ? prev.date : "",
+                                }))
+                              }
+                            >
+                              <option value="">Chọn trường</option>
+                              <option value="borrow_date">Ngày mượn</option>
+                              <option value="exp_date">Hạn trả</option>
+                              <option value="return_date">Ngày trả</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="historyFilterDateValue">
+                            <Form.Label className="small mb-1">
+                              Chọn ngày
+                            </Form.Label>
+                            <Form.Control
+                              type="date"
+                              size="sm"
+                              value={historyFilterDate.date}
+                              onChange={(e) =>
+                                setHistoryFilterDate((prev) => ({
+                                  ...prev,
+                                  date: e.target.value,
+                                }))
+                              }
+                              disabled={!historyFilterDate.field}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="historySortField">
+                            <Form.Label className="small mb-1">
+                              <FontAwesomeIcon icon={faSort} className="me-1" />{" "}
+                              Sắp xếp
+                            </Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={historySortConfig.key || ""}
+                              onChange={(e) =>
+                                setHistorySortConfig((prev) => ({
+                                  ...prev,
+                                  key: e.target.value || null,
+                                }))
+                              }
+                            >
+                              <option value="">Chọn trường</option>
+                              <option value="book.title">Tên sách</option>
+                              <option value="user.username">Người mượn</option>
+                              <option value="borrow_date">Ngày mượn</option>
+                              <option value="exp_date">Hạn trả</option>
+                              <option value="return_date">Ngày trả</option>
+                              <option value="status">Trạng thái</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="historySortDirection">
+                            <Form.Label className="small mb-1">
+                              Thứ tự
+                            </Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={historySortConfig.direction}
+                              onChange={(e) =>
+                                setHistorySortConfig((prev) => ({
+                                  ...prev,
+                                  direction: e.target.value,
+                                }))
+                              }
+                              disabled={!historySortConfig.key}
+                            >
+                              <option value="asc">Tăng dần / Cũ nhất</option>
+                              <option value="desc">Giảm dần / Mới nhất</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col md={12} lg={1} className="text-end">
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={() => {
+                              setHistoryFilterText("");
+                              setHistoryFilterDate({ field: "", date: "" });
+                              setHistorySortConfig({
+                                key: "borrow_date",
+                                direction: "desc",
+                              });
+                            }}
+                            title="Xóa bộ lọc & sắp xếp"
+                          >
+                            <FontAwesomeIcon icon={faEraser} />
+                          </Button>
+                        </Col>
+                      </Row>
                     </Card>
 
-
-                    {isLoadingHistory && <div className="text-center p-3"><Spinner animation="border" /> <p>Đang tải lịch sử...</p></div>}
-                    {errorHistory && !isLoadingHistory && <Alert variant="danger" className="m-3">{errorHistory}</Alert>}
-                    {!isLoadingHistory && !errorHistory && processedHistoryList.length === 0 && (
-                      <div className="text-center py-5">
-                        <FontAwesomeIcon icon={faHistory} className="text-muted mb-3" style={{ fontSize: "3rem" }} />
-                        <h5>Không có lịch sử mượn sách { (historyFilterText || historyFilterDate.date) ? "nào khớp với tiêu chí lọc" : ""}</h5>
+                    {isLoadingHistory && (
+                      <div className="text-center p-3">
+                        <Spinner animation="border" />{" "}
+                        <p>Đang tải lịch sử...</p>
                       </div>
                     )}
-                    {!isLoadingHistory && !errorHistory && processedHistoryList.length > 0 && (
-                      <Table hover responsive className="mb-0 align-middle"> {/* align-middle cho nội dung căn giữa theo chiều dọc */}
-                        <thead>
-                          <tr>
-                            <th>Sách</th>
-                            <th>Người mượn</th>
-                            <th>Ngày mượn</th>
-                            <th>Hạn trả</th>
-                            <th>Ngày trả</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {processedHistoryList.map((record) => ( // Sử dụng processed list
-                            <tr key={record.id}>
-                              <td>
-                                <div className="d-flex align-items-center">
-                                  <Image
-                                    src={record.book?.image ? `${API_BASE_URL}${record.book.image}` : "/book_placeholder.jpg"}
-                                    alt={record.book?.title}
-                                    width={40} // Giảm kích thước ảnh một chút
-                                    height={60}
-                                    style={{objectFit: 'cover'}}
-                                    className="me-2 rounded shadow-sm"
-                                    onError={(e) => { e.target.onerror = null; e.target.src="/book_placeholder.jpg"; }}
-                                  />
-                                  <div>
-                                    <h6 className="mb-0 small">{record.book?.title || "N/A"}</h6>
-                                    <p className="text-muted small mb-0">
-                                      {record.book?.author?.name || "N/A"}
-                                    </p>
-                                    {record.book?.category && record.book.category.length > 0 && (
-                                        <Badge pill bg="light" text="dark" className="mt-1 me-1 small" key={record.id + "-catpill"}>
-                                            {record.book.category.map(cat => cat.name).join(', ')}
-                                        </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="small">{record.user?.username || record.user?.name || "N/A"}</td>
-                              <td className="small">{record.borrow_date ? new Date(record.borrow_date).toLocaleDateString() : "-"}</td>
-                              <td className="small">{record.exp_date ? new Date(record.exp_date).toLocaleDateString() : "-"}</td>
-                              <td className="small">{record.return_date ? new Date(record.return_date).toLocaleDateString() : "-"}</td>
-                              <td>{renderStatus(record.status)}</td>
-                              <td>
-                                {record.status === 'APPROVED' && (
-                                    <Button
+                    {errorHistory && !isLoadingHistory && (
+                      <Alert variant="danger" className="m-3">
+                        {errorHistory}
+                      </Alert>
+                    )}
+                    {!isLoadingHistory &&
+                      !errorHistory &&
+                      processedHistoryList.length === 0 && (
+                        <div className="text-center py-5">
+                          <FontAwesomeIcon
+                            icon={faHistory}
+                            className="text-muted mb-3"
+                            style={{ fontSize: "3rem" }}
+                          />
+                          <h5>
+                            Không có lịch sử mượn sách{" "}
+                            {historyFilterText || historyFilterDate.date
+                              ? "nào khớp với tiêu chí lọc"
+                              : ""}
+                          </h5>
+                        </div>
+                      )}
+                    {!isLoadingHistory &&
+                      !errorHistory &&
+                      processedHistoryList.length > 0 && (
+                        <Table hover responsive className="mb-0 align-middle">
+                          {" "}
+                          {/* align-middle cho nội dung căn giữa theo chiều dọc */}
+                          <thead>
+                            <tr>
+                              <th>Sách</th>
+                              <th>Người mượn</th>
+                              <th>Ngày mượn</th>
+                              <th>Hạn trả</th>
+                              <th>Ngày trả</th>
+                              <th>Trạng thái</th>
+                              <th>Thao tác</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {processedHistoryList.map(
+                              (
+                                record // Sử dụng processed list
+                              ) => (
+                                <tr key={record.id}>
+                                  <td>
+                                    <div className="d-flex align-items-center">
+                                      <Image
+                                        src={
+                                          record.book?.image
+                                            ? `${API_BASE_URL}${record.book.image}`
+                                            : "/book_placeholder.jpg"
+                                        }
+                                        alt={record.book?.title}
+                                        width={40} // Giảm kích thước ảnh một chút
+                                        height={60}
+                                        style={{ objectFit: "cover" }}
+                                        className="me-2 rounded shadow-sm"
+                                        onError={(e) => {
+                                          e.target.onerror = null;
+                                          e.target.src =
+                                            "/book_placeholder.jpg";
+                                        }}
+                                      />
+                                      <div>
+                                        <h6 className="mb-0 small">
+                                          {record.book?.title || "N/A"}
+                                        </h6>
+                                        <p className="text-muted small mb-0">
+                                          {record.book?.author?.name || "N/A"}
+                                        </p>
+                                        {record.book?.category &&
+                                          record.book.category.length > 0 && (
+                                            <Badge
+                                              pill
+                                              bg="light"
+                                              text="dark"
+                                              className="mt-1 me-1 small"
+                                              key={record.id + "-catpill"}
+                                            >
+                                              {record.book.category
+                                                .map((cat) => cat.name)
+                                                .join(", ")}
+                                            </Badge>
+                                          )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="small">
+                                    {record.user?.username ||
+                                      record.user?.name ||
+                                      "N/A"}
+                                  </td>
+                                  <td className="small">
+                                    {record.borrow_date
+                                      ? new Date(
+                                          record.borrow_date
+                                        ).toLocaleDateString()
+                                      : "-"}
+                                  </td>
+                                  <td className="small">
+                                    {record.exp_date
+                                      ? new Date(
+                                          record.exp_date
+                                        ).toLocaleDateString()
+                                      : "-"}
+                                  </td>
+                                  <td className="small">
+                                    {record.return_date
+                                      ? new Date(
+                                          record.return_date
+                                        ).toLocaleDateString()
+                                      : "-"}
+                                  </td>
+                                  <td>{renderStatus(record.status)}</td>
+                                  <td>
+                                    {record.status === "APPROVED" && (
+                                      <Button
                                         variant="outline-primary"
                                         size="sm"
                                         className="me-1 mb-1"
-                                        onClick={() => handleConfirmBorrowing(record)}
-                                        disabled={isUpdatingStatus === record.id || (!!isUpdatingStatus && isUpdatingStatus !== record.id)}
+                                        onClick={() =>
+                                          handleConfirmBorrowing(record)
+                                        }
+                                        disabled={
+                                          isUpdatingStatus === record.id ||
+                                          (!!isUpdatingStatus &&
+                                            isUpdatingStatus !== record.id)
+                                        }
                                         title="Xác nhận cho mượn (cập nhật ngày mượn/trả)"
+                                      >
+                                        <FontAwesomeIcon
+                                          icon={faCheck}
+                                          className="me-1"
+                                        />
+                                        {isUpdatingStatus === record.id &&
+                                        record.status === "APPROVED" ? (
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                          />
+                                        ) : (
+                                          "Cho mượn"
+                                        )}
+                                      </Button>
+                                    )}{" "}
+                                    {(record.status === "BORROWED" ||
+                                      record.status === "OVERDUE") && (
+                                      <Button
+                                        variant="outline-success"
+                                        size="sm"
+                                        className="me-1 mb-1"
+                                        onClick={() => handleReturnBook(record)}
+                                        disabled={
+                                          isUpdatingStatus === record.id ||
+                                          (!!isUpdatingStatus &&
+                                            isUpdatingStatus !== record.id)
+                                        }
+                                        title="Xác nhận sách đã được trả"
+                                      >
+                                        <FontAwesomeIcon
+                                          icon={faCheckCircle}
+                                          className="me-1"
+                                        />
+                                        {isUpdatingStatus === record.id &&
+                                        (record.status === "BORROWED" ||
+                                          record.status === "OVERDUE") ? (
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                          />
+                                        ) : (
+                                          "Xác nhận trả"
+                                        )}
+                                      </Button>
+                                    )}
+                                    <Button
+                                      variant="outline-info"
+                                      size="sm"
+                                      className="mb-1"
+                                      onClick={() =>
+                                        handleViewDetail(record.id)
+                                      }
+                                      disabled={!!isUpdatingStatus}
+                                      title="Xem chi tiết phiếu mượn"
                                     >
-                                        <FontAwesomeIcon icon={faCheck} className="me-1" />
-                                        {isUpdatingStatus === record.id && record.status === "APPROVED" ? <Spinner as="span" animation="border" size="sm" /> : "Cho mượn"}
+                                      <FontAwesomeIcon icon={faEye} />
                                     </Button>
-                                )}
-                                {(record.status === 'BORROWING' || record.status === 'OVERDUE') && (
-                                  <Button
-                                    variant="outline-success"
-                                    size="sm"
-                                    className="me-1 mb-1"
-                                    onClick={() => handleReturnBook(record)}
-                                    disabled={isUpdatingStatus === record.id || (!!isUpdatingStatus && isUpdatingStatus !== record.id)}
-                                    title="Xác nhận sách đã được trả"
-                                  >
-                                    <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
-                                     {isUpdatingStatus === record.id && (record.status === "BORROWING" || record.status === "OVERDUE") ? <Spinner as="span" animation="border" size="sm" /> : "Xác nhận trả"}
-                                  </Button>
-                                )}
-                                <Button
-                                    variant="outline-info"
-                                    size="sm"
-                                    className="mb-1"
-                                    onClick={() => handleViewDetail(record.id)}
-                                    disabled={!!isUpdatingStatus}
-                                    title="Xem chi tiết phiếu mượn"
-                                >
-                                    <FontAwesomeIcon icon={faEye} />
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
-                    )}
+                                  </td>
+                                </tr>
+                              )
+                            )}
+                          </tbody>
+                        </Table>
+                      )}
                   </div>
                 </Tab>
 
@@ -618,182 +900,329 @@ const AdminBorrows = () => {
                   title={
                     <span>
                       <FontAwesomeIcon icon={faBook} className="me-2" />
-                      Yêu cầu ({processedRequestsList.length}) {/* Sử dụng processed list */}
+                      Yêu cầu ({processedRequestsList.length}){" "}
+                      {/* Sử dụng processed list */}
                     </span>
                   }
                 >
                   <div className="p-3">
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <h4 className="mb-0">Yêu cầu mượn sách</h4>
-                       <Button variant="outline-primary" size="sm" onClick={fetchBorrowingRequests} disabled={isLoadingRequests || !!isUpdatingStatus}>
-                        <FontAwesomeIcon icon={faSync} className={isLoadingRequests ? "fa-spin" : ""} /> Tải lại
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={fetchBorrowingRequests}
+                        disabled={isLoadingRequests || !!isUpdatingStatus}
+                      >
+                        <FontAwesomeIcon
+                          icon={faSync}
+                          className={isLoadingRequests ? "fa-spin" : ""}
+                        />{" "}
+                        Tải lại
                       </Button>
                     </div>
 
                     {/* BỘ LỌC VÀ SẮP XẾP CHO TAB YÊU CẦU */}
-                     <Card body className="mb-3 bg-light">
-                        <Row className="g-2 align-items-end">
-                            <Col md={6} lg={3}>
-                                <Form.Group controlId="requestsFilterName">
-                                    <Form.Label className="small mb-1"><FontAwesomeIcon icon={faFilter} className="me-1"/> Lọc tên sách/người yêu cầu</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        size="sm"
-                                        placeholder="Nhập tên..."
-                                        value={requestsFilterText}
-                                        onChange={(e) => setRequestsFilterText(e.target.value)}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} lg={2}>
-                                <Form.Group controlId="requestsFilterDateField">
-                                    <Form.Label className="small mb-1"><FontAwesomeIcon icon={faFilter} className="me-1"/> Lọc theo trường ngày</Form.Label>
-                                    <Form.Select
-                                        size="sm"
-                                        value={requestsFilterDate.field}
-                                        onChange={(e) => setRequestsFilterDate(prev => ({ ...prev, field: e.target.value, date: e.target.value ? prev.date : '' }))}
-                                    >
-                                        <option value="">Chọn trường</option>
-                                        <option value="require_date">Ngày yêu cầu</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} lg={2}>
-                                <Form.Group controlId="requestsFilterDateValue">
-                                     <Form.Label className="small mb-1">Chọn ngày</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        size="sm"
-                                        value={requestsFilterDate.date}
-                                        onChange={(e) => setRequestsFilterDate(prev => ({ ...prev, date: e.target.value }))}
-                                        disabled={!requestsFilterDate.field}
-                                    />
-                                </Form.Group>
-                            </Col>
-                             <Col md={6} lg={2}>
-                                <Form.Group controlId="requestsSortField">
-                                    <Form.Label className="small mb-1"><FontAwesomeIcon icon={faSort} className="me-1"/> Sắp xếp</Form.Label>
-                                    <Form.Select
-                                        size="sm"
-                                        value={requestsSortConfig.key || ''}
-                                        onChange={(e) => setRequestsSortConfig(prev => ({ ...prev, key: e.target.value || null }))}
-                                    >
-                                        <option value="">Chọn trường</option>
-                                        <option value="book.title">Tên sách</option>
-                                        <option value="user.username">Người yêu cầu</option>
-                                        <option value="require_date">Ngày yêu cầu</option>
-                                        <option value="borrow_days">Số ngày mượn</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} lg={2}>
-                                <Form.Group controlId="requestsSortDirection">
-                                     <Form.Label className="small mb-1">Thứ tự</Form.Label>
-                                    <Form.Select
-                                        size="sm"
-                                        value={requestsSortConfig.direction}
-                                        onChange={(e) => setRequestsSortConfig(prev => ({ ...prev, direction: e.target.value }))}
-                                        disabled={!requestsSortConfig.key}
-                                    >
-                                        <option value="asc">Tăng dần / Cũ nhất</option>
-                                        <option value="desc">Giảm dần / Mới nhất</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                             <Col md={12} lg={1} className="text-end">
-                                <Button variant="outline-secondary" size="sm" onClick={() => {
-                                    setRequestsFilterText('');
-                                    setRequestsFilterDate({ field: '', date: '' });
-                                    setRequestsSortConfig({ key: 'require_date', direction: 'desc' });
-                                }} title="Xóa bộ lọc & sắp xếp">
-                                    <FontAwesomeIcon icon={faEraser}/>
-                                </Button>
-                            </Col>
-                        </Row>
+                    <Card body className="mb-3 bg-light">
+                      <Row className="g-2 align-items-end">
+                        <Col md={6} lg={3}>
+                          <Form.Group controlId="requestsFilterName">
+                            <Form.Label className="small mb-1">
+                              <FontAwesomeIcon
+                                icon={faFilter}
+                                className="me-1"
+                              />{" "}
+                              Lọc tên sách/người yêu cầu
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              size="sm"
+                              placeholder="Nhập tên..."
+                              value={requestsFilterText}
+                              onChange={(e) =>
+                                setRequestsFilterText(e.target.value)
+                              }
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="requestsFilterDateField">
+                            <Form.Label className="small mb-1">
+                              <FontAwesomeIcon
+                                icon={faFilter}
+                                className="me-1"
+                              />{" "}
+                              Lọc theo trường ngày
+                            </Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={requestsFilterDate.field}
+                              onChange={(e) =>
+                                setRequestsFilterDate((prev) => ({
+                                  ...prev,
+                                  field: e.target.value,
+                                  date: e.target.value ? prev.date : "",
+                                }))
+                              }
+                            >
+                              <option value="">Chọn trường</option>
+                              <option value="require_date">Ngày yêu cầu</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="requestsFilterDateValue">
+                            <Form.Label className="small mb-1">
+                              Chọn ngày
+                            </Form.Label>
+                            <Form.Control
+                              type="date"
+                              size="sm"
+                              value={requestsFilterDate.date}
+                              onChange={(e) =>
+                                setRequestsFilterDate((prev) => ({
+                                  ...prev,
+                                  date: e.target.value,
+                                }))
+                              }
+                              disabled={!requestsFilterDate.field}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="requestsSortField">
+                            <Form.Label className="small mb-1">
+                              <FontAwesomeIcon icon={faSort} className="me-1" />{" "}
+                              Sắp xếp
+                            </Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={requestsSortConfig.key || ""}
+                              onChange={(e) =>
+                                setRequestsSortConfig((prev) => ({
+                                  ...prev,
+                                  key: e.target.value || null,
+                                }))
+                              }
+                            >
+                              <option value="">Chọn trường</option>
+                              <option value="book.title">Tên sách</option>
+                              <option value="user.username">
+                                Người yêu cầu
+                              </option>
+                              <option value="require_date">Ngày yêu cầu</option>
+                              <option value="borrow_days">Số ngày mượn</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6} lg={2}>
+                          <Form.Group controlId="requestsSortDirection">
+                            <Form.Label className="small mb-1">
+                              Thứ tự
+                            </Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={requestsSortConfig.direction}
+                              onChange={(e) =>
+                                setRequestsSortConfig((prev) => ({
+                                  ...prev,
+                                  direction: e.target.value,
+                                }))
+                              }
+                              disabled={!requestsSortConfig.key}
+                            >
+                              <option value="asc">Tăng dần / Cũ nhất</option>
+                              <option value="desc">Giảm dần / Mới nhất</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col md={12} lg={1} className="text-end">
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={() => {
+                              setRequestsFilterText("");
+                              setRequestsFilterDate({ field: "", date: "" });
+                              setRequestsSortConfig({
+                                key: "require_date",
+                                direction: "desc",
+                              });
+                            }}
+                            title="Xóa bộ lọc & sắp xếp"
+                          >
+                            <FontAwesomeIcon icon={faEraser} />
+                          </Button>
+                        </Col>
+                      </Row>
                     </Card>
 
-                    {isLoadingRequests && <div className="text-center p-3"><Spinner animation="border" /> <p>Đang tải yêu cầu...</p></div>}
-                    {errorRequests && !isLoadingRequests && <Alert variant="danger" className="m-3">{errorRequests}</Alert>}
-                    {!isLoadingRequests && !errorRequests && processedRequestsList.length === 0 && (
+                    {isLoadingRequests && (
+                      <div className="text-center p-3">
+                        <Spinner animation="border" />{" "}
+                        <p>Đang tải yêu cầu...</p>
+                      </div>
+                    )}
+                    {errorRequests && !isLoadingRequests && (
+                      <Alert variant="danger" className="m-3">
+                        {errorRequests}
+                      </Alert>
+                    )}
+                    {!isLoadingRequests &&
+                      !errorRequests &&
+                      processedRequestsList.length === 0 && (
                         <div className="text-center py-5">
-                           <FontAwesomeIcon icon={faBook} className="text-muted mb-3" style={{ fontSize: "3rem" }} />
-                           <h5>Không có yêu cầu mượn sách nào { (requestsFilterText || requestsFilterDate.date) ? "khớp với tiêu chí lọc" : ""}</h5>
+                          <FontAwesomeIcon
+                            icon={faBook}
+                            className="text-muted mb-3"
+                            style={{ fontSize: "3rem" }}
+                          />
+                          <h5>
+                            Không có yêu cầu mượn sách nào{" "}
+                            {requestsFilterText || requestsFilterDate.date
+                              ? "khớp với tiêu chí lọc"
+                              : ""}
+                          </h5>
                         </div>
-                    )}
-                    {!isLoadingRequests && !errorRequests && processedRequestsList.length > 0 && (
-                      <Table hover responsive className="mb-0 align-middle">
-                        <thead>
-                          <tr>
-                            <th>Sách</th>
-                            <th>Người yêu cầu</th>
-                            <th>Ngày yêu cầu</th>
-                            <th>Số ngày mượn</th>
-                            <th>Thao tác</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {processedRequestsList.map((request) => ( // Sử dụng processed list
-                            <tr key={request.id}>
-                              <td>
-                                <div className="d-flex align-items-center">
-                                  <Image
-                                    src={request.book?.image ? `${API_BASE_URL}${request.book.image}` : "/book_placeholder.jpg"}
-                                    alt={request.book?.title}
-                                    width={40} height={60} style={{objectFit: 'cover'}}
-                                    className="me-2 rounded shadow-sm"
-                                    onError={(e) => { e.target.onerror = null; e.target.src="/book_placeholder.jpg"; }}
-                                  />
-                                  <div>
-                                    <h6 className="mb-0 small">{request.book?.title || "N/A"}</h6>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="small">
-                                {request.user?.username || request.user?.name || "N/A"}
-                              </td>
-                              <td className="small">
-                                {request.require_date 
-                                  ? new Date(request.require_date).toLocaleString()
-                                  : "N/A"
-                                }
-                              </td>
-                              <td className="small">{request.borrow_days} ngày</td>
-                              <td>
-                                <Button
-                                  variant="outline-success"
-                                  size="sm"
-                                  className="me-1 mb-1"
-                                  onClick={() => handleApproveRequest(request)}
-                                  disabled={isUpdatingStatus === request.id || (!!isUpdatingStatus && isUpdatingStatus !== request.id)}
-                                >
-                                  <FontAwesomeIcon icon={faCheck} className="me-1" /> 
-                                  {isUpdatingStatus === request.id && request.status === "PENDING" ? <Spinner as="span" animation="border" size="sm" /> : "Duyệt"}
-                                </Button>
-                                <Button
-                                  variant="outline-danger"
-                                  size="sm"
-                                  className="me-1 mb-1"
-                                  onClick={() => handleRejectRequest(request)}
-                                  disabled={isUpdatingStatus === request.id || (!!isUpdatingStatus && isUpdatingStatus !== request.id)}
-                                >
-                                  <FontAwesomeIcon icon={faTimes} className="me-1" /> 
-                                  {isUpdatingStatus === request.id && request.status === "PENDING" ? <Spinner as="span" animation="border" size="sm" /> : "Từ chối"}
-                                </Button>
-                                <Button
-                                  variant="outline-info"
-                                  size="sm"
-                                  className="mb-1"
-                                  onClick={() => handleViewRequestDetail(request.id)}
-                                  disabled={!!isUpdatingStatus}
-                                >
-                                  <FontAwesomeIcon icon={faEye} className="me-1" /> Xem
-                                </Button>
-                              </td>
+                      )}
+                    {!isLoadingRequests &&
+                      !errorRequests &&
+                      processedRequestsList.length > 0 && (
+                        <Table hover responsive className="mb-0 align-middle">
+                          <thead>
+                            <tr>
+                              <th>Sách</th>
+                              <th>Người yêu cầu</th>
+                              <th>Ngày yêu cầu</th>
+                              <th>Số ngày mượn</th>
+                              <th>Thao tác</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </Table>
-                    )}
+                          </thead>
+                          <tbody>
+                            {processedRequestsList.map(
+                              (
+                                request // Sử dụng processed list
+                              ) => (
+                                <tr key={request.id}>
+                                  <td>
+                                    <div className="d-flex align-items-center">
+                                      <Image
+                                        src={
+                                          request.book?.image
+                                            ? `${API_BASE_URL}${request.book.image}`
+                                            : "/book_placeholder.jpg"
+                                        }
+                                        alt={request.book?.title}
+                                        width={40}
+                                        height={60}
+                                        style={{ objectFit: "cover" }}
+                                        className="me-2 rounded shadow-sm"
+                                        onError={(e) => {
+                                          e.target.onerror = null;
+                                          e.target.src =
+                                            "/book_placeholder.jpg";
+                                        }}
+                                      />
+                                      <div>
+                                        <h6 className="mb-0 small">
+                                          {request.book?.title || "N/A"}
+                                        </h6>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="small">
+                                    {request.user?.username ||
+                                      request.user?.name ||
+                                      "N/A"}
+                                  </td>
+                                  <td className="small">
+                                    {request.require_date
+                                      ? new Date(
+                                          request.require_date
+                                        ).toLocaleString()
+                                      : "N/A"}
+                                  </td>
+                                  <td className="small">
+                                    {request.borrow_days} ngày
+                                  </td>
+                                  <td>
+                                    <Button
+                                      variant="outline-success"
+                                      size="sm"
+                                      className="me-1 mb-1"
+                                      onClick={() =>
+                                        handleApproveRequest(request)
+                                      }
+                                      disabled={
+                                        isUpdatingStatus === request.id ||
+                                        (!!isUpdatingStatus &&
+                                          isUpdatingStatus !== request.id)
+                                      }
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="me-1"
+                                      />
+                                      {isUpdatingStatus === request.id &&
+                                      request.status === "PENDING" ? (
+                                        <Spinner
+                                          as="span"
+                                          animation="border"
+                                          size="sm"
+                                        />
+                                      ) : (
+                                        "Duyệt"
+                                      )}
+                                    </Button>
+                                    <Button
+                                      variant="outline-danger"
+                                      size="sm"
+                                      className="me-1 mb-1"
+                                      onClick={() =>
+                                        handleRejectRequest(request)
+                                      }
+                                      disabled={
+                                        isUpdatingStatus === request.id ||
+                                        (!!isUpdatingStatus &&
+                                          isUpdatingStatus !== request.id)
+                                      }
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faTimes}
+                                        className="me-1"
+                                      />
+                                      {isUpdatingStatus === request.id &&
+                                      request.status === "PENDING" ? (
+                                        <Spinner
+                                          as="span"
+                                          animation="border"
+                                          size="sm"
+                                        />
+                                      ) : (
+                                        "Từ chối"
+                                      )}
+                                    </Button>
+                                    <Button
+                                      variant="outline-info"
+                                      size="sm"
+                                      className="mb-1"
+                                      onClick={() =>
+                                        handleViewRequestDetail(request.id)
+                                      }
+                                      disabled={!!isUpdatingStatus}
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faEye}
+                                        className="me-1"
+                                      />{" "}
+                                      Xem
+                                    </Button>
+                                  </td>
+                                </tr>
+                              )
+                            )}
+                          </tbody>
+                        </Table>
+                      )}
                   </div>
                 </Tab>
               </Tabs>
