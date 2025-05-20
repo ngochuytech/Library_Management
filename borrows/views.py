@@ -111,3 +111,26 @@ def get_admin_borrows_list(request):
     serializer = BorrowSerializer(borrows_queryset, many=True)
     return Response(serializer.data)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancelBorrowWithId(request, id):
+    try:
+        borrow = Borrow.objects.get(id=id)
+        # Kiểm tra xem người dùng hiện tại có phải là người tạo yêu cầu mượn sách không
+        if borrow.user.id != request.user.id:
+            return Response({"message": "Bạn không có quyền hủy yêu cầu mượn sách này"}, 
+                            status=status.HTTP_403_FORBIDDEN)
+        
+        # Kiểm tra nếu trạng thái không phải là PENDING thì không cho phép hủy
+        if borrow.status != 'PENDING':
+            return Response({"message": "Chỉ có thể hủy yêu cầu đang ở trạng thái chờ duyệt"}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # Cập nhật trạng thái thành CANCELED
+        borrow.status = 'CANCELED'
+        borrow.save()
+        return Response({"message": "Yêu cầu mượn sách đã được hủy thành công"}, status=status.HTTP_200_OK)
+    except Borrow.DoesNotExist:
+        return Response({"message": f"Không tìm thấy yêu cầu mượn sách với id = {id}"}, 
+                        status=status.HTTP_404_NOT_FOUND)
+

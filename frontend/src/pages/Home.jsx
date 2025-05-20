@@ -69,16 +69,14 @@ const HomePage = () => {
     else fetchSearchResults(currentPage);
   }, [activeView, searchQuery, searchType, currentPage]);
 
-
   const fetchNotifications = async () => {
-
     try {
       const response = await api.get(`${BASE_URL}/notifications/api`);
-        
+
       setNotifications(response.data.slice(0, 5));
-    } catch(error){
+    } catch (error) {
       console.log(error);
-      
+
       setNotifications([]);
     }
   };
@@ -322,47 +320,47 @@ const HomePage = () => {
                   </div>
                 </div>
 
-                  <div className="user-section">
-                    <div
-                      className="notifications"
-                      onClick={() => setShowNotifications(!showNotifications)}
-                    >
-                      <span className="notification-icon">
-                        <FontAwesomeIcon icon={faBell} />
-                      </span>
-                      {showNotifications && (
-                        <div className="notifications-dropdown">
-                          <div className="notification-header">
-                            <strong>Thông báo</strong>
-                            <a
-                              href="#"
-                              className="view-all"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setShowNotifications(false);
-                                handleNavigation("account", "notifications");
-                              }}
-                            >
-                              Xem tất cả
-                            </a>
-                          </div>
-                          {notifications.length === 0 ? (
-                            <div className="notification-item">
-                              <small>Không có thông báo nào.</small>
-                            </div>
-                          ) : (
-                            notifications.map((noti) => (
-                              <div className="notification-item" key={noti.id}>
-                                <small>{noti.message}</small>
-                                <br />
-                                <small className="text-muted">
-                                  {new Date(noti.date).toLocaleString("vi-VN")}
-                                </small>
-                              </div>
-                            ))
-                          )}
+                <div className="user-section">
+                  <div
+                    className="notifications"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                  >
+                    <span className="notification-icon">
+                      <FontAwesomeIcon icon={faBell} />
+                    </span>
+                    {showNotifications && (
+                      <div className="notifications-dropdown">
+                        <div className="notification-header">
+                          <strong>Thông báo</strong>
+                          <a
+                            href="#"
+                            className="view-all"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setShowNotifications(false);
+                              handleNavigation("account", "notifications");
+                            }}
+                          >
+                            Xem tất cả
+                          </a>
                         </div>
-                      )}
+                        {notifications.length === 0 ? (
+                          <div className="notification-item">
+                            <small>Không có thông báo nào.</small>
+                          </div>
+                        ) : (
+                          notifications.map((noti) => (
+                            <div className="notification-item" key={noti.id}>
+                              <small>{noti.message}</small>
+                              <br />
+                              <small className="text-muted">
+                                {new Date(noti.date).toLocaleString("vi-VN")}
+                              </small>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div
@@ -373,7 +371,12 @@ const HomePage = () => {
                       className="avatar"
                       src="public/icon.jpg"
                       alt="Avatar"
-                      style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
                     />
                     <span>
                       {sessionStorage.getItem("username") === null
@@ -389,20 +392,14 @@ const HomePage = () => {
                         >
                           Trang cá nhân
                         </div>
-                        <div
-                          className="user-dropdown-item"
-                          onClick={() => handleNavigation("liked")}
-                        >
-                          Ưa thích
-                        </div>
-                        <div
-                          className="user-dropdown-item"
-                          onClick={() => handleNavigation("History")}
-                        >
-                          Lịch sử mượn
-                        </div>
                         <div className="divider"></div>
-                        <div className="user-dropdown-item logout">
+                        <div
+                          className="user-dropdown-item logout"
+                          onClick={() => {
+                            sessionStorage.clear();
+                            navigate("/");
+                          }}
+                        >
                           Đăng xuất
                         </div>
                       </div>
@@ -410,7 +407,6 @@ const HomePage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Content Area with Transition */}
               <div className="content-area">
                 <div className="view-transition">{renderContent()}</div>

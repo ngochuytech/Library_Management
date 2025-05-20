@@ -267,7 +267,6 @@ const HomePage = () => {
 
           {/* Main Container */}
           <div className="main-container">
-            {/* Top Navigation */}
             <div className="top-nav">
               <div className="dropdown">
                 <button className="dropdown-button">
@@ -315,10 +314,15 @@ const HomePage = () => {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
                   <img
-                      className="avatar"
-                      src="/icon.jpg"
-                      alt="Avatar"
-                      style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
+                    className="avatar"
+                    src="/icon.jpg"
+                    alt="Avatar"
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
                   />
                   <span>
                     {sessionStorage.getItem("username") === null
@@ -333,26 +337,21 @@ const HomePage = () => {
                       >
                         Trang cá nhân
                       </div>
-                      <div
-                        className="user-dropdown-item"
-                        onClick={() => handleNavigation("liked")}
-                      >
-                        Ưa thích
-                      </div>
-                      <div
-                        className="user-dropdown-item"
-                        onClick={() => handleNavigation("History")}
-                      >
-                        Lịch sử mượn
-                      </div>
                       <div className="divider"></div>
-                      <div className="user-dropdown-item logout">Đăng xuất</div>
+                      <div
+                        className="user-dropdown-item logout"
+                        onClick={() => {
+                          sessionStorage.clear();
+                          window.location.href = "/";
+                        }}
+                      >
+                        Đăng xuất
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-
             {/* Content Area */}
             <div className="content-area">{renderContent()}</div>
           </div>

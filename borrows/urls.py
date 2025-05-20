@@ -9,4 +9,6 @@ urlpatterns=[
   path('api/edit/<int:id>', views.editBorrowWithId), # Dùng để admin duyệt/từ chối
   path('api/delete/<int:id>', views.deleteBorrowWithId),
   path('api/user/<int:user_id>', views.getBorrowsByUserId, name='get-borrows-by-user-id'),
+  path('api/delete/<int:id>', views.deleteBorrowWithId, name='cancel-borrow'), # Dành cho user hủy yêu cầu
+  path('api/cancel/<int:id>', views.cancelBorrowWithId, name='cancel-borrow'), # Dành cho user hủy yêu cầu
 ]
