@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -39,7 +39,7 @@ function App() {
     <BrowserRouter>
       <ToastContainer
         position="top-right"
-        autoClose={7000} 
+        autoClose={7000}
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
@@ -61,7 +61,10 @@ function App() {
         <Route path="*" element={<NotFound />} />
         {/* <Route path="/book" element={<BookDetail />} /> */}
         {/* Admin */}
-        <Route path="/borrowDetail/:borrowId" element={<BorrowDetail />} />
+        <Route
+          path="/admin/borrowDetail/:borrowId"
+          element={<BorrowDetail />}
+        />
         <Route path="/admin/books/:id" element={<AdminBookDetail />} />
         <Route path="/admin/users/:id" element={<AdminUsersDetail />} />
         <Route path="/admin/search" element={<LibraryAdminSearch />} />

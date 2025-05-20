@@ -39,7 +39,13 @@ const AdminUsersDetail = () => {
   useEffect(() => {
     const fetchUserDetail = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/users/detail/${id}`);
+        const token = sessionStorage.getItem("access_token");
+        const response = await fetch(`${BASE_URL}/users/detail/${id}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) {
           throw new Error(`Failed to fetch user with ID: ${id}`);
         }

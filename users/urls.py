@@ -17,4 +17,5 @@ urlpatterns=[
   path('list/', views.list_users, name='list_users'),
   path('update/<int:id>/', views.update_user, name='update_user'),
   path('delete/<int:id>/', views.delete_user, name='delete_user'),
+  path('detail/<int:id>/', views.user_detail, name='user_detail'),
 ]

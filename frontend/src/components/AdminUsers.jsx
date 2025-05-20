@@ -66,16 +66,16 @@ const AdminUsers = () => {
         const token = sessionStorage.getItem(ACCESS_TOKEN);
         const response = await fetch(`${BASE_URL}/users/list/`, {
           headers: {
-            'Authorization': token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json'
-          }
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "application/json",
+          },
         });
 
         if (!response.ok) {
           throw new Error("Failed to fetch users");
         }
         const data = await response.json();
-        const regularUsers = data.filter(user => !user.is_superuser);
+        const regularUsers = data.filter((user) => !user.is_superuser);
         setUsers(regularUsers);
         setLoading(false);
       } catch (err) {
@@ -131,8 +131,10 @@ const AdminUsers = () => {
       try {
         const token = sessionStorage.getItem(ACCESS_TOKEN);
 
-        if (!userToDelete || typeof userToDelete.id === 'undefined') {
-          toast.error("Không thể xóa người dùng: Dữ liệu người dùng không hợp lệ.");
+        if (!userToDelete || typeof userToDelete.id === "undefined") {
+          toast.error(
+            "Không thể xóa người dùng: Dữ liệu người dùng không hợp lệ."
+          );
           setShowDeleteConfirm(false);
           setUserToDelete(null);
           return;
@@ -140,10 +142,10 @@ const AdminUsers = () => {
 
         const url = `${BASE_URL}/users/delete/${userToDelete.id}/`;
         const response = await fetch(url, {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Authorization': token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "application/json",
           },
         });
 
@@ -153,7 +155,10 @@ const AdminUsers = () => {
             try {
               errorData = await response.json();
             } catch (parseError) {
-              console.error("handleDeleteUser - Could not parse error JSON:", parseError);
+              console.error(
+                "handleDeleteUser - Could not parse error JSON:",
+                parseError
+              );
             }
           } else {
             setUsers(users.filter((user) => user.id !== userToDelete.id));
@@ -162,7 +167,11 @@ const AdminUsers = () => {
             toast.success("Xóa người dùng thành công!");
             return;
           }
-          const errorMessage = errorData.detail || Object.values(errorData).join('; ') || response.statusText || "Unknown error occurred";
+          const errorMessage =
+            errorData.detail ||
+            Object.values(errorData).join("; ") ||
+            response.statusText ||
+            "Unknown error occurred";
           throw new Error(errorMessage);
         }
 
@@ -170,9 +179,8 @@ const AdminUsers = () => {
         setShowDeleteConfirm(false);
         setUserToDelete(null);
         toast.success("Xóa người dùng thành công!");
-
       } catch (error) {
-        console.error('Error in handleDeleteUser function:', error);
+        console.error("Error in handleDeleteUser function:", error);
         toast.error(error.message || "Đã xảy ra lỗi khi xóa người dùng.");
       }
     }
@@ -180,8 +188,10 @@ const AdminUsers = () => {
 
   const toggleUserStatus = async (user) => {
     try {
-      if (!user || typeof user.id === 'undefined') {
-        toast.error("Không thể cập nhật trạng thái người dùng: Dữ liệu người dùng không hợp lệ.");
+      if (!user || typeof user.id === "undefined") {
+        toast.error(
+          "Không thể cập nhật trạng thái người dùng: Dữ liệu người dùng không hợp lệ."
+        );
         return;
       }
 
@@ -190,13 +200,13 @@ const AdminUsers = () => {
       const url = `${BASE_URL}/users/update/${user.id}/`;
 
       const response = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          is_active: newStatus
+          is_active: newStatus,
         }),
       });
 
@@ -205,26 +215,35 @@ const AdminUsers = () => {
         try {
           errorData = await response.json();
         } catch (parseError) {
-          console.error("toggleUserStatus - Could not parse error JSON:", parseError);
+          console.error(
+            "toggleUserStatus - Could not parse error JSON:",
+            parseError
+          );
         }
-        const errorMessage = errorData.detail || response.statusText || "Unknown error occurred";
+        const errorMessage =
+          errorData.detail || response.statusText || "Unknown error occurred";
         throw new Error(`${errorMessage}`);
       }
 
       const updatedUser = await response.json();
-      setUsers(users.map(u =>
-        u.id === user.id ? { ...u, is_active: updatedUser.is_active } : u
-      ));
-      toast.success(`Đã ${newStatus ? "kích hoạt" : "vô hiệu hóa"} tài khoản ${user.name}.`);
-
+      setUsers(
+        users.map((u) =>
+          u.id === user.id ? { ...u, is_active: updatedUser.is_active } : u
+        )
+      );
+      toast.success(
+        `Đã ${newStatus ? "kích hoạt" : "vô hiệu hóa"} tài khoản ${user.name}.`
+      );
     } catch (error) {
-      console.error('Error in toggleUserStatus function:', error);
-      toast.error(error.message || "Đã xảy ra lỗi khi cập nhật trạng thái người dùng.");
+      console.error("Error in toggleUserStatus function:", error);
+      toast.error(
+        error.message || "Đã xảy ra lỗi khi cập nhật trạng thái người dùng."
+      );
     }
   };
 
   const handleSaveUser = async () => {
-    if (!currentUser || typeof currentUser.id === 'undefined') {
+    if (!currentUser || typeof currentUser.id === "undefined") {
       toast.error("Không thể lưu người dùng: Dữ liệu người dùng không hợp lệ.");
       return;
     }
@@ -235,24 +254,24 @@ const AdminUsers = () => {
         const url = `${BASE_URL}/users/update/${currentUser.id}/`;
         let requestBody;
         let headers = {
-          'Authorization': token ? `Bearer ${token}` : '',
+          Authorization: token ? `Bearer ${token}` : "",
         };
 
         if (formData.avatar instanceof File) {
           requestBody = new FormData();
-          requestBody.append('name', formData.name);
-          requestBody.append('phone_number', formData.phone);
-          requestBody.append('avatar', formData.avatar, formData.avatar.name);
+          requestBody.append("name", formData.name);
+          requestBody.append("phone_number", formData.phone);
+          requestBody.append("avatar", formData.avatar, formData.avatar.name);
         } else {
           requestBody = JSON.stringify({
             name: formData.name,
             phone_number: formData.phone,
           });
-          headers['Content-Type'] = 'application/json';
+          headers["Content-Type"] = "application/json";
         }
 
         const response = await fetch(url, {
-          method: 'PUT',
+          method: "PUT",
           headers: headers,
           body: requestBody,
         });
@@ -262,22 +281,33 @@ const AdminUsers = () => {
           try {
             errorData = await response.json();
           } catch (parseError) {
-            console.error("handleSaveUser - Could not parse error JSON:", parseError);
+            console.error(
+              "handleSaveUser - Could not parse error JSON:",
+              parseError
+            );
           }
-          const errorMessage = errorData.detail || Object.values(errorData).join('; ') || response.statusText || "Unknown error occurred";
+          const errorMessage =
+            errorData.detail ||
+            Object.values(errorData).join("; ") ||
+            response.statusText ||
+            "Unknown error occurred";
           throw new Error(`${errorMessage}`);
         }
 
         const updatedUserFromAPI = await response.json();
-        setUsers(users.map(user =>
-          user.id === currentUser.id ? { ...user, ...updatedUserFromAPI } : user
-        ));
+        setUsers(
+          users.map((user) =>
+            user.id === currentUser.id
+              ? { ...user, ...updatedUserFromAPI }
+              : user
+          )
+        );
         setShowModal(false);
         setCurrentUser(null);
         setFormData({ name: "", phone: "", email: "", avatar: null });
         toast.success("Cập nhật thông tin người dùng thành công!");
       } catch (error) {
-        console.error('Error in handleSaveUser function:', error);
+        console.error("Error in handleSaveUser function:", error);
         toast.error(error.message || "Đã xảy ra lỗi khi cập nhật người dùng.");
       }
     }
@@ -285,30 +315,38 @@ const AdminUsers = () => {
 
   const exportToCSV = () => {
     if (users.length === 0) {
-        toast.info("Không có dữ liệu người dùng để xuất.");
-        return;
+      toast.info("Không có dữ liệu người dùng để xuất.");
+      return;
     }
-    const csvData = users.map(user => ({
+    const csvData = users.map((user) => ({
       ID: user.id,
       Name: user.name,
       Email: user.email,
       Phone: user.phone_number,
-      Status: user.is_active ? 'Active' : 'Inactive',
-      CreatedAt: user.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : 'N/A'
+      Status: user.is_active ? "Active" : "Inactive",
+      CreatedAt: user.created_at
+        ? new Date(user.created_at).toLocaleDateString("vi-VN")
+        : "N/A",
     }));
 
-    const headers = Object.keys(csvData[0]).join(',');
+    const headers = Object.keys(csvData[0]).join(",");
     const csvContent = [
       headers,
-      ...csvData.map(row => Object.values(row).map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')) // Handle commas and quotes in values
-    ].join('\n');
+      ...csvData.map((row) =>
+        Object.values(row)
+          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+          .join(",")
+      ), // Handle commas and quotes in values
+    ].join("\n");
 
-    const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' }); // Add BOM for Excel compatibility
+    const blob = new Blob([`\uFEFF${csvContent}`], {
+      type: "text/csv;charset=utf-8;",
+    }); // Add BOM for Excel compatibility
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'danh-sach-nguoi-dung.csv');
-    link.style.visibility = 'hidden';
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "danh-sach-nguoi-dung.csv");
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -317,9 +355,11 @@ const AdminUsers = () => {
 
   const filteredUsers = users.filter(
     (user) =>
-    (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (user.phone_number && user.phone_number.includes(searchTerm)) ||
-    (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+      (user.name &&
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.phone_number && user.phone_number.includes(searchTerm)) ||
+      (user.email &&
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const indexOfLastUser = currentPage * usersPerPage;
@@ -361,7 +401,11 @@ const AdminUsers = () => {
                   </h4>
                 </Col>
                 <Col md={6} className="text-end">
-                  <Button variant="success" className="me-2" onClick={exportToCSV}>
+                  <Button
+                    variant="success"
+                    className="me-2"
+                    onClick={exportToCSV}
+                  >
                     <FontAwesomeIcon icon={faDownload} className="me-2" />
                     Tải xuống CSV
                   </Button>
@@ -404,13 +448,15 @@ const AdminUsers = () => {
                         <td>
                           <Image
                             src={
-                              typeof user.avatar === "string" && user.avatar.startsWith("/")
+                              typeof user.avatar === "string" &&
+                              user.avatar.startsWith("/")
                                 ? user.avatar
-                                : typeof user.avatar === "string" && user.avatar.startsWith("blob:")
-                                  ? user.avatar
-                                  : user.avatar // Nếu backend trả về full URL thì dùng trực tiếp
-                                    ? user.avatar
-                                    : "/default-avatar.jpg"
+                                : typeof user.avatar === "string" &&
+                                  user.avatar.startsWith("blob:")
+                                ? user.avatar
+                                : user.avatar // Nếu backend trả về full URL thì dùng trực tiếp
+                                ? user.avatar
+                                : "/default-avatar.jpg"
                             }
                             alt={user.name}
                             width={50}
@@ -429,15 +475,21 @@ const AdminUsers = () => {
                           {user.email}
                         </td>
                         <td>
-                          <Badge
-                            bg={
-                              user.is_active ? "success" : "secondary"
-                            }
-                          >
+                          <Badge bg={user.is_active ? "success" : "secondary"}>
                             {user.is_active ? "Đang hoạt động" : "Vô hiệu hóa"}
                           </Badge>
                         </td>
                         <td>
+                          {" "}
+                          <Button
+                            variant="outline-info"
+                            size="sm"
+                            className="me-2 mb-1 mb-md-0"
+                            onClick={() => handleViewDetail(user.id)}
+                            title="Xem chi tiết"
+                          >
+                            <FontAwesomeIcon icon={faEye} />
+                          </Button>
                           <Button
                             variant="outline-primary"
                             size="sm"
@@ -448,13 +500,19 @@ const AdminUsers = () => {
                             <FontAwesomeIcon icon={faEdit} />
                           </Button>
                           <Button
-                            variant={user.is_active ? "outline-secondary" : "outline-warning"}
+                            variant={
+                              user.is_active
+                                ? "outline-secondary"
+                                : "outline-warning"
+                            }
                             size="sm"
                             className="me-2 mb-1 mb-md-0"
                             onClick={() => toggleUserStatus(user)}
                             title={user.is_active ? "Vô hiệu hóa" : "Kích hoạt"}
                           >
-                            <FontAwesomeIcon icon={user.is_active ? faToggleOff : faToggleOn} />
+                            <FontAwesomeIcon
+                              icon={user.is_active ? faToggleOff : faToggleOn}
+                            />
                           </Button>
                           <Button
                             variant="outline-danger"
@@ -514,11 +572,15 @@ const AdminUsers = () => {
         </Col>
       </Row>
 
-      <Modal show={showModal} onHide={() => {
-        setShowModal(false);
-        setCurrentUser(null);
-        setFormData({ name: "", phone: "", email: "", avatar: null });
-      }} centered>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+          setCurrentUser(null);
+          setFormData({ name: "", phone: "", email: "", avatar: null });
+        }}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>{modalTitle}</Modal.Title>
         </Modal.Header>
@@ -565,21 +627,47 @@ const AdminUsers = () => {
                 accept="image/*"
                 onChange={handleImageChange}
               />
-              {currentUser && currentUser.avatar && typeof currentUser.avatar === 'string' && !(formData.avatar instanceof File) && (
-                <Image src={currentUser.avatar.startsWith("/") ? currentUser.avatar : (currentUser.avatar.startsWith("blob:") ? currentUser.avatar : (currentUser.avatar ? currentUser.avatar : "/default-avatar.jpg"))} alt="Avatar hiện tại" width={100} className="mt-2" rounded />
-              )}
+              {currentUser &&
+                currentUser.avatar &&
+                typeof currentUser.avatar === "string" &&
+                !(formData.avatar instanceof File) && (
+                  <Image
+                    src={
+                      currentUser.avatar.startsWith("/")
+                        ? currentUser.avatar
+                        : currentUser.avatar.startsWith("blob:")
+                        ? currentUser.avatar
+                        : currentUser.avatar
+                        ? currentUser.avatar
+                        : "/default-avatar.jpg"
+                    }
+                    alt="Avatar hiện tại"
+                    width={100}
+                    className="mt-2"
+                    rounded
+                  />
+                )}
               {formData.avatar instanceof File && (
-                <Image src={URL.createObjectURL(formData.avatar)} alt="Preview ảnh mới" width={100} className="mt-2" rounded />
+                <Image
+                  src={URL.createObjectURL(formData.avatar)}
+                  alt="Preview ảnh mới"
+                  width={100}
+                  className="mt-2"
+                  rounded
+                />
               )}
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => {
-            setShowModal(false);
-            setCurrentUser(null);
-            setFormData({ name: "", phone: "", email: "", avatar: null });
-          }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowModal(false);
+              setCurrentUser(null);
+              setFormData({ name: "", phone: "", email: "", avatar: null });
+            }}
+          >
             Hủy
           </Button>
           <Button variant="primary" onClick={handleSaveUser}>

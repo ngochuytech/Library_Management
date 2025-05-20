@@ -342,3 +342,12 @@ def changePassword(request):
             "error": f"Đã xảy ra lỗi: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_detail(request, id):
+    try:
+        user = User.objects.get(id=id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)

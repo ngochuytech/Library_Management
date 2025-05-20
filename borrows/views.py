@@ -75,12 +75,6 @@ def deleteBorrowWithId(request, id):
     try:
         borrow = Borrow.objects.get(id=id)
         
-        # Nếu trạng thái là PENDING hoặc APPROVED, tăng số lượng sách available trước khi xóa
-        if borrow.status in ['PENDING', 'APPROVED']:
-            book = borrow.book
-            book.avaliable += 1
-            book.save(update_fields=['avaliable'])
-            
         borrow.delete()
         # Nếu trạng thái là PENDING hoặc APPROVED, tăng số lượng sách available trước khi xóa
         if borrow.status in ['PENDING', 'APPROVED']:
@@ -150,4 +144,3 @@ def cancelBorrowWithId(request, id):
     except Borrow.DoesNotExist:
         return Response({"message": f"Không tìm thấy yêu cầu mượn sách với id = {id}"}, 
                         status=status.HTTP_404_NOT_FOUND)
-
