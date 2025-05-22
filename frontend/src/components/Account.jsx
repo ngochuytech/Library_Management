@@ -65,7 +65,9 @@ const Account = ({ defaultTab = "profile" }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get(`/notifications/api`);
+      const idUser = sessionStorage.getItem("idUser");
+      const response = await api.get(`/notifications/api/user/${idUser}`);
+
       setNotifications(response.data);      
     } catch (error) {      
       setNotifications([])

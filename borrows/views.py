@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from borrows.serializers import BorrowSerializer
 from borrows.models import Borrow
-
+from notifications.models import Notification
 # Create your views here.
 @api_view(['GET'])
 def getCreateBorrow(request):
@@ -144,3 +145,24 @@ def cancelBorrowWithId(request, id):
     except Borrow.DoesNotExist:
         return Response({"message": f"Không tìm thấy yêu cầu mượn sách với id = {id}"}, 
                         status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def check_and_notify_overdue(request):
+    user = request.user
+    now = timezone.now()
+    borrows = Borrow.objects.filter(user=user, status__in=["BORROWED", "OVERDUE"])
+    for borrow in borrows:
+        if borrow.exp_date and borrow.exp_date < now:
+            # Kiểm tra đã có thông báo quá hạn cho phiếu này chưa
+            existed = Notification.objects.filter(
+                user=user,
+                message__icontains=f"Sách '{borrow.book.title}' của bạn đã quá hạn trả"
+            ).exists()
+            if not existed:
+                Notification.objects.create(
+                    user=user,
+                    message=f"Sách '{borrow.book.title}' của bạn đã quá hạn trả, vui lòng đến thư viện để trả sách"
+                )
+                print(f"Đã gửi thông báo quá hạn cho sách '{borrow.book.title}' của người dùng {user.username}")
+    return Response({"detail": "Checked and notified overdue books."})

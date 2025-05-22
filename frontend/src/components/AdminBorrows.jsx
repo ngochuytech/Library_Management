@@ -31,7 +31,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import api from "../api";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // --- HÀM TIỆN ÍCH CHO SẮP XẾP VÀ LỌC ---
@@ -398,6 +398,32 @@ const AdminBorrows = () => {
       await axios.put(`${API_BASE_URL}/borrows/api/edit/${item.id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      if (newStatus === "BORROWED") {
+        await api.post(
+          `${API_BASE_URL}/notifications/api/create`,
+          {
+            user_id: item.user.id,
+            message: `Bạn đã mượn sách "${item.book.title}" thành công!`,
+          }
+        );
+      } else if (newStatus === "CANCELED") {
+        await api.post(
+          `${API_BASE_URL}/notifications/api/create`,
+          {
+            user_id: item.user.id,
+            message: `Yêu cầu mượn sách "${item.book.title}" đã bị từ chối!`,
+          }
+        );
+      } else if (newStatus === "RETURNED") {
+        await api.post(
+          `${API_BASE_URL}/notifications/api/create`,
+          {
+            user_id: item.user.id,
+            message: `Bạn đã trả sách "${item.book.title}" thành công!`,
+          }
+        );
+      }
 
       alert(successMessage);
       fetchBorrowingRequests();

@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns=[
   path('api', views.getNotification),
+  path('api/user/<int:id>', views.getNotificationWithUserId),
   path('api/create', views.createNotification),
   path('api/<int:id>', views.getDetailNotification),
   path('api/delete/<int:id>', views.deleteNotificationWithId),

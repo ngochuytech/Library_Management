@@ -11,4 +11,5 @@ urlpatterns=[
   path('api/user/<int:user_id>', views.getBorrowsByUserId, name='get-borrows-by-user-id'),
   path('api/delete/<int:id>', views.deleteBorrowWithId, name='cancel-borrow'), # Dành cho user hủy yêu cầu
   path('api/cancel/<int:id>', views.cancelBorrowWithId, name='cancel-borrow'), # Dành cho user hủy yêu cầu
+  path('api/check-overdue', views.check_and_notify_overdue, name='check-overdue'),
 ]

@@ -280,7 +280,7 @@ const PersonalLibrary = ({ userId }) => {
       };
     } else if (borrow.isOverdue) {
       if (statusLower === "borrowed") {
-        pass;
+        
       } else if (statusLower === "approved") {
         config = {
           label: "YC hết hạn",
@@ -290,20 +290,6 @@ const PersonalLibrary = ({ userId }) => {
         };
       }
       // Các trường hợp isOverdue khác sẽ không có nút nếu không được định nghĩa ở trên (config vẫn là null)
-    } else {
-      // Không quá hạn
-      if (statusLower === "borrowed") {
-        config = {
-          label: "Trả sách",
-          variant: "outline-primary",
-          icon: faUndo,
-          disabled: false,
-        };
-      } else if (statusLower === "approved") {
-        // Đối với "approved" và không quá hạn, trước đây là "Chi tiết". Nay sẽ không có nút.
-        // config vẫn là null
-      }
-      // Các trường hợp không quá hạn khác (vd: "canceled") sẽ không có nút (config vẫn là null)
     }
 
     // Nếu sau tất cả các điều kiện, không có config nào được đặt, hoặc config là "Chi tiết" (dù đã loại bỏ), trả về null
