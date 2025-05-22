@@ -17,6 +17,10 @@ from django.utils.crypto import get_random_string
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.hashers import check_password
 from users.exceptions import InvalidPhoneNumberException
+from django.db.models.functions import TruncMonth
+from django.db.models import Count
+from django.utils import timezone
+
 # Store OTPs temporarily (in production, use Redis or database)
 otp_store = {}
 User = get_user_model()
@@ -189,6 +193,13 @@ from .models import User
 from .serializers import UserSerializer
 
 # API lấy danh sách người dùng (chỉ admin mới có quyền truy cập)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser]) # Chỉ cho phép Admin truy cập
+def getTotalUsersCount(request):
+    total_users = User.objects.filter(is_superuser=False, is_staff=False).count()
+    return Response({"total_users": total_users}, status=status.HTTP_200_OK)
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def list_users(request):
@@ -351,3 +362,82 @@ def user_detail(request, id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def getMonthlyNewUsersStats(request):
+    end_date = timezone.now()
+    start_date = end_date - datetime.timedelta(days=365)
+
+    new_users_counts = User.objects.filter(
+        created_at__isnull=False,
+        created_at__gte=start_date,
+        created_at__lte=end_date
+    ).annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        count=Count('id')
+    ).exclude(month__isnull=True).order_by('month')
+
+    stats_list = []
+    month_names_map = {
+        "January": "Tháng 1", "February": "Tháng 2", "March": "Tháng 3",
+        "April": "Tháng 4", "May": "Tháng 5", "June": "Tháng 6",
+        "July": "Tháng 7", "August": "Tháng 8", "September": "Tháng 9",
+        "October": "Tháng 10", "November": "Tháng 11", "December": "Tháng 12"
+    }
+
+    final_stats_map = {}
+    current_month_iter = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    for i in range(12):
+        month_key = current_month_iter.strftime('%Y-%m')
+        english_month = current_month_iter.strftime('%B')
+        year = current_month_iter.strftime('%Y')
+        vietnamese_month = month_names_map.get(english_month, english_month)
+        formatted_month = f"{vietnamese_month} {year}"
+        final_stats_map[month_key] = {'month': formatted_month, 'new_users_count': 0}
+        current_month_iter = (current_month_iter - datetime.timedelta(days=1)).replace(day=1)
+
+    for entry in new_users_counts:
+        month_dt = entry['month']
+        if month_dt is None:
+            continue
+        month_key = month_dt.strftime('%Y-%m')
+        if month_key in final_stats_map:
+            final_stats_map[month_key]['new_users_count'] = entry['count']
+        
+    # --- PHẦN THAY ĐỔI LOGIC SẮP XẾP ---
+    # Sắp xếp các tháng đã điền theo thứ tự thời gian tăng dần
+    def sort_key_by_month_year(item):
+        # Ví dụ item['month'] là "Tháng 5 2023"
+        parts = item['month'].split(' ')
+        
+        # Lấy số tháng từ tên tiếng Việt (ví dụ: "Tháng 5" -> 5)
+        # Tạo một map ngược từ tên tiếng Việt sang số tháng (1-12)
+        month_number_map = {
+            "Tháng 1": 1, "Tháng 2": 2, "Tháng 3": 3, "Tháng 4": 4, "Tháng 5": 5, "Tháng 6": 6,
+            "Tháng 7": 7, "Tháng 8": 8, "Tháng 9": 9, "Tháng 10": 10, "Tháng 11": 11, "Tháng 12": 12
+        }
+        
+        # Đảm bảo chúng ta chỉ lấy phần tên tháng (ví dụ "Tháng 5")
+        month_name_viet = parts[0] + ' ' + parts[1] # Kết hợp "Tháng" và "5" lại
+        
+        month_num = month_number_map.get(month_name_viet)
+        year_num = int(parts[2]) # Lấy phần năm
+
+        if month_num is None:
+            # Xử lý trường hợp không tìm thấy tháng trong map (ví dụ: nếu có tháng tiếng Anh vẫn còn)
+            # Có thể thử phân tích lại bằng định dạng tiếng Anh hoặc trả về giá trị mặc định để tránh lỗi
+            try:
+                # Nếu không phải tháng tiếng Việt, thử phân tích như tháng tiếng Anh
+                return datetime.datetime.strptime(item['month'], '%B %Y')
+            except ValueError:
+                # Nếu vẫn lỗi, trả về một giá trị an toàn để không crash
+                return datetime.datetime.min # Giá trị ngày nhỏ nhất
+        
+        return datetime.datetime(year_num, month_num, 1) # Trả về một đối tượng datetime cho việc sắp xếp
+
+    sorted_filled_stats = sorted(final_stats_map.values(), key=sort_key_by_month_year)
+    # --- KẾT THÚC PHẦN THAY ĐỔI ---
+    
+    return Response(sorted_filled_stats, status=status.HTTP_200_OK)

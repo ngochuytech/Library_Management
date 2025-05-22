@@ -22,6 +22,7 @@ import {
 
 import "../styles/Home.css"; // Chỉ sử dụng Home.css
 import AdminSidebar from "../components/AdminSideBar.jsx";
+import AdminStatistics from '../components/AdminStatistics';
 import Quote from "../components/Quote.jsx";
 import SearchTab from "../components/SearchTab.jsx";
 import BookDetail from "../components/BookDetail.jsx";
@@ -228,6 +229,8 @@ const HomePage = () => {
         return <Liked />; // Hiển thị component Liked
       case "History":
         return <History />; // Hiển thị component Liked
+      case 'statistics':
+        return <AdminStatistics />; // Đây là component thống kê của bạn
       case "home":
       default:
         return (

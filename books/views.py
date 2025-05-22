@@ -5,11 +5,19 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
 from books.models import Book
 from books.serializers import BookSerializer
+from django.db.models import Count
+from django.db import models
 
 class suggestBookPagination(PageNumberPagination):
     page_size = 6
 class searchBookPagination(PageNumberPagination):
     page_size = 9
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser]) # Chỉ cho phép Admin truy cập
+def getTotalBooksCount(request):
+    total_books = Book.objects.count()
+    return Response({"total_books": total_books}, status=status.HTTP_200_OK)        
 
 @api_view(['GET'])
 def getBook(request):
@@ -159,3 +167,20 @@ def searchBookByName(request):
     paginated_books = paginator.paginate_queryset(books, request)
     serializer = BookSerializer(paginated_books, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def getBooksByCategoryStats(request):
+    """
+    Trả về số lượng sách theo từng thể loại.
+    """
+    category_stats = Book.objects.values('category__name').annotate(
+        book_count=Count('id')
+    ).order_by('category__name')
+
+    # Chuyển đổi tên trường để phù hợp với frontend
+    formatted_stats = [
+        {"category_name": entry['category__name'], "book_count": entry['book_count']}
+        for entry in category_stats
+    ]
+    return Response(formatted_stats, status=status.HTTP_200_OK)

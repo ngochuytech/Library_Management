@@ -7,6 +7,7 @@ import {
   faBook,
   faUsers,
   faBookOpen,
+  faChartBar, // Import icon cho thống kê
   faStar,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons"
@@ -15,7 +16,7 @@ const AdminSidebar = ({ activeView, onNavigate }) => {
   return (
     <div className="sidebar">
       <div className="logo-container">
-      <img src="/logoUnder.png" alt="MYLI Logo" className="logo" />
+        <img src="/logoUnder.png" alt="MYLI Logo" className="logo" />
       </div>
 
       <nav className="sidebar-nav">
@@ -58,6 +59,15 @@ const AdminSidebar = ({ activeView, onNavigate }) => {
         >
           <div className="nav-icon"><FontAwesomeIcon icon={faStar} /></div>
           <span>Quản lý đề xuất</span>
+        </div>
+        {/* Mục mới cho trang thống kê */}
+        <div
+          className={`nav-item ${activeView === "statistics" ? "active" : ""}`}
+          onClick={() => onNavigate("statistics")}
+          style={{ fontStyle: 'normal' }}
+        >
+          <div className="nav-icon"><FontAwesomeIcon icon={faChartBar} /></div>
+          <span>Thống kê</span>
         </div>
       </nav>
 
