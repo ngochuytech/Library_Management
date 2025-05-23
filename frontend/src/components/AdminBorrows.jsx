@@ -245,11 +245,8 @@ const AdminBorrows = () => {
       });
       return;
     }
-    if (activeTabKey === "history") {
-      fetchBorrowingHistory();
-    } else if (activeTabKey === "requests") {
-      fetchBorrowingRequests();
-    }
+    fetchBorrowingHistory();
+    fetchBorrowingRequests();
   }, [activeTabKey, fetchBorrowingHistory, fetchBorrowingRequests, navigate]);
 
   const processedHistoryList = useMemo(() => {
@@ -778,7 +775,7 @@ const AdminBorrows = () => {
                                         record.return_date
                                       ).toLocaleDateString()
                                     : "-"}
-                                </td>{" "}
+                                </td>
                                 <td>{renderStatus(record.status)}</td>
                                 <td>
                                   {(record.status === "BORROWED" ||

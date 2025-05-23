@@ -20,7 +20,7 @@ def getNotification(request):
 @permission_classes([IsAuthenticated])
 def getNotificationWithUserId(request, id):
     try:
-        notification = Notification.objects.filter(user_id=id)
+        notification = Notification.objects.filter(user_id=id).order_by('-date')
         serializer = NotificationSerializer(notification, many=True)
         return Response(serializer.data)
     except Notification.DoesNotExist:

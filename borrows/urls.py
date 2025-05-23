@@ -15,4 +15,5 @@ urlpatterns=[
   path('api/statistics/borrows/current', views.getCurrentlyBorrowedBooksCount, name='currently_borrowed_books_count'),
   path('api/statistics/borrows/monthly', views.getMonthlyBorrowReturnStats, name='monthly_borrow_return_stats'),
   path('api/statistics/books/top_borrowed', views.getTopBorrowedBooksStats, name='top_borrowed_books_stats'),
+  path('api/pending-borrows', views.get_pending_borrows, name='pending-borrows'),
 ]

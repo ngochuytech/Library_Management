@@ -36,16 +36,28 @@ import AdminBorrows from "../components/AdminBorrows.jsx";
 import AdminAuthors from "../components/AdminAuthors.jsx";
 import LibraryAdminSearch from "../components/LibraryAdminSearch";
 import Background from "../components/Background.jsx";
+import api from "../api";
 
 const HomePage = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
+  const [notifications, setNotifications] = useState([]);
+
   // Lấy tham số view từ URL
   const { view } = useParams();
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState(view || "manageBooks"); // Sử dụng view từ URL hoặc mặc định "manageBooks"
+
+  useEffect(() => {
+    fetchNotifications();
+
+    const isAdmin = sessionStorage.getItem("isAdmin") === "true";
+      if (isAdmin) {
+        fetchPendingBorrows();
+      }
+  }, []);
 
   // Hook useEffect để cập nhật activeView khi view trong URL thay đổi
   useEffect(() => {
@@ -65,6 +77,45 @@ const HomePage = () => {
       setSelectedBook(null);
     }
   };
+
+  const fetchNotifications = async () => {
+    try {
+      const idUser = sessionStorage.getItem("idUser");
+      const response = await api.get(`/notifications/api/user/${idUser}`);
+      setNotifications(response.data.slice(0, 5));
+    } catch (error) {
+      setNotifications([]);
+    }
+  };
+
+  const fetchPendingBorrows = async () => {
+    try {
+      const token = sessionStorage.getItem("access_token");
+      if (!token) return;
+      const response = await api.get("/borrows/api/pending-borrows", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data && response.data.length > 0) {
+        setNotifications((prev) => {
+          // Kiểm tra đã có thông báo pending-borrow chưa
+          const hasPending = prev.some((n) => n.id === "pending-borrow");
+          if (hasPending) return prev;
+          return [
+            {
+              id: "pending-borrow",
+              message: `Có ${response.data.length} yêu cầu mượn sách đang chờ duyệt.`,
+              date: new Date().toISOString(),
+            },
+            ...prev,
+          ];
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching pending borrows:", error);
+    }
+  };
+
+
   // BookSection component removed
   // Render nội dung dựa trên activeView
   const renderContent = () => {
@@ -131,8 +182,21 @@ const HomePage = () => {
                           Xem tất cả
                         </a>
                       </div>
-                      <div className="notification-item">Thông báo 1</div>
-                      <div className="notification-item">Thông báo 2</div>
+                      {notifications.length === 0 ? (
+                        <div className="notification-item">
+                          <small>Không có thông báo nào.</small>
+                        </div>
+                      ) : (
+                        notifications.map((noti) => (
+                          <div className="notification-item" key={noti.id}>
+                            <small>{noti.message}</small>
+                            <br />
+                            <small className="text-muted">
+                              {new Date(noti.date).toLocaleString("vi-VN")}
+                            </small>
+                          </div>
+                        ))
+                      )}
                     </div>
                   )}
                 </div>

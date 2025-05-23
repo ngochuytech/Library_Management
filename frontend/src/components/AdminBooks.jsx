@@ -10,7 +10,7 @@ import {
   Form,
   InputGroup,
   Badge,
-  Pagination, // Đã import
+  Pagination,
   Alert,
   Image,
 } from "react-bootstrap";
@@ -30,7 +30,7 @@ import { ACCESS_TOKEN } from "../constants";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminBooks = () => {
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 9;
 
   const navigate = useNavigate();
   const [books, setBooks] = useState([]);
@@ -66,19 +66,9 @@ const AdminBooks = () => {
     setLoading(true);
     setError(null); // Reset lỗi trước mỗi lần fetch
     try {
-      let url = `${BASE_URL}/books/api?page=${page}`;
-
-      if (search) {
-        // Backend kỳ vọng 'query' cho nội dung tìm kiếm và 'type' cho loại tìm kiếm.
-        // Ở đây, chúng ta mặc định tìm kiếm theo 'title'.
-        // Nếu placeholder "Tìm kiếm sách theo tên hoặc tác giả..." ngụ ý tìm kiếm đa trường,
-        // backend cần được cập nhật để hỗ trợ điều đó với một tham số 'query' duy nhất,
-        // hoặc frontend cần có cách chọn 'type'.
-        url += `&query=${encodeURIComponent(search)}&type=title`;
-      }
+      const url =  `${BASE_URL}/books/api/search?type=title&query=${encodeURIComponent(search)}&page=${page}`;
 
       const response = await api.get(url);
-      console.log("API response for books:", response.data);
 
       if (response.data && response.data.results) {
         setBooks(response.data.results);
@@ -544,8 +534,7 @@ const AdminBooks = () => {
                           />
                         </td>
                         <td>{book.title}</td>
-                        <td>{book.author?.name || "N/A"}</td>{" "}
-                        {/* Xử lý nếu author null */}
+                        <td>{book.author?.name || "N/A"}</td>
                         <td>
                           {book.category?.map(
                             (
