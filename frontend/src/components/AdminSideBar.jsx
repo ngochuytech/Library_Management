@@ -7,6 +7,7 @@ import {
   faBookOpen,
   faChartBar, // Import icon cho thống kê
   faUserCircle,
+  faUser, // Icon cho quản lý tác giả
 } from "@fortawesome/free-solid-svg-icons";
 
 const AdminSidebar = ({ activeView, onNavigate }) => {
@@ -47,6 +48,18 @@ const AdminSidebar = ({ activeView, onNavigate }) => {
             <FontAwesomeIcon icon={faBookOpen} />
           </div>
           <span>Quản lý mượn trả</span>
+        </div>
+        <div
+          className={`nav-item ${
+            activeView === "manageAuthors" ? "active" : ""
+          }`}
+          onClick={() => onNavigate("manageAuthors")}
+          style={{ fontStyle: "normal" }}
+        >
+          <div className="nav-icon">
+            <FontAwesomeIcon icon={faUser} />
+          </div>
+          <span>Quản lý tác giả</span>
         </div>
         {/* Mục mới cho trang thống kê */}
         <div

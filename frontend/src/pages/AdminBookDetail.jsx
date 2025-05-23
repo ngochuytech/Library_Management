@@ -17,17 +17,13 @@ import {
 } from "react-bootstrap";
 import {
   faStar,
-  faHeart as fasHeart,
   faBookOpen,
   faEdit, // Thêm lại icon chỉnh sửa
   faTrash, // Thêm lại icon xóa
   faExclamationTriangle, // Thêm icon cảnh báo xóa
   faArrowLeft, // Thêm icon quay lại
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faStar as faStarRegular,
-  faHeart as farHeart,
-} from "@fortawesome/free-regular-svg-icons";
+import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/BookDetail.css";
 import { ACCESS_TOKEN } from "../constants"; // Thêm lại ACCESS_TOKEN
@@ -37,11 +33,9 @@ const AdminBookDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const BASE_URL = import.meta.env.VITE_API_URL;
-
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false); // Favorite toggle remains
   const [showPreview, setShowPreview] = useState(false); // Preview modal remains
 
   // Thêm state cho modal chỉnh sửa và xóa
@@ -118,6 +112,7 @@ const AdminBookDetail = () => {
       try {
         const authorsResponse = await api.get(`${BASE_URL}/authors/api/`);
         setAuthors(authorsResponse.data);
+        console.log("Authors data:", authorsResponse.data);
 
         const categoriesResponse = await api.get(`${BASE_URL}/categories/api/`);
         setCategories(categoriesResponse.data);
@@ -578,29 +573,13 @@ const AdminBookDetail = () => {
                       Preview
                     </Button>
                   </div>
-                </Col>
-
+                </Col>{" "}
                 <Col md={8}>
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h1 className="h3 mb-2">{book.title}</h1>
-                      <h2 className="h5 text-muted mb-3">
-                        by {book.author?.name} ({book.publication_date})
-                      </h2>
-                    </div>
-                    <Button
-                      variant="link"
-                      onClick={() => setIsFavorite(!isFavorite)}
-                      className="p-0 text-decoration-none"
-                    >
-                      <FontAwesomeIcon
-                        icon={isFavorite ? fasHeart : farHeart}
-                        className={
-                          isFavorite ? "text-danger" : "text-secondary"
-                        }
-                        style={{ fontSize: "1.2rem" }}
-                      />
-                    </Button>
+                  <div>
+                    <h1 className="h3 mb-2">{book.title}</h1>
+                    <h2 className="h5 text-muted mb-3">
+                      by {book.author?.name} ({book.publication_date})
+                    </h2>
                   </div>
 
                   <div className="mb-3">
@@ -689,18 +668,20 @@ const AdminBookDetail = () => {
             <Card.Body>
               <div className="d-flex mb-3">
                 <Image
-                  src={book.author?.avatar || "icon.png"} // Default icon if no avatar
+                  src={authors[book.author?.id - 1]?.avatar || "icon.png"} // Default icon if no avatar
                   roundedCircle
                   width={80}
                   height={80}
                   className="me-3"
                 />
                 <div>
-                  <h5 className="mb-1">{book.author?.name}</h5>
-                  <p className="text-muted small">{book.author?.jobs}</p>
+                  <h5 className="mb-1">{authors[book.author?.id - 1]?.name}</h5>
+                  <p className="text-muted small">
+                    {authors[book.author?.id - 1]?.jobs}
+                  </p>
                 </div>
               </div>
-              <p>{book.author?.biography}</p>
+              <p>{authors[book.author?.id - 1]?.biography}</p>
               <Button
                 variant="outline-primary"
                 size="sm"
@@ -722,7 +703,7 @@ const AdminBookDetail = () => {
               {authorBooks.map((b) => (
                 <Col key={b.id} md={6} lg={4} className="mb-3">
                   <Card className="h-100 shadow-sm">
-                    <Card.Img variant="top" src={b.image} />
+                    <Card.Img variant="top" src={"/image/" + b.image} />
                     <Card.Body>
                       <Card.Title>{b.title}</Card.Title>
                       <Card.Text>Đánh giá: {b.rating} / 5</Card.Text>

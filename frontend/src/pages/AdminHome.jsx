@@ -33,6 +33,7 @@ import History from "../components/History.jsx";
 import AdminBooks from "../components/AdminBooks.jsx";
 import AdminUsers from "../components/AdminUsers.jsx";
 import AdminBorrows from "../components/AdminBorrows.jsx";
+import AdminAuthors from "../components/AdminAuthors.jsx";
 import LibraryAdminSearch from "../components/LibraryAdminSearch";
 import Background from "../components/Background.jsx";
 
@@ -68,6 +69,8 @@ const HomePage = () => {
   // Render nội dung dựa trên activeView
   const renderContent = () => {
     switch (activeView) {
+      case "manageAuthors":
+        return <AdminAuthors />; // Component quản lý tác giả
       case "manageBooks":
         return <AdminBooks />; // Component quản lý sách
       case "manageUsers":
