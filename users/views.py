@@ -228,6 +228,7 @@ def updateUserInformation(request, id):
         user = User.objects.get(id=id)
         name = request.data.get("name")
         phone_number = request.data.get("phone_number")
+        avatar = request.FILES.get('avatar')  # Get avatar file if uploaded
 
         data = {}
         if name is not None and not name.strip():
@@ -238,18 +239,23 @@ def updateUserInformation(request, id):
         if phone_number is not None and not phone_number.strip():
             raise InvalidPhoneNumberException("Số điện thoại không được để trống")
         
+        # Add all fields that are present in the request
         data['name'] = name
-        data['phone_number'] = phone_number
+        if phone_number:
+            data['phone_number'] = phone_number
+        if avatar:
+            data['avatar'] = avatar
 
+        # Use serializer to validate and save the data
         serializer = UserSerializer(instance=user, data=data, partial=True)
         if not serializer.is_valid():
             print("serializer.errors = ", serializer.errors)
-            raise InvalidPhoneNumberException(serializer.errors)
+            return Response({
+                "error": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
         
-        user.name = name
-        user.phone_number = phone_number
-        user.save()
-        serializer = UserSerializer(user)
+        # Save the validated data
+        serializer.save()
         print("data = ", serializer.data)
         return Response(serializer.data)
     

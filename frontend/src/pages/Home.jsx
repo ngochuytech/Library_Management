@@ -54,6 +54,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [accountTab, setAccountTab] = useState("profile");
+  const [user, setUser] = useState(null);
 
   const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -65,6 +66,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
+    fetchUser();
     if (activeView == "search" && searchQuery.trim() == "")
       fetchAllBook(currentPage);
     else fetchSearchResults(currentPage);
@@ -82,7 +84,22 @@ const HomePage = () => {
       setNotifications([]);
     }
   };
-
+  // fetch user
+  const fetchUser = async () => {
+    const idUser = sessionStorage.getItem("idUser");
+    if (!idUser) {
+      setUser(null);
+      return;
+    }
+    try {
+      const response = await api.get(`/users/detail/${idUser}/`);
+      setUser(response.data);
+      console.log("user", response.data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setUser(null);
+    }
+  };
   const checkOverdue = async () => {
     const access_token = sessionStorage.getItem("access_token");
     if (access_token) {
@@ -378,7 +395,11 @@ const HomePage = () => {
                   >
                     <img
                       className="avatar"
-                      src="public/icon.jpg"
+                      src={
+                        user && user.avatar
+                          ? `/image/${user.avatar}`
+                          : "/image/default-avatar.png"
+                      }
                       alt="Avatar"
                       style={{
                         width: 36,
