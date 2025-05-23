@@ -26,6 +26,7 @@ class BookSerializer(serializers.ModelSerializer):
         category_ids = validated_data.pop('category_ids', [])
         author_id = validated_data.pop('author_id', None)
         
+        #Add authories
         if author_id:
             author = Author.objects.get(id=author_id)
             validated_data['author'] = author
