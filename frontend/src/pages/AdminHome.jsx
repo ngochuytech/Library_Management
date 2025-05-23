@@ -33,7 +33,6 @@ import History from "../components/History.jsx";
 import AdminBooks from "../components/AdminBooks.jsx";
 import AdminUsers from "../components/AdminUsers.jsx";
 import AdminBorrows from "../components/AdminBorrows.jsx";
-import AdminRecommendedBooks from "../components/AdminRecommendedBooks.jsx";
 import LibraryAdminSearch from "../components/LibraryAdminSearch";
 import Background from "../components/Background.jsx";
 
@@ -75,8 +74,6 @@ const HomePage = () => {
         return <AdminUsers />; // Component quản lý người dùng
       case "manageBorrows":
         return <AdminBorrows />; // Component quản lý mượn trả sách
-      case "manageRecommended":
-        return <AdminRecommendedBooks />; // Component quản lý sách đề xuất
       case "adminSearch":
         return <LibraryAdminSearch />;
       case "bookshelf":

@@ -509,7 +509,7 @@ const BorrowDetail = () => {
                       </p>
                       {/* Add other user details if available and relevant */}
                     </div>
-                    {/* Action buttons - implement their functionality */}
+                    {/* Action buttons - implement their functionality */}{" "}
                     <Button
                       variant="outline-primary"
                       size="sm"
@@ -517,7 +517,11 @@ const BorrowDetail = () => {
                     >
                       Liên hệ {/* e.g., mailto: link */}
                     </Button>
-                    <Button variant="outline-secondary" size="sm">
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      onClick={() => navigate(`/admin/users/${userData.id}`)}
+                    >
                       Xem thông tin {/* e.g., navigate to user profile page */}
                     </Button>
                   </Card.Body>
