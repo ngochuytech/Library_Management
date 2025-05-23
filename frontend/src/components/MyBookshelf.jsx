@@ -34,7 +34,7 @@ import {
 import { toast } from "react-toastify";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const PersonalLibrary = ({ userId }) => {
+const PersonalLibrary = ({ userId, handleBookClick }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -280,7 +280,6 @@ const PersonalLibrary = ({ userId }) => {
       };
     } else if (borrow.isOverdue) {
       if (statusLower === "borrowed") {
-        
       } else if (statusLower === "approved") {
         config = {
           label: "YC hết hạn",
@@ -563,6 +562,17 @@ const PersonalLibrary = ({ userId }) => {
                   className={`h-100 shadow-sm border-0 overflow-hidden ${
                     isOverdueForDisplay ? "border-2 border-danger" : ""
                   }`}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    // Kiểm tra xem prop handleBookClick có tồn tại không trước khi gọi
+                    if (handleBookClick) {
+                      handleBookClick(borrow.book);
+                    } else {
+                      console.warn(
+                        "handleBookClick prop is not provided to PersonalLibrary."
+                      );
+                    }
+                  }}
                 >
                   <div className="position-relative">
                     <Card.Img

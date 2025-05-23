@@ -62,7 +62,6 @@ const HomePage = () => {
     fetchNotifications();
     fetchRecommendedBooks();
     fetchRecentlyBooks();
-
   }, []);
 
   useEffect(() => {
@@ -87,9 +86,9 @@ const HomePage = () => {
   const checkOverdue = async () => {
     const access_token = sessionStorage.getItem("access_token");
     if (access_token) {
-      await api.post('/borrows/api/check-overdue');
+      await api.post("/borrows/api/check-overdue");
     }
-  }
+  };
 
   const fetchRecommendedBooks = async () => {
     try {
@@ -113,7 +112,7 @@ const HomePage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-
+      console.log("data rêcnt", data.results);
       setRecentlyBooks(data.results);
     } catch (error) {
       console.error("Failed to fetch recently books:", error);
@@ -155,6 +154,7 @@ const HomePage = () => {
   };
 
   const handleBookClick = (book) => {
+    console.log("Book clicked:", book);
     setSelectedBook(book);
     setActiveView("bookDetail");
   };
@@ -230,7 +230,7 @@ const HomePage = () => {
           />
         );
       case "bookshelf":
-        return <MyBookshelf />;
+        return <MyBookshelf handleBookClick={handleBookClick} />;
       case "contributions":
         return <Contributions />;
       case "RecommendBooks":
@@ -252,7 +252,7 @@ const HomePage = () => {
       default:
         return (
           <>
-            <Quote books={recommendedBooks} handleCardClick={handleBookClick} />
+            <Quote handleCardClick={handleBookClick} />
             <h2 className="greeting mt-4 mb-3">Xin chào</h2>
 
             <h3 className="section-heading">Đề nghị cho bạn</h3>
@@ -262,9 +262,9 @@ const HomePage = () => {
               onBookClick={handleBookClick}
             />
 
-            <h3 className="section-heading mt-4">Mới đọc</h3>
+            <h3 className="section-heading mt-4">Mới ra</h3>
             <BookSection
-              title="Mới đọc"
+              title="Mới ra"
               books={recentlyBooks}
               onBookClick={handleBookClick}
             />
