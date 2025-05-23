@@ -164,6 +164,11 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
     const statusNormalized = String(bookStatus).toUpperCase();
 
     switch (statusNormalized) {
+      case "OVERDUE":
+        variant = "danger";
+        label = "Quá hạn";
+        textColor = "white";
+        break;
       case "PENDING":
         variant = "warning";
         label = "Chờ duyệt sách";
@@ -360,11 +365,16 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
         tabMatch = true;
       }
     } else if (activeTab === "overdue") {
+      // Sách được coi là quá hạn NẾU:
+      // 1. Trạng thái của nó là 'overdue', HOẶC
+      // 2. Trạng thái là 'approved' hoặc 'borrowed' VÀ cờ isOverdue là true.
       if (
-        (statusLower === "approved" || statusLower === "borrowed") &&
-        borrow.isOverdue
-      )
+        statusLower === "overdue" ||
+        ((statusLower === "approved" || statusLower === "borrowed") &&
+          borrow.isOverdue)
+      ) {
         tabMatch = true;
+      }
     } else if (activeTab === "waiting") {
       if (statusLower === "pending") tabMatch = true;
     } else if (activeTab === "history") {
@@ -466,12 +476,16 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
                 />
                 Quá hạn (
                 {
-                  borrows.filter(
-                    (b) =>
-                      (String(b.status).toLowerCase() === "approved" ||
-                        String(b.status).toLowerCase() === "borrowed") &&
-                      b.isOverdue
-                  ).length
+                  // SỬ DỤNG LOGIC LỌC MỚI
+                  borrows.filter((b) => {
+                    const statusLower = String(b.status).toLowerCase();
+                    return (
+                      statusLower === "overdue" || // Thêm điều kiện này
+                      ((statusLower === "approved" ||
+                        statusLower === "borrowed") &&
+                        b.isOverdue)
+                    );
+                  }).length
                 }
                 )
               </Nav.Link>

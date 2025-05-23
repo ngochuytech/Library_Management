@@ -668,7 +668,10 @@ const AdminBookDetail = () => {
             <Card.Body>
               <div className="d-flex mb-3">
                 <Image
-                  src={authors[book.author?.id - 1]?.avatar || "icon.png"} // Default icon if no avatar
+                  src={
+                    "/image/" + authors[book.author?.id - 1]?.avatar ||
+                    "icon.png"
+                  } // Default icon if no avatar
                   roundedCircle
                   width={80}
                   height={80}
