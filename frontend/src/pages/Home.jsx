@@ -112,7 +112,6 @@ const HomePage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("data rêcnt", data.results);
       setRecentlyBooks(data.results);
     } catch (error) {
       console.error("Failed to fetch recently books:", error);

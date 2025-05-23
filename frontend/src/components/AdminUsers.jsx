@@ -448,14 +448,8 @@ const AdminUsers = () => {
                         <td>
                           <Image
                             src={
-                              typeof user.avatar === "string" &&
-                              user.avatar.startsWith("/")
-                                ? user.avatar
-                                : typeof user.avatar === "string" &&
-                                  user.avatar.startsWith("blob:")
-                                ? user.avatar
-                                : user.avatar // Nếu backend trả về full URL thì dùng trực tiếp
-                                ? user.avatar
+                              user.avatar
+                                ? `/image/${user.avatar}`
                                 : "/default-avatar.jpg"
                             }
                             alt={user.name}
@@ -632,21 +626,13 @@ const AdminUsers = () => {
                 typeof currentUser.avatar === "string" &&
                 !(formData.avatar instanceof File) && (
                   <Image
-                    src={
-                      currentUser.avatar.startsWith("/")
-                        ? currentUser.avatar
-                        : currentUser.avatar.startsWith("blob:")
-                        ? currentUser.avatar
-                        : currentUser.avatar
-                        ? currentUser.avatar
-                        : "/default-avatar.jpg"
-                    }
+                    src={`/image/${currentUser.avatar}`}
                     alt="Avatar hiện tại"
                     width={100}
                     className="mt-2"
                     rounded
                   />
-                )}
+              )}
               {formData.avatar instanceof File && (
                 <Image
                   src={URL.createObjectURL(formData.avatar)}

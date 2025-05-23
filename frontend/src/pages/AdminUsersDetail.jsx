@@ -320,7 +320,7 @@ const AdminUsersDetail = () => {
             <Col md={4} className="mb-4 mb-md-0">
               <div className="text-center mb-4">
                 <Image
-                  src={user.avatar || "/default-avatar.jpg"}
+                  src={user.avatar ? `/image/${user.avatar}` : "/icon.jpg"}
                   alt={`${user.name}'s avatar`}
                   roundedCircle
                   fluid

@@ -410,7 +410,7 @@ const AdminAuthors = () => {
                               {author.biography.length > 50
                                 ? `${author.biography.substring(0, 50)}...`
                                 : author.biography}
-                            </td>{" "}
+                            </td>
                             <td>
                               <Button
                                 variant="info"
