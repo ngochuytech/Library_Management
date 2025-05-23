@@ -189,7 +189,7 @@ const HomePage = () => {
   const handleSearchByAuthor = (authorId, authorName) => {
     setSearchType("author");
     setSearchQuery(authorName);
-    setCuarrentPage(1);
+    setCurrentPage(1);
     setActiveView("search");
   };
 
