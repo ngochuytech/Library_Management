@@ -8,12 +8,11 @@ from users.models import User
 
 BORROWED_STATUS = (
     ("PENDING", "PENDING"),
-    ("APPROVED", "APPROVED"),
     ("BORROWED", "BORROWED"),
     ("OVERDUE", "OVERDUE"),
     ("RETURNED", "RETURNED"),
     ("LOST", "LOST"),
-    ("CANCELED", "RETURNED")
+    ("CANCELED", "CANCELED")
 )
 # 
 def default_exp_date():

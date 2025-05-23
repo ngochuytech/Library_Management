@@ -58,9 +58,11 @@ const HomePage = () => {
   const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
+    checkOverdue();
     fetchNotifications();
     fetchRecommendedBooks();
     fetchRecentlyBooks();
+
   }, []);
 
   useEffect(() => {
@@ -71,7 +73,8 @@ const HomePage = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get(`${BASE_URL}/notifications/api`);
+      const idUser = sessionStorage.getItem("idUser");
+      const response = await api.get(`/notifications/api/user/${idUser}`);
 
       setNotifications(response.data.slice(0, 5));
     } catch (error) {
@@ -80,6 +83,13 @@ const HomePage = () => {
       setNotifications([]);
     }
   };
+
+  const checkOverdue = async () => {
+    const access_token = sessionStorage.getItem("access_token");
+    if (access_token) {
+      await api.post('/borrows/api/check-overdue');
+    }
+  }
 
   const fetchRecommendedBooks = async () => {
     try {

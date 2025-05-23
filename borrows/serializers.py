@@ -6,9 +6,8 @@ from borrows.models import Borrow
 from books.models import Book
 from users.models import User
 
-# Import các serializer đã có từ các app tương ứng
-from users.serializers import UserSerializer # Giả sử đường dẫn này là đúng
-from books.serializers import BookSerializer   # Giả sử đường dẫn này là đúng
+from users.serializers import UserSerializer 
+from books.serializers import BookSerializer   
 
 class BorrowSerializer(serializers.ModelSerializer):
     # Sử dụng các serializer đã có để hiển thị thông tin chi tiết khi GET
@@ -125,43 +124,34 @@ class BorrowSerializer(serializers.ModelSerializer):
             if 'borrow_days' in validated_data:
                 instance.borrow_days = validated_data.get('borrow_days')
 
-
-            # Đảm bảo so sánh với giá trị key của choices, ví dụ: 'APPROVED'
             if current_status != new_status:
-                if new_status == 'APPROVED': # GIẢ SỬ 'APPROVED' LÀ KEY TRONG CHOICES
-                    if not instance.borrow_date:
-                        instance.borrow_date = timezone.now() # SỬA Ở ĐÂY: Bỏ .date()
-                    
+                if new_status == 'BORROWED':
+                    # Luôn cập nhật lại ngày mượn và hạn trả khi chuyển sang BORROWED
+                    instance.borrow_date = timezone.now()
                     days_to_add = instance.borrow_days
                     if days_to_add is None:
                         raise serializers.ValidationError({"borrow_days": "Không thể tính ngày hết hạn nếu không có số ngày mượn."})
-                    
-                    if not instance.borrow_date:
-                        raise serializers.ValidationError({"internal_error": "Ngày mượn chưa được thiết lập để tính ngày hết hạn."})
-                    
-                    # borrow_date giờ là datetime, nên exp_date cũng sẽ là datetime
                     instance.exp_date = instance.borrow_date + timezone.timedelta(days=days_to_add)
 
-                elif new_status == 'RETURNED': # GIẢ SỬ 'RETURNED' LÀ KEY TRONG CHOICES
+                elif new_status == 'RETURNED':
                     if not instance.return_date:
-                        instance.return_date = timezone.now() # SỬA Ở ĐÂY: Bỏ .date()
-                    
+                        instance.return_date = timezone.now()
                     book_instance = instance.book
                     book_instance.avaliable += 1
                     book_instance.save(update_fields=['avaliable'])
 
-                elif new_status in ['REJECTED', 'CANCELED']: # GIẢ SỬ ĐÂY LÀ KEYS
-                    if current_status in ['PENDING', 'APPROVED']: 
+                elif new_status in ['REJECTED', 'CANCELED']:
+                    if current_status in ['PENDING', 'APPROVED']:
                         book_instance = instance.book
                         book_instance.avaliable += 1
                         book_instance.save(update_fields=['avaliable'])
-            
+
             elif 'borrow_days' in validated_data and instance.borrow_days != validated_data.get('borrow_days') \
-                 and instance.status == 'APPROVED': # Chỉ cho phép gia hạn khi đang APPROVED
+                    and instance.status == 'APPROVED':
                 if instance.borrow_date and instance.borrow_days is not None:
                     instance.exp_date = instance.borrow_date + timezone.timedelta(days=instance.borrow_days)
-                elif instance.borrow_days is None: 
+                elif instance.borrow_days is None:
                     raise serializers.ValidationError({"borrow_days": "Không thể bỏ trống số ngày mượn khi phiếu đã duyệt."})
 
-            instance.save() # Dữ liệu lưu vào DB thành công
-            return instance # Lỗi xảy ra khi DRF cố serialize 'instance' này với khai báo field sai
+            instance.save()
+            return instance
