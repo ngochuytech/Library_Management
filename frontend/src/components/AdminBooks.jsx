@@ -66,10 +66,12 @@ const AdminBooks = () => {
     setLoading(true);
     setError(null); // Reset lỗi trước mỗi lần fetch
     try {
-      const url =  `${BASE_URL}/books/api/search?type=title&query=${encodeURIComponent(search)}&page=${page}`;
+      const url = `${BASE_URL}/books/api/search?type=title&query=${encodeURIComponent(
+        search
+      )}&page=${page}`;
 
       const response = await api.get(url);
-
+      console.log("Response data:", response.data); // Kiểm tra dữ liệu trả về
       if (response.data && response.data.results) {
         setBooks(response.data.results);
         const totalItems = response.data.count || 0;
@@ -206,7 +208,8 @@ const AdminBooks = () => {
   };
 
   const handleDeleteBook = async () => {
-    if (bookToDelete) {
+    console.log("Deleting book:", bookToDelete);
+    if (bookToDelete && bookToDelete.quantity == bookToDelete.available) {
       try {
         const token = sessionStorage.getItem(ACCESS_TOKEN);
         const requestHeaders = {
@@ -237,6 +240,8 @@ const AdminBooks = () => {
         alert("Đã xảy ra lỗi khi xóa sách");
         setShowDeleteConfirm(false); // Đảm bảo modal đóng khi có lỗi
       }
+    } else {
+      alert("Không thể xóa sách này vì đang có người mượn.");
     }
   };
 
