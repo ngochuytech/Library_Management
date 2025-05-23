@@ -166,7 +166,7 @@ TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False 
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173', # Thêm địa chỉ frontend React của bạn

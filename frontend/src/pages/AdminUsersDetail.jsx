@@ -289,7 +289,7 @@ const AdminUsersDetail = () => {
     <Container className="py-4">
       <Button
         variant="outline-primary"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/admin/home/manageUsers")}
         className="mb-4"
       >
         <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
