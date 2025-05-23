@@ -38,7 +38,6 @@ class Borrow(models.Model):
         return f"{self.user} - {self.book} ({self.status})"
         
     def check_overdue(self):
-        """Kiểm tra và cập nhật trạng thái OVERDUE nếu đã quá hạn trả"""
         if (self.status == "BORROWED" and self.exp_date and 
             timezone.now() > self.exp_date and self.return_date is None):
             self.status = "OVERDUE"
@@ -48,10 +47,10 @@ class Borrow(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save method để kiểm tra trạng thái OVERDUE khi lưu"""
-        if not self.pk:  # Nếu đây là bản ghi mới
+        if not self.pk:  
             if self.borrow_date and self.borrow_days and not self.exp_date:
                 self.exp_date = self.borrow_date + datetime.timedelta(days=self.borrow_days)
-        else:  # Nếu đây là bản ghi đã tồn tại
+        else:
             self.check_overdue()
         
         super().save(*args, **kwargs)

@@ -17,7 +17,6 @@ from datetime import timedelta
 from dotenv import load_dotenv
 pymysql.install_as_MySQLdb()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -123,12 +122,12 @@ SIMPLE_JWT = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Set the backend to MySQL
-        'NAME': 'LMS',          # Your database name
-        'USER': 'root',          # Your MySQL username
-        'PASSWORD': '',  # Your MySQL password
-        'HOST': 'localhost',                   # Host for MySQL server
-        'PORT': '3306',                        # Default MySQL port
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'LMS',        
+        'USER': 'root',         
+        'PASSWORD': '',  
+        'HOST': 'localhost',                  
+        'PORT': '3306',                      
         'OPTIONS': {
             'sql_mode': 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO',
         }
@@ -190,9 +189,9 @@ load_dotenv()
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Giữ nguyên
-EMAIL_PORT = 587  # Giữ nguyên
-EMAIL_USE_TLS = True  # Giữ nguyên
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True  
 EMAIL_HOST_USER = 'tranminhvu101204@gmail.com'  # Đổi thành email Gmail của bạn
 EMAIL_HOST_PASSWORD = 'phdh ioes ovrc jurq'
 DEFAULT_FROM_EMAIL = 'tranminhvu101204@gmail.com'  # Cùng email với EMAIL_HOST_USER

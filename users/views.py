@@ -109,7 +109,6 @@ class ForgotPasswordView(APIView):
         email = request.data.get('email')
         try:
             user = User.objects.get(email=email)
-            # Generate 6-digit OTP
             otp = ''.join(random.choices(string.digits, k=6))
             # Store OTP with expiration (15 minutes)
             otp_store[email] = {
@@ -184,7 +183,6 @@ class ResetPasswordView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found', 'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
 
-# Thêm các import cần thiết
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -192,10 +190,9 @@ from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
 
-# API lấy danh sách người dùng (chỉ admin mới có quyền truy cập)
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser]) # Chỉ cho phép Admin truy cập
+@permission_classes([IsAdminUser]) 
 def getTotalUsersCount(request):
     total_users = User.objects.filter(is_superuser=False, is_staff=False).count()
     return Response({"total_users": total_users}, status=status.HTTP_200_OK)
@@ -228,7 +225,7 @@ def updateUserInformation(request, id):
         user = User.objects.get(id=id)
         name = request.data.get("name")
         phone_number = request.data.get("phone_number")
-        avatar = request.FILES.get('avatar')  # Get avatar file if uploaded
+        avatar = request.FILES.get('avatar')
 
         data = {}
         if name is not None and not name.strip():
@@ -239,14 +236,12 @@ def updateUserInformation(request, id):
         if phone_number is not None and not phone_number.strip():
             raise InvalidPhoneNumberException("Số điện thoại không được để trống")
         
-        # Add all fields that are present in the request
         data['name'] = name
         if phone_number:
             data['phone_number'] = phone_number
         if avatar:
             data['avatar'] = avatar
 
-        # Use serializer to validate and save the data
         serializer = UserSerializer(instance=user, data=data, partial=True)
         if not serializer.is_valid():
             print("serializer.errors = ", serializer.errors)
@@ -254,7 +249,6 @@ def updateUserInformation(request, id):
                 "error": serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Save the validated data
         serializer.save()
         print("data = ", serializer.data)
         return Response(serializer.data)
@@ -268,19 +262,14 @@ def updateUserInformation(request, id):
             "error": e.message,
         }, status=status.HTTP_400_BAD_REQUEST)
 
-# API cập nhật thông tin người dùng
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAdminUser])
 def update_user(request, id):
     try:
-        user = User.objects.get(id=id) # User là model của bạn
-        # Kiểm tra request.FILES nếu bạn gửi avatar bằng FormData
+        user = User.objects.get(id=id)
         print("Request data:", request.data) 
         print("Request FILES:", request.FILES)
 
-        # Khi có file upload, request.data sẽ chứa các trường non-file,
-        # và request.FILES sẽ chứa các trường file.
-        # ModelSerializer sẽ tự động xử lý việc này khi bạn truyền request.data.
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -293,27 +282,17 @@ def update_user(request, id):
         print("Exception in update_user:", str(e)) # Log lỗi chung
         return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# API xóa người dùng
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
 def delete_user(request, id):
     try:
-        user = User.objects.get(id=id) # User là model User của bạn
-
-        # Cân nhắc: Bạn có thể muốn thêm logic kiểm tra xem user có đang cố tự xóa mình không,
-        # hoặc không cho xóa superuser cuối cùng, v.v.
-        # Ví dụ:
-        # if request.user.id == user.id:
-        #     return Response({"error": "You cannot delete yourself."}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(id=id)
 
         user.delete()
-        # Theo chuẩn REST, DELETE thành công thường trả về 204 No Content và không có body.
-        # Hoặc bạn có thể trả về một thông báo thành công nếu muốn.
         return Response(status=status.HTTP_204_NO_CONTENT) 
-        # return Response({"message": f"User with id {id} deleted successfully"}, status=status.HTTP_200_OK) # Nếu bạn muốn có message
     except User.DoesNotExist:
         return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e: # Bắt các lỗi không mong muốn khác
+    except Exception as e: 
         print(f"Error deleting user {id}: {str(e)}")
         return Response({"error": "An error occurred while deleting the user."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -412,38 +391,27 @@ def getMonthlyNewUsersStats(request):
         if month_key in final_stats_map:
             final_stats_map[month_key]['new_users_count'] = entry['count']
         
-    # --- PHẦN THAY ĐỔI LOGIC SẮP XẾP ---
-    # Sắp xếp các tháng đã điền theo thứ tự thời gian tăng dần
     def sort_key_by_month_year(item):
-        # Ví dụ item['month'] là "Tháng 5 2023"
         parts = item['month'].split(' ')
         
-        # Lấy số tháng từ tên tiếng Việt (ví dụ: "Tháng 5" -> 5)
-        # Tạo một map ngược từ tên tiếng Việt sang số tháng (1-12)
         month_number_map = {
             "Tháng 1": 1, "Tháng 2": 2, "Tháng 3": 3, "Tháng 4": 4, "Tháng 5": 5, "Tháng 6": 6,
             "Tháng 7": 7, "Tháng 8": 8, "Tháng 9": 9, "Tháng 10": 10, "Tháng 11": 11, "Tháng 12": 12
         }
         
-        # Đảm bảo chúng ta chỉ lấy phần tên tháng (ví dụ "Tháng 5")
-        month_name_viet = parts[0] + ' ' + parts[1] # Kết hợp "Tháng" và "5" lại
+        month_name_viet = parts[0] + ' ' + parts[1] 
         
         month_num = month_number_map.get(month_name_viet)
-        year_num = int(parts[2]) # Lấy phần năm
+        year_num = int(parts[2]) 
 
         if month_num is None:
-            # Xử lý trường hợp không tìm thấy tháng trong map (ví dụ: nếu có tháng tiếng Anh vẫn còn)
-            # Có thể thử phân tích lại bằng định dạng tiếng Anh hoặc trả về giá trị mặc định để tránh lỗi
             try:
-                # Nếu không phải tháng tiếng Việt, thử phân tích như tháng tiếng Anh
                 return datetime.datetime.strptime(item['month'], '%B %Y')
             except ValueError:
-                # Nếu vẫn lỗi, trả về một giá trị an toàn để không crash
-                return datetime.datetime.min # Giá trị ngày nhỏ nhất
+                return datetime.datetime.min 
         
-        return datetime.datetime(year_num, month_num, 1) # Trả về một đối tượng datetime cho việc sắp xếp
+        return datetime.datetime(year_num, month_num, 1) 
 
     sorted_filled_stats = sorted(final_stats_map.values(), key=sort_key_by_month_year)
-    # --- KẾT THÚC PHẦN THAY ĐỔI ---
     
     return Response(sorted_filled_stats, status=status.HTTP_200_OK)
