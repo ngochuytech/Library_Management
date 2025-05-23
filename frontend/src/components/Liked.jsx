@@ -21,7 +21,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Liked = () => {
-  // Danh sách sách đã like (dữ liệu mẫu)
   const likedBooks = [
     {
       id: 1,
@@ -65,19 +64,14 @@ const Liked = () => {
     },
   ];
 
-  // Hàm xử lý xóa sách khỏi danh sách yêu thích
   const handleRemove = (bookId) => {
     console.log(`Remove book with id: ${bookId}`);
-    // Thực hiện call API hoặc cập nhật state ở đây
   };
 
-  // Hàm xử lý mượn sách
   const handleBorrow = (bookId) => {
     console.log(`Borrow book with id: ${bookId}`);
-    // Thực hiện call API hoặc chuyển hướng ở đây
   };
 
-  // Hàm render rating sao
   const renderRatingStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <FontAwesomeIcon
@@ -92,14 +86,12 @@ const Liked = () => {
     ));
   };
 
-  // Màu sắc cho từng thể loại
   const getCategoryColor = (category) => {
     const colors = {
       "Công nghệ thông tin": "primary",
       "Thiết kế": "success",
       "Kinh tế": "warning",
       "Phát triển bản thân": "info",
-      // Thêm các thể loại khác nếu cần
     };
     return colors[category] || "secondary";
   };

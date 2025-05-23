@@ -66,11 +66,9 @@ const ResetPasswordForm = () => {
       });
       
       if (response.data.status === 'success') {
-        // Clear session storage
         sessionStorage.removeItem('resetEmail');
         sessionStorage.removeItem('resetToken');
         
-        // Navigate to success page
         navigate('/reset-success');
       } else {
         setError(response.data.message || 'Failed to reset password');

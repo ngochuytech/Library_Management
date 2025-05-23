@@ -1,7 +1,6 @@
 import React from 'react';
 
 const BookCategories = () => {
-  // Icon SVG components
   const icons = {
     literature: (
       <svg
@@ -106,7 +105,6 @@ const BookCategories = () => {
     ),
   };
 
-  // Danh mục sách
   const bookCategories = [
     { name: "Văn học", icon: icons.literature },
     { name: "Kinh tế", icon: icons.economics },
@@ -116,7 +114,6 @@ const BookCategories = () => {
     { name: "Tâm lý", icon: icons.psychology },
   ];
 
-  // CSS cho component
   const styles = {
     container: {
       padding: '2rem 0',

@@ -86,7 +86,6 @@ const Account = ({ defaultTab = "profile" }) => {
         email: response.data.email,
         avatar: response.data.avatar,
         created_at: response.data.created_at,
-        // bio: "Đọc sách là niềm đam mê của tôi !" // <--- BỎ DÒNG NÀY
       });
 
       setFormData({
@@ -95,7 +94,6 @@ const Account = ({ defaultTab = "profile" }) => {
         email: response.data.email,
         avatar: response.data.avatar,
         created_at: response.data.created_at,
-        // bio: response.data.bio || "Đọc sách là niềm đam mê của tôi !", // <--- BỎ DÒNG NÀY
       });
       console.log("ads", response.data);
     } catch (error) {
@@ -126,7 +124,6 @@ const Account = ({ defaultTab = "profile" }) => {
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        // Giới hạn 2MB
         toast.error("Kích thước ảnh không được vượt quá 2MB.");
         setSelectedFile(null);
         setPreviewUrl(null);
@@ -134,31 +131,19 @@ const Account = ({ defaultTab = "profile" }) => {
         return;
       }
       setSelectedFile(file); // Lưu file đã chọn
-      setPreviewUrl(URL.createObjectURL(file)); // Tạo URL xem trước
+      setPreviewUrl(URL.createObjectURL(file)); 
     }
-    // Không reset e.target.value ở đây nếu muốn giữ file
   };
   const handleSave = async () => {
     try {
       const idUser = sessionStorage.getItem("idUser");
 
-      // 1. Tạo FormData
       const updateFormData = new FormData();
 
-      // 2. Thêm các trường dữ liệu text
       updateFormData.append("name", formData.name);
-      // Bạn có thể thêm phone nếu cho phép sửa, nhưng hiện tại nó disabled
-      // updateFormData.append('phone_number', formData.phone);
-
-      // 3. Thêm file avatar NẾU có file mới được chọn
       if (selectedFile) {
         updateFormData.append("avatar", selectedFile);
       }
-
-      // 4. Gọi API với FormData và header 'multipart/form-data'
-      // **QUAN TRỌNG: API /users/api/update/ PHẢI HỖ TRỢ NHẬN multipart/form-data và PUT/POST**
-      // Lưu ý: Axios thường tự đặt header khi gửi FormData, nhưng có thể cần chỉ định
-      // Nếu PUT không hoạt động với FormData trên backend, bạn có thể cần dùng POST và thêm _method=PUT
       const response = await api.put(
         `/users/api/update/${idUser}`,
         updateFormData,
@@ -171,29 +156,27 @@ const Account = ({ defaultTab = "profile" }) => {
 
       const updatedData = response.data;
 
-      // 5. Cập nhật state với dữ liệu mới (bao gồm cả avatar nếu có)
       setUserData({
         ...userData,
         name: updatedData.name,
         phone: updatedData.phone_number,
-        avatar: updatedData.avatar || userData.avatar, // Cập nhật avatar nếu API trả về
+        avatar: updatedData.avatar || userData.avatar,
       });
 
       setFormData({
-        // Cập nhật cả form data
         ...formData,
         name: updatedData.name,
         phone: updatedData.phone_number,
         avatar: updatedData.avatar || userData.avatar,
       });
 
-      setIsEditing(false); // Thoát chế độ chỉnh sửa
-      setSelectedFile(null); // Reset file đã chọn
-      setPreviewUrl(null); // Reset preview
+      setIsEditing(false);
+      setSelectedFile(null);
+      setPreviewUrl(null);
       setError("");
       setFieldErrors({});
       toast.success("Cập nhật thông tin thành công!");
-      sessionStorage.setItem("username", updatedData.name); // Cập nhật username nếu cần
+      sessionStorage.setItem("username", updatedData.name);
     } catch (error) {
       console.error("Failed to update user:", error.response?.data?.error);
       const errData = error.response?.data?.error;
@@ -330,7 +313,7 @@ const Account = ({ defaultTab = "profile" }) => {
             <Card.Body className="text-center">
               {" "}
               <Image
-                src={previewUrl || "/image" + userData.avatar || "/icon.jpg"} // Hiển thị preview nếu có, nếu không thì hiển thị ảnh hiện tại
+                src={previewUrl || "/image" + userData.avatar || "/icon.jpg"}
                 roundedCircle
                 width={150}
                 height={150}
@@ -442,7 +425,7 @@ const Account = ({ defaultTab = "profile" }) => {
                           value={formData.phone || ""}
                           onChange={handleInputChange}
                           isInvalid={!!fieldErrors.phone}
-                          disabled // Giữ disabled nếu bạn không muốn cho sửa SĐT
+                          disabled
                         />
                         <Form.Control.Feedback type="invalid">
                           {fieldErrors.phone}
@@ -459,21 +442,9 @@ const Account = ({ defaultTab = "profile" }) => {
                           name="email"
                           value={formData.email || ""}
                           onChange={handleInputChange}
-                          disabled // Giữ disabled nếu bạn không muốn cho sửa Email
+                          disabled 
                         />
                       </Form.Group>
-
-                      {/* BỎ PHẦN TIỂU SỬ KHI CHỈNH SỬA */}
-                      {/* <Form.Group className="mb-3">
-                        <Form.Label>Tiểu sử</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
-                          name="bio"
-                          value={formData.bio || ""}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group> */}
 
                       <div className="d-flex gap-2">
                         <Button variant="primary" onClick={handleSave}>
@@ -486,9 +457,9 @@ const Account = ({ defaultTab = "profile" }) => {
                             setIsEditing(false);
                             setFieldErrors({});
                             setError("");
-                            setSelectedFile(null); // Reset file khi hủy
-                            setPreviewUrl(null); // Reset preview khi hủy
-                            setFormData({ ...userData }); // Reset form về data cũ
+                            setSelectedFile(null);
+                            setPreviewUrl(null);
+                            setFormData({ ...userData });
                           }}
                         >
                           Hủy
@@ -510,8 +481,8 @@ const Account = ({ defaultTab = "profile" }) => {
                               onClick={() => {
                                 setFormData({ ...userData });
                                 setIsEditing(true);
-                                setSelectedFile(null); // Reset file khi bắt đầu sửa
-                                setPreviewUrl(null); // Reset preview khi bắt đầu sửa
+                                setSelectedFile(null);
+                                setPreviewUrl(null);
                               }}
                             >
                               <FontAwesomeIcon icon={faPen} className="me-1" />
@@ -539,11 +510,6 @@ const Account = ({ defaultTab = "profile" }) => {
                           <p>{userData.email}</p>
                         </ListGroup.Item>
 
-                        {/* BỎ PHẦN TIỂU SỬ KHI HIỂN THỊ */}
-                        {/* <ListGroup.Item>
-                          <h6>Tiểu sử</h6>
-                          <p>{userData.bio}</p>
-                        </ListGroup.Item> */}
                       </ListGroup>
                     </>
                   )}

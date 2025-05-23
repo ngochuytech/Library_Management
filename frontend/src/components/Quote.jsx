@@ -1,24 +1,20 @@
-import React, { useState, useEffect } from "react"; // 1. Import useState và useEffect
+import React, { useState, useEffect } from "react";
 import "../styles/Quote.css";
 
-// 2. Định nghĩa lại BASE_URL
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-// 5. Chỉ nhận 'handleCardClick' từ props
 const Quote = ({ handleCardClick }) => {
-  // 3. Thêm lại useState
   const [books, setBooks] = useState([]);
 
-  // 4. Thêm lại useEffect
   useEffect(() => {
-    fetch(`${BASE_URL}/books/api/quote`) // Sử dụng endpoint 'quote'
+    fetch(`${BASE_URL}/books/api/quote`)
       .then((res) => res.json())
-      .then((data) => setBooks(data.results || data)) // Cập nhật state 'books'
+      .then((data) => setBooks(data.results || data))
       .catch((err) => {
-        console.error("Failed to fetch quote books:", err); // Thêm log lỗi
+        console.error("Failed to fetch quote books:", err);
         setBooks([]);
       });
-  }, []); // useEffect chỉ chạy một lần khi component mount
+  }, []);
 
   return (
     <div className="quote-container">
@@ -31,20 +27,11 @@ const Quote = ({ handleCardClick }) => {
         <p className="quote-author" style={{ fontSize: "1.5rem" }}>
           -Walt Disney
         </p>
-
-        {/* <div className="quote-dots">
-          <div className="dot active"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-        </div> */}
       </div>
 
       <div className="new-books">
         <div className="new-books-title">Sách nổi bật</div>{" "}
-        {/* Có thể đổi title cho phù hợp với /quote */}
         <div className="book-thumbnails">
-          {/* 6. Vẫn sử dụng 'books' từ state */}
           {books && books.length > 0 ? (
             books.map((book, idx) => (
               <img
@@ -57,7 +44,6 @@ const Quote = ({ handleCardClick }) => {
                 }
                 alt={book.title || "Book cover"}
                 className="book-thumbnail"
-                // Vẫn sử dụng handleCardClick từ props
                 onClick={() => {
                   if (handleCardClick) {
                     handleCardClick(book);
@@ -67,7 +53,7 @@ const Quote = ({ handleCardClick }) => {
               />
             ))
           ) : (
-            <p>Đang tải sách...</p> // Thay đổi thông báo
+            <p>Đang tải sách...</p>
           )}
         </div>
       </div>

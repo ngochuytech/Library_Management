@@ -8,26 +8,26 @@ import {
   Image,
   Badge,
   Card,
-  Modal, // Modal is still used for Preview
+  Modal,
   ProgressBar,
   Alert,
   Tabs,
   Tab,
-  Form, // Thêm lại Form cho modal chỉnh sửa
+  Form,
 } from "react-bootstrap";
 import {
   faStar,
   faBookOpen,
-  faEdit, // Thêm lại icon chỉnh sửa
-  faTrash, // Thêm lại icon xóa
-  faExclamationTriangle, // Thêm icon cảnh báo xóa
-  faArrowLeft, // Thêm icon quay lại
+  faEdit, 
+  faTrash, 
+  faExclamationTriangle, 
+  faArrowLeft, 
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/BookDetail.css";
-import { ACCESS_TOKEN } from "../constants"; // Thêm lại ACCESS_TOKEN
-import api from "../api"; // Thêm api để gọi API
+import { ACCESS_TOKEN } from "../constants"; 
+import api from "../api"; 
 
 const AdminBookDetail = () => {
   const navigate = useNavigate();
@@ -36,9 +36,8 @@ const AdminBookDetail = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showPreview, setShowPreview] = useState(false); // Preview modal remains
+  const [showPreview, setShowPreview] = useState(false); 
 
-  // Thêm state cho modal chỉnh sửa và xóa
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -57,11 +56,10 @@ const AdminBookDetail = () => {
 
   const [authorBooks, setAuthorBooks] = useState([]);
 
-  // Fetch books by author when the author is selected (remains)
   const fetchBooksByAuthor = async () => {
     if (!book || !book.author || !book.author.id) {
       console.error("Thông tin tác giả không đầy đủ để tải sách.");
-      setAuthorBooks([]); // Clear or handle as appropriate
+      setAuthorBooks([]); 
       return;
     }
     try {
@@ -72,7 +70,7 @@ const AdminBookDetail = () => {
       setAuthorBooks(data);
     } catch (err) {
       console.error("Lỗi khi tải sách của tác giả", err);
-      setAuthorBooks([]); // Clear or handle error appropriately
+      setAuthorBooks([]); 
     }
   };
 
@@ -87,7 +85,6 @@ const AdminBookDetail = () => {
         console.log("Book data:", data);
         setBook(data);
 
-        // Khởi tạo formData với dữ liệu của sách hiện tại
         setFormData({
           title: data.title,
           author: data.author?.id || "",
@@ -106,7 +103,6 @@ const AdminBookDetail = () => {
       }
     };
 
-    // Tải danh sách tác giả và thể loại
     const fetchOptions = async () => {
       setLoadingOptions(true);
       try {
@@ -125,7 +121,7 @@ const AdminBookDetail = () => {
 
     fetchBook();
     fetchOptions();
-  }, [id, BASE_URL]); // Added BASE_URL to dependencies as it's used in useEffect
+  }, [id, BASE_URL]);
 
   const renderRatingStars = (rating) => {
     const stars = [];
@@ -166,7 +162,6 @@ const AdminBookDetail = () => {
     window.scrollTo(0, 0);
   };
 
-  // Xử lý thay đổi đầu vào form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -195,17 +190,14 @@ const AdminBookDetail = () => {
     }
   };
 
-  // Mở modal chỉnh sửa
   const handleEdit = () => {
     setShowEditModal(true);
   };
 
-  // Xác nhận xóa sách
   const confirmDelete = () => {
     setShowDeleteConfirm(true);
   };
 
-  // Xử lý xóa sách
   const handleDelete = async () => {
     try {
       const token = sessionStorage.getItem(ACCESS_TOKEN);
@@ -217,7 +209,6 @@ const AdminBookDetail = () => {
       });
 
       setShowDeleteConfirm(false);
-      // Chuyển hướng về trang quản lý sách sau khi xóa thành công
       navigate("/admin/home");
     } catch (error) {
       console.error("Error deleting book:", error);
@@ -225,10 +216,10 @@ const AdminBookDetail = () => {
       setShowDeleteConfirm(false);
     }
   };
-  // Lưu thay đổi khi chỉnh sửa
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    // setLoading(true); // Cân nhắc thêm cờ loading cho nút Save
+
     try {
       const token = sessionStorage.getItem(ACCESS_TOKEN);
       const bookFormData = new FormData();
@@ -258,20 +249,17 @@ const AdminBookDetail = () => {
       const requestHeaders = {
         "Content-Type": "multipart/form-data",
         ...(token && { Authorization: `Bearer ${token}` }),
-      }; // Đang chỉnh sửa sách hiện tại, không cần tham chiếu đến currentBook
-      // vì đã có tham số id từ useParams()
+      }; 
       const response = await api.put(
         `${BASE_URL}/books/api/edit/${id}`,
         bookFormData,
         { headers: requestHeaders }
-      ); // Cập nhật state sách với dữ liệu mới nhận được
+      );
       setBook(response.data);
       setShowEditModal(false);
 
-      // Tải lại trang để hiển thị thay đổi mới nhất
       window.location.reload();
 
-      // Hiển thị thông báo thành công
       alert("Cập nhật sách thành công!");
     } catch (error) {
       console.error("Error saving book:", error);
@@ -296,7 +284,6 @@ const AdminBookDetail = () => {
       }
       alert(errorMessage.trim());
     } finally {
-      // setLoading(false);
     }
   };
 
@@ -431,7 +418,7 @@ const AdminBookDetail = () => {
                           onChange={handleCategoryChange}
                           required
                           disabled={loadingOptions}
-                          value={formData.category} // formData.category là mảng các string IDs
+                          value={formData.category}
                           style={{ height: "100px" }}
                         >
                           {categories.map((category) => (
@@ -603,7 +590,7 @@ const AdminBookDetail = () => {
                   </div>
 
                   <Alert
-                    variant="success" // This should dynamically change based on availability
+                    variant="success"
                     className="d-flex align-items-center"
                   >
                     <div className="me-3">
@@ -671,7 +658,7 @@ const AdminBookDetail = () => {
                   src={
                     "/image/" + authors[book.author?.id - 1]?.avatar ||
                     "icon.png"
-                  } // Default icon if no avatar
+                  }
                   roundedCircle
                   width={80}
                   height={80}

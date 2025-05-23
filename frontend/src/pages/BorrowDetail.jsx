@@ -17,9 +17,9 @@ import {
 } from "react-bootstrap";
 import {
   faStar,
-  faHeart as fasHeart, // Assuming fasHeart might be used elsewhere, kept it.
+  faHeart as fasHeart,
   faBookOpen,
-  faShoppingCart, // Kept, though the button using it is commented out.
+  faShoppingCart,
   faCalendarAlt,
   faClock,
   faCheckCircle,
@@ -28,9 +28,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faStar as faStarRegular,
-  faHeart as farHeart, // Assuming farHeart might be used elsewhere, kept it.
+  faHeart as farHeart,
 } from "@fortawesome/free-regular-svg-icons";
-import "../styles/BookDetail.css"; // Make sure this path is correct
+import "../styles/BookDetail.css";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 
@@ -45,9 +45,8 @@ const BorrowDetail = () => {
   const [borrowData, setBorrowData] = useState(null);
   const [bookData, setBookData] = useState(null);
   const [userData, setUserData] = useState(null);
-  const BASE_URL = import.meta.env.VITE_API_URL || ""; // Ensure BASE_URL has a fallback
+  const BASE_URL = import.meta.env.VITE_API_URL || "";
 
-  // Fetch borrow details and related data
   useEffect(() => {
     const fetchBorrowDetails = async () => {
       try {
@@ -62,10 +61,8 @@ const BorrowDetail = () => {
         });
         console.log("Borrow Data:", response.data);
 
-        // Fetch the borrow details
         setBorrowData(response.data);
 
-        // Book data and user data are included in the borrow response
         setBookData(response.data.book);
         setUserData(response.data.user);
 
@@ -93,7 +90,7 @@ const BorrowDetail = () => {
 
     const stars = [];
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5; // This will use faStarRegular for "half"
+    const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
@@ -106,11 +103,10 @@ const BorrowDetail = () => {
     }
 
     if (hasHalfStar && stars.length < 5) {
-      // Ensure we don't exceed 5 stars
       stars.push(
         <FontAwesomeIcon
           key="half"
-          icon={faStarRegular} // Note: This is typically an empty star. For a visual half-star, faStarHalfAlt is common.
+          icon={faStarRegular}
           className="text-warning"
         />
       );
@@ -129,7 +125,6 @@ const BorrowDetail = () => {
     return stars;
   };
 
-  // Hàm định dạng ngày
   const formatDate = (dateString) => {
     if (!dateString) return "Chưa cập nhật";
     try {
@@ -141,8 +136,6 @@ const BorrowDetail = () => {
     }
   };
 
-  // Kiểm tra có trễ hạn không - chỉ tính nếu có dữ liệu
-  // Assuming borrowData has exp_date and return_date fields
   const isLate = borrowData?.exp_date
     ? borrowData.return_date
       ? new Date(borrowData.return_date) > new Date(borrowData.exp_date)
@@ -150,7 +143,6 @@ const BorrowDetail = () => {
         (borrowData.status === "BORROWED" || borrowData.status === "OVERDUE")
     : false;
 
-  // Map server status to display status
   const getStatusTranslation = (status) => {
     const statusMap = {
       PENDING: "Đang chờ duyệt",
@@ -164,7 +156,6 @@ const BorrowDetail = () => {
     return statusMap[status] || status || "Không rõ";
   };
 
-  // Get status variant for bootstrap
   const getStatusVariant = (status) => {
     const variantMap = {
       PENDING: "warning",
@@ -175,14 +166,14 @@ const BorrowDetail = () => {
       LOST: "danger",
       CANCELED: "secondary",
     };
-    return variantMap[status] || "dark"; // Default to "dark" if status is unknown
+    return variantMap[status] || "dark"; 
   };
 
   return (
     <Container className="mt-3 mb-5 book-detail-container">
       <Button
         variant="outline-primary"
-        onClick={() => navigate("/admin/home/manageBorrows")} // Ensure this route is correct
+        onClick={() => navigate("/admin/home/manageBorrows")}
         className="mb-4"
       >
         <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
@@ -199,7 +190,7 @@ const BorrowDetail = () => {
           <FontAwesomeIcon icon={faExclamationCircle} className="me-2" />
           {error}
         </Alert>
-      ) : !borrowData || !bookData ? ( // Check for bookData as well
+      ) : !borrowData || !bookData ? (
         <Alert variant="warning">
           <FontAwesomeIcon icon={faExclamationCircle} className="me-2" />
           Không tìm thấy thông tin mượn sách hoặc chi tiết sách với ID:{" "}
@@ -244,7 +235,7 @@ const BorrowDetail = () => {
                                 /^\/+/,
                                 ""
                               )}`
-                            : "default-book-placeholder.png" // Provide a real placeholder path
+                            : "default-book-placeholder.png"
                         }
                         alt={bookData?.title || "Book cover"}
                         fluid
@@ -440,16 +431,6 @@ const BorrowDetail = () => {
                         </Alert>
                       )}
 
-                      {/*
-                      <div className="d-flex gap-3 mb-4">
-                        <Button variant="primary" size="lg" className="flex-grow-1">
-                          <FontAwesomeIcon icon={faShoppingCart} className="me-2" />
-                          {borrowData?.status === "BORROWED" || borrowData?.status === "OVERDUE"
-                            ? "Gia hạn mượn"
-                            : "Mượn lại"}
-                        </Button>
-                      </div>
-                      */}
                     </Col>
                   </Row>
                 </Card.Body>
@@ -485,8 +466,8 @@ const BorrowDetail = () => {
                       <Image
                         src={
                           userData.avatar
-                            ? `${userData.avatar}`
-                            : "default-avatar-placeholder.png" // Provide a real placeholder path
+                            ? `/image/${userData.avatar}`
+                            : "default-avatar-placeholder.png"
                         }
                         roundedCircle
                         width={80}

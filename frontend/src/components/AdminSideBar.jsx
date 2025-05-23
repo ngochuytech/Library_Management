@@ -5,9 +5,9 @@ import {
   faBook,
   faUsers,
   faBookOpen,
-  faChartBar, // Import icon cho thống kê
+  faChartBar,
   faUserCircle,
-  faUser, // Icon cho quản lý tác giả
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
 const AdminSidebar = ({ activeView, onNavigate }) => {

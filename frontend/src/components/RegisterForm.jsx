@@ -43,9 +43,6 @@ const RegisterForm = ({ route, method }) => {
       return;
     }
 
-    // This is a simple mock registration
-    // In a real app, you would call an API
-    // Gửi yêu cầu đăng ký tới backend
     try {
       const response = await fetch(`${BASE_URL}/users/register`, {
         method: "POST",

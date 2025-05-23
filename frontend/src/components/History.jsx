@@ -39,7 +39,7 @@ const History = () => {
       borrowDate: "15/10/2023",
       dueDate: "30/10/2023",
       returnDate: "28/10/2023",
-      status: "returned", // returned, overdue, borrowing
+      status: "returned",
     },
     {
       id: 2,
@@ -85,7 +85,6 @@ const History = () => {
     },
   ];
 
-  // Hàm hiển thị trạng thái
   const renderStatus = (status) => {
     switch (status) {
       case "returned":
@@ -114,7 +113,6 @@ const History = () => {
     }
   };
 
-  // Hàm xem chi tiết sách
   const handleViewDetail = (bookId) => {
     navigate(`/books/${bookId}`);
   };

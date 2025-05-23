@@ -10,10 +10,9 @@ import {
 } from "react-bootstrap";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "../styles/SearchTab.css"; // Import file CSS
+import "../styles/SearchTab.css";
 
 const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handleBookClick }) => {
-  // Hàm trợ giúp để lấy gradient cho thể loại (giữ lại vì dynamic)
   const getCategoryGradient = (categoryName) => {
     const gradientMap = {
           "Tiểu thuyết": "linear-gradient(135deg, #18C4FF 0%, #0A3D5F 100%)",
@@ -43,10 +42,9 @@ const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handle
     return gradientMap[categoryName] || "linear-gradient(135deg, #6c757d 0%, #495057 100%)";
   };
 
-  // Hàm trợ giúp để lấy variant cho thanh tiến trình (giữ lại vì dùng cho component ProgressBar)
   const getProgressBarVariant = (available, total) => {
     const ratio = available / total;
-    if (ratio === 0) return "danger"; // Cụ thể hơn khi hết sạch
+    if (ratio === 0) return "danger";
     if (ratio <= 0.25) return "danger";
     if (ratio <= 0.5) return "warning";
     if (ratio <= 0.75) return "info";
@@ -77,7 +75,7 @@ const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handle
                 <td className="search-tab-td-title">
                   <div className="search-tab-book-info-container">
                     <img
-                      src={`image/${book.image}`} // Đảm bảo đường dẫn này đúng
+                      src={`image/${book.image}`}
                       alt={book.title}
                       className="search-tab-book-image"
                     />
@@ -154,19 +152,18 @@ const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handle
             />
             {[...Array(totalPages)].map((_, index) => {
               const pageNumber = index + 1;
-              // Logic để hiển thị một khoảng trang nhất định, ví dụ: 3 trang trước, trang hiện tại, 3 trang sau
-              const maxPagesToShow = 5; // Tổng số nút trang sẽ hiển thị (bao gồm ...)
+              const maxPagesToShow = 5;
               const halfPagesToShow = Math.floor(maxPagesToShow / 2);
               
               let showPage = false;
               if (totalPages <= maxPagesToShow) {
-                showPage = true; // Hiển thị tất cả nếu tổng số trang nhỏ hơn hoặc bằng max
+                showPage = true;
               } else {
-                if (currentPage <= halfPagesToShow) { // Gần đầu
+                if (currentPage <= halfPagesToShow) {
                   showPage = pageNumber <= maxPagesToShow - 2 || pageNumber === totalPages || pageNumber === totalPages -1 ;
-                } else if (currentPage >= totalPages - halfPagesToShow) { // Gần cuối
+                } else if (currentPage >= totalPages - halfPagesToShow) {
                   showPage = pageNumber >= totalPages - (maxPagesToShow - 3) || pageNumber === 1 || pageNumber === 2;
-                } else { // Ở giữa
+                } else {
                   showPage = Math.abs(currentPage - pageNumber) <= halfPagesToShow -2 || pageNumber === 1 || pageNumber === totalPages;
                 }
               }
@@ -186,15 +183,14 @@ const SearchTab = ({ searchResult, totalPages, currentPage, onPageChange, handle
                 (currentPage >= totalPages - halfPagesToShow && pageNumber === totalPages - (maxPagesToShow -2) ) ||
                 (Math.abs(currentPage - pageNumber) === halfPagesToShow -1 && pageNumber !==1 && pageNumber !== totalPages)
               ) {
-                 // Chỉ hiển thị một dấu "..." nếu cần
                 if (!this[`ellipsis_${pageNumber < currentPage ? 'before' : 'after'}`]) {
-                  this[`ellipsis_${pageNumber < currentPage ? 'before' : 'after'}`] = true; // Đánh dấu đã hiển thị ellipsis
+                  this[`ellipsis_${pageNumber < currentPage ? 'before' : 'after'}`] = true;
                   return <Pagination.Ellipsis key={`ellipsis-${pageNumber < currentPage ? 'before' : 'after'}`} disabled />;
                 }
               }
               return null;
-            }).filter(item => item !== null) // Loại bỏ các giá trị null để reset cờ ellipsis mỗi lần render
-            .map((item, idx, arr) => { // Reset cờ ellipsis
+            }).filter(item => item !== null) 
+            .map((item, idx, arr) => {
                 if (item && item.type === Pagination.Ellipsis) {
                     const position = item.key.split('-')[1];
                     if (position === 'before') this.ellipsis_before = false;

@@ -41,11 +41,9 @@ const AdminAuthors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Modal states
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [currentAuthor, setCurrentAuthor] = useState(null);
@@ -56,29 +54,23 @@ const AdminAuthors = () => {
     biography: "",
   });
 
-  // Upload avatar state
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploadedAvatar, setUploadedAvatar] = useState(null);
 
-  // Delete confirmation modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [authorToDelete, setAuthorToDelete] = useState(null);
 
-  // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAuthors, setFilteredAuthors] = useState([]);
 
-  // Toast notification states
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState("success"); // 'success' or 'error'
+  const [toastType, setToastType] = useState("success");
 
-  // Load authors data
   useEffect(() => {
     fetchAuthors();
   }, []);
 
-  // Update filtered authors when authors or search term changes
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredAuthors(authors);
@@ -89,11 +81,9 @@ const AdminAuthors = () => {
       setFilteredAuthors(filtered);
     }
 
-    // Update pagination
     setTotalPages(Math.ceil(filteredAuthors.length / PAGE_SIZE));
   }, [authors, searchTerm]);
 
-  // Fetch authors from API
   const fetchAuthors = async () => {
     setLoading(true);
     setError(null);
@@ -111,7 +101,6 @@ const AdminAuthors = () => {
     }
   };
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -120,7 +109,6 @@ const AdminAuthors = () => {
     });
   };
 
-  // Handle avatar upload
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -133,7 +121,6 @@ const AdminAuthors = () => {
     }
   };
 
-  // Open modal to add new author
   const handleAddAuthor = () => {
     setModalTitle("Thêm tác giả mới");
     setCurrentAuthor(null);
@@ -148,7 +135,6 @@ const AdminAuthors = () => {
     setShowModal(true);
   };
 
-  // Open modal to edit an existing author
   const handleEditAuthor = (author) => {
     setModalTitle("Chỉnh sửa thông tin tác giả");
     setCurrentAuthor(author);
@@ -162,15 +148,12 @@ const AdminAuthors = () => {
     setShowModal(true);
   };
 
-  // Open delete confirmation modal
   const handleDeleteClick = (author) => {
     setAuthorToDelete(author);
     setShowDeleteModal(true);
   };
-  // Save author (create new or update existing)
   const handleSaveAuthor = async () => {
     const token = sessionStorage.getItem(ACCESS_TOKEN);
-    // Validate form
     if (!formData.name.trim()) {
       setToastMessage("Vui lòng nhập tên tác giả");
       setToastType("error");
@@ -195,21 +178,18 @@ const AdminAuthors = () => {
       };
 
       if (currentAuthor) {
-        // Update existing author
         response = await api.put(
           `${BASE_URL}/authors/api/update/${currentAuthor.id}`,
           authorData,
           { headers }
         );
 
-        // Update the author in the state
         setAuthors(
           authors.map((author) =>
             author.id === currentAuthor.id ? response.data : author
           )
         );
       } else {
-        // Create new author
         response = await api.post(
           `${BASE_URL}/authors/api/create/`,
           authorData,
@@ -218,11 +198,9 @@ const AdminAuthors = () => {
           }
         );
 
-        // Add the new author to the state
         setAuthors([...authors, response.data]);
       }
       setShowModal(false);
-      // Show success message
       setToastMessage(
         currentAuthor
           ? "Cập nhật tác giả thành công!"
@@ -232,14 +210,12 @@ const AdminAuthors = () => {
       setShowToast(true);
     } catch (error) {
       console.error("Error saving author:", error);
-      // Show error message
       setToastMessage("Có lỗi xảy ra. Vui lòng thử lại.");
       setToastType("error");
       setShowToast(true);
     }
   };
 
-  // Delete an author
   const handleConfirmDelete = async () => {
     const token = sessionStorage.getItem(ACCESS_TOKEN);
     if (!authorToDelete) return;
@@ -251,17 +227,14 @@ const AdminAuthors = () => {
         },
       });
 
-      // Remove the deleted author from the state
       setAuthors(authors.filter((author) => author.id !== authorToDelete.id));
       setShowDeleteModal(false);
       setAuthorToDelete(null);
-      // Show success message
       setToastMessage("Xóa tác giả thành công!");
       setToastType("success");
       setShowToast(true);
     } catch (error) {
       console.error("Error deleting author:", error);
-      // Show error message
       setToastMessage("Không thể xóa tác giả. Vui lòng thử lại.");
       setToastType("error");
       setShowToast(true);
@@ -269,19 +242,16 @@ const AdminAuthors = () => {
     }
   };
 
-  // Pagination
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Get current page of authors
   const getCurrentPageAuthors = () => {
     const startIndex = (currentPage - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
     return filteredAuthors.slice(startIndex, endIndex);
   };
 
-  // Render pagination controls
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 

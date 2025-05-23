@@ -73,7 +73,6 @@ const LibraryAdminSearch = () => {
   const [bookStatus, setBookStatus] = useState("");
   const [results, setResults] = useState([]);
 
-  // Dummy search handler
   const handleSearch = (e) => {
     e.preventDefault();
     let data = [];
@@ -105,14 +104,13 @@ const LibraryAdminSearch = () => {
     setPage(1);
   };
 
-  // Pagination
   const totalPages = Math.ceil(results.length / rowsPerPage);
   const pagedResults = results.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
 
-  // Render table columns by type
+
   const renderTable = () => {
     if (type === "all" || type === "book") {
       return (
@@ -251,7 +249,6 @@ const LibraryAdminSearch = () => {
     return null;
   };
 
-  // Advanced filter for books
   const renderAdvancedFilter = () => {
     if (type === "book" || type === "all") {
       return (

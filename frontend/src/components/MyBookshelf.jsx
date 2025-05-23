@@ -25,11 +25,11 @@ import {
   faSearch,
   faCalendarAlt,
   faTags,
-  faInfoCircle, // Vẫn giữ icon này phòng trường hợp cần dùng cho mục đích khác
+  faInfoCircle,
   faHourglassHalf,
   faCheckCircle,
   faQuestionCircle,
-  faTimesCircle, // Icon cho hủy hoặc hết hạn
+  faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -41,7 +41,6 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDays, setFilterDays] = useState("all");
 
-  // Define fetchBorrows outside useEffect using useCallback
   const fetchBorrows = React.useCallback(async () => {
     try {
       setLoading(true);
@@ -127,9 +126,7 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
     console.log(
       `Action "${action}" for borrow ID: ${borrow.id}, Book: ${borrow.book?.title}`
     );
-    // Implement actual logic for actions here, e.g., API calls
     if (action === "Hủy YC" && borrow.status === "PENDING") {
-      // Example: show confirmation modal then call API
       axios
         .post(
           `${BASE_URL}/borrows/api/cancel/${borrow.id}`,
@@ -261,19 +258,12 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
     );
   };
 
-  /**
-   * Xác định và trả về component Button cho hành động tương ứng với trạng thái mượn sách.
-   * Sẽ trả về null nếu không có hành động nào phù hợp hoặc nếu hành động là "Chi tiết".
-   */
   const getActionButton = (borrow) => {
     const statusLower = String(borrow.status).toLowerCase();
-    // Cấu hình mặc định, trước đây là "Chi tiết"
-    // Bây giờ, chúng ta sẽ không đặt mặc định là "Chi tiết" nữa,
-    // mà sẽ để logic quyết định. Nếu không có nút nào phù hợp, sẽ trả về null.
     let config = null;
 
     if (statusLower === "approved_return") {
-      return null; // Không có action button cho trạng thái này
+      return null;
     }
 
     if (statusLower === "pending") {
@@ -293,10 +283,8 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
           disabled: true,
         };
       }
-      // Các trường hợp isOverdue khác sẽ không có nút nếu không được định nghĩa ở trên (config vẫn là null)
     }
 
-    // Nếu sau tất cả các điều kiện, không có config nào được đặt, hoặc config là "Chi tiết" (dù đã loại bỏ), trả về null
     if (!config || config.label === "Chi tiết") {
       return null;
     }
@@ -365,9 +353,6 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
         tabMatch = true;
       }
     } else if (activeTab === "overdue") {
-      // Sách được coi là quá hạn NẾU:
-      // 1. Trạng thái của nó là 'overdue', HOẶC
-      // 2. Trạng thái là 'approved' hoặc 'borrowed' VÀ cờ isOverdue là true.
       if (
         statusLower === "overdue" ||
         ((statusLower === "approved" || statusLower === "borrowed") &&
@@ -476,11 +461,10 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
                 />
                 Quá hạn (
                 {
-                  // SỬ DỤNG LOGIC LỌC MỚI
                   borrows.filter((b) => {
                     const statusLower = String(b.status).toLowerCase();
                     return (
-                      statusLower === "overdue" || // Thêm điều kiện này
+                      statusLower === "overdue" ||
                       ((statusLower === "approved" ||
                         statusLower === "borrowed") &&
                         b.isOverdue)
@@ -578,7 +562,6 @@ const PersonalLibrary = ({ userId, handleBookClick }) => {
                   }`}
                   style={{ cursor: "pointer" }}
                   onClick={() => {
-                    // Kiểm tra xem prop handleBookClick có tồn tại không trước khi gọi
                     if (handleBookClick) {
                       handleBookClick(borrow.book);
                     } else {

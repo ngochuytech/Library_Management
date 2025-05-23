@@ -13,7 +13,7 @@ import {
   InputGroup,
   Badge,
   Pagination,
-  Alert, // Bạn có thể loại bỏ Alert nếu không còn sử dụng sau khi chuyển sang toast
+  Alert,
   Image,
 } from "react-bootstrap";
 import {
@@ -38,7 +38,6 @@ const AdminUsers = () => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null); // Loại bỏ state error
 
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -336,12 +335,12 @@ const AdminUsers = () => {
         Object.values(row)
           .map((value) => `"${String(value).replace(/"/g, '""')}"`)
           .join(",")
-      ), // Handle commas and quotes in values
+      ),
     ].join("\n");
 
     const blob = new Blob([`\uFEFF${csvContent}`], {
       type: "text/csv;charset=utf-8;",
-    }); // Add BOM for Excel compatibility
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
@@ -374,15 +373,6 @@ const AdminUsers = () => {
       </Container>
     );
   }
-
-  //   Loại bỏ phần hiển thị lỗi bằng Alert
-  //   if (error) {
-  //     return (
-  //       <Container className="my-5">
-  //         <Alert variant="danger">{error}</Alert>
-  //       </Container>
-  //     );
-  //   }
 
   return (
     <Container className="my-5">

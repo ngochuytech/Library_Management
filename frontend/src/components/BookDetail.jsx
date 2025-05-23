@@ -42,16 +42,14 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
 
   useEffect(() => {
     if (initialBook) {
-      // Đảm bảo initialBook có giá trị trước khi fetch
-      setBook(initialBook); // Set book từ prop
-      fetchAuthor(initialBook.author.id); // Truyền author ID
-      fetchSimilarBook(initialBook.id); // Truyền book ID
+      setBook(initialBook);
+      fetchAuthor(initialBook.author.id); 
+      fetchSimilarBook(initialBook.id);
     }
-  }, [initialBook]); // Thêm initialBook vào dependency array
+  }, [initialBook]);
 
   const fetchAuthor = async (authorId) => {
-    // Nhận authorId làm tham số
-    if (!authorId) return; // Không fetch nếu không có authorId
+    if (!authorId) return;
     setAuthor(null);
     setLoadingAuthor(true);
     setErrorAuthor(null);
@@ -70,7 +68,6 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
   };
 
   const fetchSimilarBook = async (currentBookId) => {
-    // Nhận currentBookId
     if (!currentBookId) return;
     setSimilarBooks([]);
     try {
@@ -88,14 +85,14 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
   };
 
   const fetchBookDetails = async () => {
-    if (!book || !book.id) return; // Kiểm tra book.id tồn tại
+    if (!book || !book.id) return;
     try {
       const response = await fetch(`${BASE_URL}/books/api/${book.id}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setBook(data); // Cập nhật state book
+      setBook(data);
     } catch (error) {
       console.error("Không thể tải thông tin sách:", error);
     }
@@ -103,13 +100,11 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
 
   const handleBorrowBook = async () => {
     try {
-      const token = sessionStorage.getItem("access_token"); // LẤY TOKEN
+      const token = sessionStorage.getItem("access_token");
       if (!token) {
         toast.error(
           "Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn. Vui lòng đăng nhập lại."
         );
-        // Có thể chuyển hướng người dùng đến trang đăng nhập
-        // navigate('/login');
         return;
       }
       const currentUserId = sessionStorage.getItem("idUser");
@@ -124,14 +119,13 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
       }
       const currentBookId = book.id;
 
-      // Tạo ngày yêu cầu ở phía client
-      const requireDate = new Date().toISOString(); // Định dạng ISO: YYYY-MM-DDTHH:mm:ss.sssZ
+      const requireDate = new Date().toISOString();
 
       const payload = {
         user_id: parseInt(currentUserId, 10),
         book_id: currentBookId,
         borrow_days: borrowDays,
-        require_date: requireDate, // <<<<<<< THÊM require_date VÀO PAYLOAD
+        require_date: requireDate,
       };
 
       console.log("Đang gửi yêu cầu mượn sách với payload:", payload);
@@ -226,11 +220,8 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
     }
   };
 
-  // ... (renderRatingStars và JSX)
-  // Sửa lỗi nhỏ trong useEffect và cách gọi fetchAuthor, fetchSimilarBook
   useEffect(() => {
     if (initialBook && initialBook.id) {
-      // Kiểm tra initialBook và initialBook.id
       setBook(initialBook);
       if (initialBook.author && initialBook.author.id) {
         fetchAuthor(initialBook.author.id);
@@ -240,14 +231,11 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
       }
       fetchSimilarBook(initialBook.id);
     } else {
-      // Xử lý trường hợp initialBook không hợp lệ nếu cần
-      setLoadingAuthor(false); // Dừng loading nếu không có initialBook
+      setLoadingAuthor(false);
     }
-  }, [initialBook]); // Chỉ chạy khi initialBook thay đổi
+  }, [initialBook]);
 
-  // Kiểm tra book trước khi render để tránh lỗi
   if (!book || !book.id) {
-    // Có thể hiển thị một thông báo tải hoặc lỗi ở đây
     return (
       <Container className="mt-3 mb-5 book-detail-container">
         <Alert variant="warning">
@@ -259,9 +247,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
   const renderRatingStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
-    // Cho nửa sao, bạn có thể muốn dùng icon khác như faStarHalfAlt nếu có
-    // Hoặc logic hiện tại của bạn sẽ hiển thị một sao rỗng (faStarRegular)
-    const hasHalfStar = rating % 1 >= 0.5; // Logic này có thể cần điều chỉnh nếu muốn hiển thị sao rỗng chính xác
+    const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
@@ -274,11 +260,6 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
     }
 
     if (hasHalfStar && stars.length < 5) {
-      // Chỉ thêm nửa sao nếu chưa đủ 5 sao
-      // Nếu bạn có icon faStarHalfAlt:
-      // import { faStarHalfAlt } from "@fortawesome/free-solid-svg-icons";
-      // stars.push(<FontAwesomeIcon key="half" icon={faStarHalfAlt} className="text-warning" />);
-      // Nếu không, bạn đang dùng faRegularStar (sao rỗng) cho phần này:
       stars.push(
         <FontAwesomeIcon
           key="half"
@@ -293,7 +274,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
       stars.push(
         <FontAwesomeIcon
           key={`empty-${i}`}
-          icon={faRegularStar} // Đúng: dùng sao rỗng
+          icon={faRegularStar}
           className="text-secondary"
         />
       );
@@ -301,9 +282,6 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
     return stars;
   };
 
-  // ... (Phần JSX return của bạn, nơi gọi hàm renderRatingStars)
-  // Ví dụ: {renderRatingStars(book.rating)}
-  // và {renderRatingStars(obj.rating || 0)}
 
   if (!initialBook || !initialBook.id) {
     return (
@@ -380,14 +358,14 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                       book.image && book.image.startsWith("http")
                         ? book.image
                         : `${BASE_URL}${book.image}`
-                    } // Sửa đường dẫn ảnh
+                    }
                     alt={book.title}
                     fluid
                     className="shadow-sm rounded book-detail-image"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = "/icon.png";
-                    }} // Fallback image
+                    }}
                   />
                   <div className="d-flex justify-content-between mt-3">
                     <Button
@@ -421,7 +399,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                     {book.category?.map(
                       (
                         obj,
-                        index // Thêm optional chaining
+                        index
                       ) => (
                         <Badge
                           key={index}
@@ -454,7 +432,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                         (book.quantity > 0
                           ? book.avaliable / book.quantity
                           : 0) * 100
-                      } // Tránh chia cho 0
+                      }
                       variant={book.avaliable > 0 ? "success" : "danger"}
                       className="flex-grow-1"
                       style={{ height: "8px" }}
@@ -500,7 +478,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                       : author?.avatar
                       ? `${BASE_URL}${author.avatar}`
                       : "/icon.png"
-                  } // Sửa đường dẫn ảnh
+                  }
                   roundedCircle
                   width={80}
                   height={80}
@@ -534,7 +512,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                 {author?.biography ? author.biography : ""}
               </p>
               {author &&
-                book.author && ( // Chỉ hiển thị nút khi có thông tin tác giả
+                book.author && (
                   <Button
                     variant="outline-primary"
                     size="sm"

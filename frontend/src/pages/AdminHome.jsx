@@ -21,7 +21,7 @@ import {
   Dropdown,
 } from "react-bootstrap";
 
-import "../styles/Home.css"; // Chỉ sử dụng Home.css
+import "../styles/Home.css";
 import AdminSidebar from "../components/AdminSideBar.jsx";
 import AdminStatistics from "../components/AdminStatistics";
 import BookDetail from "../components/BookDetail.jsx";
@@ -45,10 +45,9 @@ const HomePage = () => {
 
   const [notifications, setNotifications] = useState([]);
 
-  // Lấy tham số view từ URL
   const { view } = useParams();
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState(view || "manageBooks"); // Sử dụng view từ URL hoặc mặc định "manageBooks"
+  const [activeView, setActiveView] = useState(view || "manageBooks"); 
 
   useEffect(() => {
     fetchNotifications();
@@ -59,7 +58,6 @@ const HomePage = () => {
       }
   }, []);
 
-  // Hook useEffect để cập nhật activeView khi view trong URL thay đổi
   useEffect(() => {
     if (view) {
       setActiveView(view);
@@ -67,10 +65,8 @@ const HomePage = () => {
   }, [view]);
 
   const BASE_URL = import.meta.env.VITE_API_URL;
-  // Đổi tên hàm và cập nhật logic để phù hợp với cách tiếp cận mới
   const handleNavigation = (view) => {
     setActiveView(view);
-    // Cập nhật URL để phản ánh view hiện tại
     navigate(`/admin/home/${view}`);
 
     if (view !== "bookDetail") {
@@ -97,7 +93,6 @@ const HomePage = () => {
       });
       if (response.data && response.data.length > 0) {
         setNotifications((prev) => {
-          // Kiểm tra đã có thông báo pending-borrow chưa
           const hasPending = prev.some((n) => n.id === "pending-borrow");
           if (hasPending) return prev;
           return [
@@ -116,18 +111,16 @@ const HomePage = () => {
   };
 
 
-  // BookSection component removed
-  // Render nội dung dựa trên activeView
   const renderContent = () => {
     switch (activeView) {
       case "manageAuthors":
-        return <AdminAuthors />; // Component quản lý tác giả
+        return <AdminAuthors />; 
       case "manageBooks":
-        return <AdminBooks />; // Component quản lý sách
+        return <AdminBooks />;
       case "manageUsers":
-        return <AdminUsers />; // Component quản lý người dùng
+        return <AdminUsers />;
       case "manageBorrows":
-        return <AdminBorrows />; // Component quản lý mượn trả sách
+        return <AdminBorrows />;
       case "adminSearch":
         return <LibraryAdminSearch />;
       case "bookshelf":
@@ -137,15 +130,15 @@ const HomePage = () => {
       case "bookDetail":
         return selectedBook ? <BookDetail book={selectedBook} /> : null;
       case "account":
-        return <Account />; // Hiển thị component Account
+        return <Account />;
       case "liked":
-        return <Liked />; // Hiển thị component Liked
+        return <Liked />;
       case "History":
-        return <History />; // Hiển thị component History
+        return <History />;
       case "statistics":
-        return <AdminStatistics />; // Đây là component thống kê của bạn
+        return <AdminStatistics />;
       default:
-        return <AdminBooks />; // Mặc định hiển thị trang quản lý sách
+        return <AdminBooks />;
     }
   };
 

@@ -341,7 +341,7 @@ const AdminUsersDetail = () => {
                     icon={faCalendarAlt}
                     className="me-2 text-muted"
                   />
-                  <strong>Ngày tạo:</strong> {formatDate(user.created_at)}
+                  <strong>Ngày tạo:</strong> {(user.created_at)}
                 </ListGroup.Item>
                 <ListGroup.Item>
                   <FontAwesomeIcon

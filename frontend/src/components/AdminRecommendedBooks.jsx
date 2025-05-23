@@ -12,7 +12,6 @@ import { faBook, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const RecommendedBooks = () => {
-  // Dữ liệu mẫu
   const [books, setBooks] = useState([
     {
       id: 1,
@@ -29,7 +28,6 @@ const RecommendedBooks = () => {
       user: "Người dùng 2",
     },
   ]);
-  // search
   const [searchTerm, setSearchTerm] = useState("");
   const filteredBooks = books.filter(
     (book) =>
@@ -38,7 +36,6 @@ const RecommendedBooks = () => {
       book.user.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Danh sách tác giả mẫu
   const [authors, setAuthors] = useState([
     { id: 1, name: "Tác giả A" },
     { id: 2, name: "Tác giả B" },

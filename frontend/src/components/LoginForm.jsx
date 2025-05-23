@@ -41,7 +41,6 @@ const LoginForm = () => {
         { email, password },
         { withCredentials: true }
       );
-      // console.log("access_token", response.data.access_token);
 
       sessionStorage.setItem("access_token", response.data.access_token);
       sessionStorage.setItem("username", response.data.user.name);
@@ -52,17 +51,6 @@ const LoginForm = () => {
       const isAdmin = response.data.is_admin;
       sessionStorage.setItem("isAdmin", isAdmin);
 
-      // Log các giá trị khi đăng nhập là admin
-      // if (isAdmin) {
-      //   console.log("Đăng nhập với quyền admin:");
-      //   console.log("User ID:", response.data.user.id);
-      //   console.log("Username:", response.data.user.name);
-      //   console.log("Email:", response.data.user.email);
-      //   console.log("Avatar:", response.data.user.avatar);
-      //   console.log("Access Token:", response.data.access_token);
-      //   console.log("Is Admin:", isAdmin);
-      //   console.log("Toàn bộ dữ liệu user:", response.data.user);
-      // }
 
       if (rememberMe) {
         sessionStorage.setItem("userEmail", email);
@@ -71,9 +59,9 @@ const LoginForm = () => {
 
       // Chuyển hướng dựa vào vai trò
       if (isAdmin) {
-        navigate("/admin/home"); // Chuyển người dùng admin tới trang quản trị
+        navigate("/admin/home");
       } else {
-        navigate("/home"); // Chuyển người dùng thường tới trang chủ
+        navigate("/home");
       }
     } catch (error) {
       toast.error("Đăng nhập thât bại. " + error.response.data.error);

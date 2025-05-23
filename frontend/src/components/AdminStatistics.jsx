@@ -1,5 +1,3 @@
-// AdminStatistics.jsx
-
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 import {
@@ -33,7 +31,6 @@ ChartJS.register(
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AdminStatistics = () => {
-    // States để lưu trữ dữ liệu từ API
     const [totalBooks, setTotalBooks] = useState(0);
     const [totalUsers, setTotalUsers] = useState(0);
     const [borrowedBooksCount, setBorrowedBooksCount] = useState(0);
@@ -42,11 +39,9 @@ const AdminStatistics = () => {
     const [userRegistrationTrendData, setUserRegistrationTrendData] = useState({ labels: [], datasets: [] });
     const [topBorrowedBooksData, setTopBorrowedBooksData] = useState({ labels: [], datasets: [] });
 
-    // States cho trạng thái tải và lỗi
     const [loadingStats, setLoadingStats] = useState(true);
     const [errorStats, setErrorStats] = useState(null);
 
-    // Dữ liệu tĩnh cho biểu đồ top sách (nếu không có API riêng)
     const topBooksData = {
         labels: ['Sách A', 'Sách B', 'Sách C', 'Sách D', 'Sách E'],
         datasets: [
@@ -60,7 +55,6 @@ const AdminStatistics = () => {
         ],
     };
 
-    // Tùy chọn chung cho các biểu đồ
     const options = {
         responsive: true,
         maintainAspectRatio: false,
@@ -88,19 +82,15 @@ const AdminStatistics = () => {
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
             try {
-                // Fetch Tổng số sách
                 const totalBooksRes = await api.get(`${BASE_URL}/books/api/statistics/books/total`, { headers });
                 setTotalBooks(totalBooksRes.data.total_books);
 
-                // Fetch Tổng số người dùng
                 const totalUsersRes = await api.get(`${BASE_URL}/users/api/statistics/users/total`, { headers });
                 setTotalUsers(totalUsersRes.data.total_users);
 
-                // Fetch Số lượng sách đang được mượn
                 const borrowedBooksRes = await api.get(`${BASE_URL}/borrows/api/statistics/borrows/current`, { headers });
                 setBorrowedBooksCount(borrowedBooksRes.data.borrowed_count);
 
-                // Fetch Biến động Lượt Mượn & Trả sách theo tháng
                 const monthlyStatsRes = await api.get(`${BASE_URL}/borrows/api/statistics/borrows/monthly`, { headers });
                 const monthlyDataRaw = monthlyStatsRes.data;
                 const processedMonthlyData = processMonthlyChartData(monthlyDataRaw);
@@ -125,7 +115,6 @@ const AdminStatistics = () => {
                     ],
                 });
 
-                // Fetch Phân loại sách theo thể loại
                 const categoryStatsRes = await api.get(`${BASE_URL}/books/api/statistics/books/categories`, { headers });
                 const categoryData = categoryStatsRes.data;
 
@@ -151,7 +140,6 @@ const AdminStatistics = () => {
                     ],
                 });
 
-                // Fetch Số lượng người dùng mới theo tháng
                 const newUsersStatsRes = await api.get(`${BASE_URL}/users/api/statistics/users/monthly`, { headers });
                 const newUsersData = newUsersStatsRes.data;
 
@@ -209,10 +197,10 @@ const AdminStatistics = () => {
             "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
             "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
         ];
-        const numMonths = 6; // Hoặc 12 nếu bạn muốn 1 năm
+        const numMonths = 6;
 
         let currentMonth = new Date();
-        currentMonth.setDate(1); // Đặt về ngày 1 để dễ thao tác tháng
+        currentMonth.setDate(1);
 
         let dataMap = new Map();
         for (let i = 0; i < numMonths; i++) {
@@ -221,16 +209,12 @@ const AdminStatistics = () => {
             const formattedMonth = `${monthNamesVietnamese[monthIndex]} ${year}`;
             dataMap.set(formattedMonth, { borrow_count: 0, return_count: 0 });
 
-            // Di chuyển về tháng trước
             currentMonth.setMonth(currentMonth.getMonth() - 1);
         }
 
-        // Đảo ngược map để có thứ tự từ cũ nhất đến mới nhất
         let sortedDataMap = new Map([...dataMap.entries()].reverse());
 
-        // Cập nhật dữ liệu từ API
         monthlyDataRaw.forEach(item => {
-            // Định dạng tháng từ API là MM/YYYY (ví dụ: "05/2025")
             const [monthNum, yearNum] = item.month.split('/').map(Number);
             const monthIndex = monthNum - 1; // 0-11
             const formattedMonthKey = `${monthNamesVietnamese[monthIndex]} ${yearNum}`;

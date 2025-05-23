@@ -12,7 +12,6 @@ import { faBook, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const RecommendedBooks = () => {
-  // Dữ liệu mẫu
   const [books, setBooks] = useState([
     {
       id: 1,
@@ -28,20 +27,17 @@ const RecommendedBooks = () => {
     },
   ]);
 
-  // Danh sách tác giả mẫu
   const [authors, setAuthors] = useState([
     { id: 1, name: "Tác giả A" },
     { id: 2, name: "Tác giả B" },
     { id: 3, name: "Tác giả C" },
   ]);
 
-  // Form thêm sách mới
   const [newBook, setNewBook] = useState({
     image: "",
     title: "",
     author: "",
   });
-  // search
   const [searchTerm, setSearchTerm] = useState("");
   const filteredBooks = books.filter(
     (book) =>
@@ -49,7 +45,6 @@ const RecommendedBooks = () => {
       book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.user.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // Thêm sách mới
   const [showAddForm, setShowAddForm] = useState(false);
 
   const handleAddBook = () => {
@@ -65,7 +60,6 @@ const RecommendedBooks = () => {
     }
   };
 
-  // Xóa sách
   const handleDeleteBook = (id) => {
     setBooks(books.filter((book) => book.id !== id));
   };
