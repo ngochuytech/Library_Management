@@ -582,12 +582,12 @@ const AdminBookDetail = () => {
                     </h2>
                   </div>
 
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <span className="me-2">
                       {renderRatingStars(book.rating)}
                     </span>
                     <span className="text-muted">{book.rating}</span>
-                  </div>
+                  </div> */}
 
                   <div className="d-flex flex-wrap gap-2 mb-3">
                     {book.category?.map((obj, index) => (

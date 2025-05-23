@@ -409,14 +409,6 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                       {/* Thêm optional chaining */}
                     </h2>
                   </div>
-                  <div className="mb-3">
-                    <span className="me-2">
-                      {renderRatingStars(book.rating)}
-                    </span>
-                    <span className="text-muted">
-                      {book.rating?.toFixed(1) || "N/A"}
-                    </span>
-                  </div>
                   <div className="d-flex flex-wrap gap-2 mb-3">
                     {book.category?.map(
                       (

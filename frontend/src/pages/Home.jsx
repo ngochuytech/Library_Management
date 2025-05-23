@@ -141,7 +141,7 @@ const HomePage = () => {
       const response = await fetch(
         `${BASE_URL}/books/api/search?type=${searchType}&query=${searchQuery}&page=${page}`
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -216,10 +216,10 @@ const HomePage = () => {
                 <Card.Text className="text-muted small">
                   {book.author?.name}
                 </Card.Text>
-                <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-warning small">
+                {/* <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-warning small">
                   <FontAwesomeIcon icon={faStar} className="fs-6" />
                   <span>{book.rating}</span>
-                </Card.Text>
+                </Card.Text> */}
               </Card.Body>
             </Card>
           </Col>
