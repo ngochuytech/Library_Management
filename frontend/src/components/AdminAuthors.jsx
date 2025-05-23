@@ -197,7 +197,7 @@ const AdminAuthors = () => {
       if (currentAuthor) {
         // Update existing author
         response = await api.put(
-          `${BASE_URL}/authors/update/${currentAuthor.id}`,
+          `${BASE_URL}/authors/api/update/${currentAuthor.id}`,
           authorData,
           { headers }
         );
@@ -210,9 +210,13 @@ const AdminAuthors = () => {
         );
       } else {
         // Create new author
-        response = await api.post(`${BASE_URL}/authors/create/", authorData`, {
-          headers,
-        });
+        response = await api.post(
+          `${BASE_URL}/authors/api/create/`,
+          authorData,
+          {
+            headers,
+          }
+        );
 
         // Add the new author to the state
         setAuthors([...authors, response.data]);
@@ -406,22 +410,14 @@ const AdminAuthors = () => {
                               {author.biography.length > 50
                                 ? `${author.biography.substring(0, 50)}...`
                                 : author.biography}
-                            </td>
+                            </td>{" "}
                             <td>
                               <Button
                                 variant="info"
                                 size="sm"
-                                className="me-2"
                                 onClick={() => handleEditAuthor(author)}
                               >
                                 <FontAwesomeIcon icon={faEdit} /> Sửa
-                              </Button>
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                onClick={() => handleDeleteClick(author)}
-                              >
-                                <FontAwesomeIcon icon={faTrash} /> Xóa
                               </Button>
                             </td>
                           </tr>

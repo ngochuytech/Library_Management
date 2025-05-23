@@ -508,15 +508,8 @@ const BorrowDetail = () => {
                         {userData.phone_number || "Chưa cập nhật"}
                       </p>
                       {/* Add other user details if available and relevant */}
-                    </div>
+                    </div>{" "}
                     {/* Action buttons - implement their functionality */}{" "}
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="me-2"
-                    >
-                      Liên hệ {/* e.g., mailto: link */}
-                    </Button>
                     <Button
                       variant="outline-secondary"
                       size="sm"

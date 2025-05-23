@@ -34,7 +34,7 @@ import {
 import { toast } from "react-toastify";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const PersonalLibrary = ({ userId }) => {
+const PersonalLibrary = ({ userId, handleBookClick }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -164,6 +164,11 @@ const PersonalLibrary = ({ userId }) => {
     const statusNormalized = String(bookStatus).toUpperCase();
 
     switch (statusNormalized) {
+      case "OVERDUE":
+        variant = "danger";
+        label = "Quá hạn";
+        textColor = "white";
+        break;
       case "PENDING":
         variant = "warning";
         label = "Chờ duyệt sách";
@@ -280,7 +285,6 @@ const PersonalLibrary = ({ userId }) => {
       };
     } else if (borrow.isOverdue) {
       if (statusLower === "borrowed") {
-        
       } else if (statusLower === "approved") {
         config = {
           label: "YC hết hạn",
@@ -361,11 +365,16 @@ const PersonalLibrary = ({ userId }) => {
         tabMatch = true;
       }
     } else if (activeTab === "overdue") {
+      // Sách được coi là quá hạn NẾU:
+      // 1. Trạng thái của nó là 'overdue', HOẶC
+      // 2. Trạng thái là 'approved' hoặc 'borrowed' VÀ cờ isOverdue là true.
       if (
-        (statusLower === "approved" || statusLower === "borrowed") &&
-        borrow.isOverdue
-      )
+        statusLower === "overdue" ||
+        ((statusLower === "approved" || statusLower === "borrowed") &&
+          borrow.isOverdue)
+      ) {
         tabMatch = true;
+      }
     } else if (activeTab === "waiting") {
       if (statusLower === "pending") tabMatch = true;
     } else if (activeTab === "history") {
@@ -467,12 +476,16 @@ const PersonalLibrary = ({ userId }) => {
                 />
                 Quá hạn (
                 {
-                  borrows.filter(
-                    (b) =>
-                      (String(b.status).toLowerCase() === "approved" ||
-                        String(b.status).toLowerCase() === "borrowed") &&
-                      b.isOverdue
-                  ).length
+                  // SỬ DỤNG LOGIC LỌC MỚI
+                  borrows.filter((b) => {
+                    const statusLower = String(b.status).toLowerCase();
+                    return (
+                      statusLower === "overdue" || // Thêm điều kiện này
+                      ((statusLower === "approved" ||
+                        statusLower === "borrowed") &&
+                        b.isOverdue)
+                    );
+                  }).length
                 }
                 )
               </Nav.Link>
@@ -563,6 +576,17 @@ const PersonalLibrary = ({ userId }) => {
                   className={`h-100 shadow-sm border-0 overflow-hidden ${
                     isOverdueForDisplay ? "border-2 border-danger" : ""
                   }`}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    // Kiểm tra xem prop handleBookClick có tồn tại không trước khi gọi
+                    if (handleBookClick) {
+                      handleBookClick(borrow.book);
+                    } else {
+                      console.warn(
+                        "handleBookClick prop is not provided to PersonalLibrary."
+                      );
+                    }
+                  }}
                 >
                   <div className="position-relative">
                     <Card.Img
