@@ -297,7 +297,6 @@ const AdminBorrows = () => {
     requestsFilterDate,
     requestsSortConfig,
   ]);
-
   const renderStatus = (status) => {
     const normalizedStatus = status ? status.toUpperCase() : "UNKNOWN";
     switch (normalizedStatus) {
@@ -306,13 +305,6 @@ const AdminBorrows = () => {
           <Badge bg="success" className="d-flex align-items-center">
             <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
             Đã trả
-          </Badge>
-        );
-      case "APPROVED":
-        return (
-          <Badge bg="info" text="dark" className="d-flex align-items-center">
-            <FontAwesomeIcon icon={faCheck} className="me-1" />
-            Đã duyệt
           </Badge>
         );
       case "BORROWED":
@@ -398,31 +390,22 @@ const AdminBorrows = () => {
       await axios.put(`${API_BASE_URL}/borrows/api/edit/${item.id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (newStatus === "BORROWED") {
-        await api.post(
-          `${API_BASE_URL}/notifications/api/create`,
-          {
-            user_id: item.user.id,
-            message: `Bạn đã mượn sách "${item.book.title}" thành công!`,
-          }
-        );
+        await api.post(`${API_BASE_URL}/notifications/api/create`, {
+          user_id: item.user.id,
+          message: `Bạn đã mượn sách "${item.book.title}" thành công!`,
+        });
       } else if (newStatus === "CANCELED") {
-        await api.post(
-          `${API_BASE_URL}/notifications/api/create`,
-          {
-            user_id: item.user.id,
-            message: `Yêu cầu mượn sách "${item.book.title}" đã bị từ chối!`,
-          }
-        );
+        await api.post(`${API_BASE_URL}/notifications/api/create`, {
+          user_id: item.user.id,
+          message: `Yêu cầu mượn sách "${item.book.title}" đã bị từ chối!`,
+        });
       } else if (newStatus === "RETURNED") {
-        await api.post(
-          `${API_BASE_URL}/notifications/api/create`,
-          {
-            user_id: item.user.id,
-            message: `Bạn đã trả sách "${item.book.title}" thành công!`,
-          }
-        );
+        await api.post(`${API_BASE_URL}/notifications/api/create`, {
+          user_id: item.user.id,
+          message: `Bạn đã trả sách "${item.book.title}" thành công!`,
+        });
       }
 
       alert(successMessage);
@@ -494,7 +477,7 @@ const AdminBorrows = () => {
   const handleApproveRequest = (requestItem) => {
     updateBorrowStatus(
       requestItem,
-      "APPROVED",
+      "BORROWED",
       "Yêu cầu đã được duyệt thành công!",
       "Lỗi khi duyệt yêu cầu"
     );
@@ -505,24 +488,6 @@ const AdminBorrows = () => {
       "CANCELED",
       "Yêu cầu đã được từ chối!",
       "Lỗi khi từ chối yêu cầu"
-    );
-  };
-  const handleConfirmBorrowing = (historyItem) => {
-    if (
-      !window.confirm(
-        `Xác nhận cho người dùng "${
-          historyItem.user?.username || historyItem.user?.name
-        }" mượn sách "${
-          historyItem.book?.title
-        }"?\nHành động này sẽ cập nhật ngày mượn và hạn trả.`
-      )
-    )
-      return;
-    updateBorrowStatus(
-      historyItem,
-      "BORROWED",
-      "Đã xác nhận cho mượn sách và cập nhật ngày!",
-      "Lỗi khi xác nhận cho mượn"
     );
   };
 
@@ -813,39 +778,9 @@ const AdminBorrows = () => {
                                         record.return_date
                                       ).toLocaleDateString()
                                     : "-"}
-                                </td>
+                                </td>{" "}
                                 <td>{renderStatus(record.status)}</td>
                                 <td>
-                                  {record.status === "APPROVED" && (
-                                    <Button
-                                      variant="outline-primary"
-                                      size="sm"
-                                      className="me-1 mb-1"
-                                      onClick={() =>
-                                        handleConfirmBorrowing(record)
-                                      }
-                                      disabled={
-                                        isUpdatingStatus === record.id ||
-                                        (!!isUpdatingStatus &&
-                                          isUpdatingStatus !== record.id)
-                                      }
-                                      title="Xác nhận cho mượn (cập nhật ngày mượn/trả)"
-                                    >
-                                      <FontAwesomeIcon
-                                        icon={faCheck}
-                                        className="me-1"
-                                      />
-                                      {isUpdatingStatus === record.id ? (
-                                        <Spinner
-                                          as="span"
-                                          animation="border"
-                                          size="sm"
-                                        />
-                                      ) : (
-                                        "Cho mượn"
-                                      )}
-                                    </Button>
-                                  )}
                                   {(record.status === "BORROWED" ||
                                     record.status === "OVERDUE") && (
                                     <Button

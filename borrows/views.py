@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from borrows.serializers import BorrowSerializer
-from borrows.models import Borrow, BORROWED_STATUS
+from borrows.models import Borrow, BORROWED_STATUS, update_all_overdue_borrows
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
@@ -27,6 +27,9 @@ from notifications.models import Notification
 # Create your views here.
 @api_view(['GET'])
 def getCreateBorrow(request):
+    # Cập nhật trạng thái overdue trước khi trả về danh sách
+    update_all_overdue_borrows()
+    
     query = request.GET.get('query', '')
     borrows = Borrow.objects.filter(user__name__icontains=query).order_by('exp_date')
     serializer = BorrowSerializer(borrows, many=True)
@@ -37,6 +40,9 @@ def getCreateBorrow(request):
 def getDetailBorrow(request, id):
     try:
         borrow = Borrow.objects.get(id=id)
+        # Kiểm tra trạng thái overdue
+        borrow.check_overdue()
+        
         serializer = BorrowSerializer(borrow, many=False)
         return Response(serializer.data)
     except Borrow.DoesNotExist:
@@ -49,6 +55,8 @@ def getDetailBorrow(request, id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getBorrowsByUserId(request, user_id):
+    # Cập nhật trạng thái overdue trước khi trả về danh sách
+    update_all_overdue_borrows()
     try:
         borrows = Borrow.objects.filter(user__id=user_id).order_by('exp_date')
         serializer = BorrowSerializer(borrows, many=True)
@@ -103,6 +111,7 @@ def deleteBorrowWithId(request, id):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def get_admin_borrows_list(request):
+    update_all_overdue_borrows()
     borrows_queryset = Borrow.objects.all().order_by('-borrow_date', '-exp_date')
 
     status_param = request.GET.get('status')
