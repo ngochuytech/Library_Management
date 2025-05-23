@@ -343,7 +343,7 @@ const AdminBorrows = () => {
   };
 
   const handleViewRequestDetail = (requestId) => {
-    navigate(`/admin/requestDetail/${requestId}`);
+    navigate(`/admin/borrowDetail/${requestId}`);
   };
 
   const updateBorrowStatus = async (
