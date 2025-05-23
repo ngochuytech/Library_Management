@@ -23,19 +23,21 @@ const Quote = ({ handleCardClick }) => {
   return (
     <div className="quote-container">
       <div className="quote-content">
-        <h2 className="quote-title">Trích dẫn hôm nay</h2>
-        <p className="quote-text">
+        <h2 className="quote-title"></h2>
+        <p className="quote-text" style={{ fontSize: "1.5rem" }}>
           "Sách còn chứa nhiều kho báu hơn tất cả chiến lợi phẩm của cướp biển
           trên Đảo giấu vàng."
         </p>
-        <p className="quote-author">-Walt Disney</p>
+        <p className="quote-author" style={{ fontSize: "1.5rem" }}>
+          -Walt Disney
+        </p>
 
-        <div className="quote-dots">
+        {/* <div className="quote-dots">
           <div className="dot active"></div>
           <div className="dot"></div>
           <div className="dot"></div>
           <div className="dot"></div>
-        </div>
+        </div> */}
       </div>
 
       <div className="new-books">
