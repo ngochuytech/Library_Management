@@ -420,11 +420,6 @@ const AdminUsersDetail = () => {
               />
               {user.is_active ? "Vô hiệu hóa" : "Kích hoạt"}
             </Button>
-
-            <Button variant="outline-danger" onClick={handleDeleteUser}>
-              <FontAwesomeIcon icon={faTrash} className="me-2" />
-              Xóa người dùng
-            </Button>
           </div>
         </Card.Footer>
       </Card>

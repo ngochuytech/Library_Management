@@ -508,15 +508,6 @@ const AdminUsers = () => {
                               icon={user.is_active ? faToggleOff : faToggleOn}
                             />
                           </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            className="mb-1 mb-md-0"
-                            onClick={() => confirmDeleteUser(user)}
-                            title="Xóa"
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
                         </td>
                       </tr>
                     ))
