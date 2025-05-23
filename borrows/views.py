@@ -256,3 +256,10 @@ def check_and_notify_overdue(request):
                 )
                 print(f"Đã gửi thông báo quá hạn cho sách '{borrow.book.title}' của người dùng {user.username}")
     return Response({"detail": "Checked and notified overdue books."})
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_pending_borrows(request):
+    pending_borrows = Borrow.objects.filter(status="PENDING")
+    serializer = BorrowSerializer(pending_borrows, many=True)
+    return Response(serializer.data)

@@ -50,7 +50,6 @@ class Borrow(models.Model):
         """Override save method để kiểm tra trạng thái OVERDUE khi lưu"""
         if not self.pk:  # Nếu đây là bản ghi mới
             if self.borrow_date and self.borrow_days and not self.exp_date:
-                # Tính toán exp_date tự động nếu có borrow_date và borrow_days
                 self.exp_date = self.borrow_date + datetime.timedelta(days=self.borrow_days)
         else:  # Nếu đây là bản ghi đã tồn tại
             self.check_overdue()

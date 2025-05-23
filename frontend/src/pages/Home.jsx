@@ -125,14 +125,14 @@ const HomePage = () => {
       const response = await fetch(
         `${BASE_URL}/books/api/search?type=${searchType}&query=${searchQuery}&page=${page}`
       );
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
 
       setSearchResult(data.results);
-      setTotalPages(Math.ceil(data.count / 6));
+      setTotalPages(Math.ceil(data.count / 9));
     } catch (error) {
       console.error("Failed to fetch search books:", error);
     }
@@ -173,7 +173,7 @@ const HomePage = () => {
   const handleSearchByAuthor = (authorId, authorName) => {
     setSearchType("author");
     setSearchQuery(authorName);
-    setCurrentPage(1);
+    setCuarrentPage(1);
     setActiveView("search");
   };
 

@@ -14,7 +14,7 @@ class searchBookPagination(PageNumberPagination):
     page_size = 9
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser]) # Chỉ cho phép Admin truy cập
+@permission_classes([IsAdminUser])
 def getTotalBooksCount(request):
     total_books = Book.objects.count()
     return Response({"total_books": total_books}, status=status.HTTP_200_OK)        
