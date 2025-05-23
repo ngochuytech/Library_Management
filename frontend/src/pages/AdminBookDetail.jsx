@@ -22,6 +22,7 @@ import {
   faEdit, // Thêm lại icon chỉnh sửa
   faTrash, // Thêm lại icon xóa
   faExclamationTriangle, // Thêm icon cảnh báo xóa
+  faArrowLeft, // Thêm icon quay lại
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faStar as faStarRegular,
@@ -307,9 +308,17 @@ const AdminBookDetail = () => {
   if (loading) return <div>Đang tải thông tin sách...</div>;
   if (error) return <Alert variant="danger">{error}</Alert>;
   if (!book) return <Alert variant="warning">Không tìm thấy sách.</Alert>;
-
   return (
     <Container className="mt-3 mb-5 book-detail-container">
+      <Button
+        variant="outline-primary"
+        onClick={() => navigate("/admin/home/manageBorrows")}
+        className="mb-4"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+        Quay lại danh sách
+      </Button>
+
       {/* Preview Modal (remains) */}
       <Modal
         show={showPreview}

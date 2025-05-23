@@ -57,10 +57,10 @@ function App() {
         <Route path="/otp-verification" element={<OtpForm />} />
         <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="/reset-success" element={<SuccessForm />} />
-        <Route path="/admin/home" element={<AdminHome />} />
         <Route path="*" element={<NotFound />} />
-        {/* <Route path="/book" element={<BookDetail />} /> */}
-        {/* Admin */}
+        {/* <Route path="/book" element={<BookDetail />} /> */} {/* Admin */}
+        <Route path="/admin/home" element={<AdminHome />} />
+        <Route path="/admin/home/:view" element={<AdminHome />} />
         <Route
           path="/admin/borrowDetail/:borrowId"
           element={<BorrowDetail />}
