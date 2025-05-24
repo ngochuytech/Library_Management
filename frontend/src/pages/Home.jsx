@@ -247,8 +247,6 @@ const HomePage = () => {
         );
       case "bookshelf":
         return <MyBookshelf handleBookClick={handleBookClick} />;
-      case "contributions":
-        return <Contributions />;
       case "RecommendBooks":
         return <RecommendBooks />;
       case "bookDetail":
