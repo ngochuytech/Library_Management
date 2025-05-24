@@ -141,12 +141,12 @@ const Liked = () => {
                           <Col md={5}>
                             <h5>{book.title}</h5>
                             <p className="text-muted mb-2">{book.author}</p>
-                            <div className="d-flex align-items-center mb-2">
+                            {/* <div className="d-flex align-items-center mb-2">
                               {renderRatingStars(book.rating)}
                               <span className="ms-2 small text-muted">
                                 {book.rating} ({book.reviews} đánh giá)
                               </span>
-                            </div>
+                            </div> */}
                             <Badge
                               bg={
                                 book.status === "Available"

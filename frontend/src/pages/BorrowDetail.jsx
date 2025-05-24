@@ -277,7 +277,7 @@ const BorrowDetail = () => {
                         </div>
                       </div>
 
-                      <div className="mb-3">
+                      {/* <div className="mb-3">
                         <span className="me-2">
                           {renderRatingStars(bookData?.rating)}
                         </span>
@@ -286,7 +286,7 @@ const BorrowDetail = () => {
                             {bookData.rating.toFixed(1)}
                           </span>
                         )}
-                      </div>
+                      </div> */}
 
                       <div className="d-flex flex-wrap gap-2 mb-3">
                         {bookData?.category && bookData.category.length > 0 ? (

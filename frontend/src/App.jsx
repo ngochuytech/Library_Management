@@ -34,6 +34,22 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
+// Admin Protected route component
+function AdminProtectedRoute({ children }) {
+  const isAuthenticated = sessionStorage.getItem("access_token") !== null;
+  const isAdmin = sessionStorage.getItem("isAdmin") === "true";
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/home" />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -59,7 +75,14 @@ function App() {
         <Route path="/reset-success" element={<SuccessForm />} />
         <Route path="*" element={<NotFound />} />
         {/* <Route path="/book" element={<BookDetail />} /> */} {/* Admin */}
-        <Route path="/admin/home" element={<AdminHome />} />
+        <Route
+          path="/admin/home"
+          element={
+            <AdminProtectedRoute>
+              <AdminHome />
+            </AdminProtectedRoute>
+          }
+        />
         <Route path="/admin/home/:view" element={<AdminHome />} />
         <Route
           path="/admin/borrowDetail/:borrowId"
