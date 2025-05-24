@@ -1,84 +1,43 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHome,
-  faSearch,
-  faBookOpen,
-  faHandHoldingHeart,
-  faHeart,
-  faHistory,
-  faChartLine,
-} from "@fortawesome/free-solid-svg-icons";
-import { Nav } from "react-bootstrap";
+"use client"
+import "../styles/SideBar.css"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faHome, faSearch, faBook, faGift } from "@fortawesome/free-solid-svg-icons"
 
 const Sidebar = ({ activeView, onNavigate }) => {
-  // Style cho menu item đang active
-  const getNavItemClass = (viewName) => {
-    return `d-flex align-items-center py-3 px-3 rounded-pill mb-2 ${
-      activeView === viewName ? "bg-primary text-white" : "text-dark"
-    }`;
-  };
-
   return (
-    <Nav className="flex-column p-3">
-      <Nav.Link
-        className={getNavItemClass("home")}
-        onClick={() => onNavigate("home")}
-      >
-        <FontAwesomeIcon icon={faHome} className="me-3" />
-        <span className="fw-medium">Trang chủ</span>
-      </Nav.Link>
-      
-      <Nav.Link
-        className={getNavItemClass("search")}
-        onClick={() => onNavigate("search")}
-      >
-        <FontAwesomeIcon icon={faSearch} className="me-3" />
-        <span className="fw-medium">Tìm kiếm</span>
-      </Nav.Link>
-      
-      <Nav.Link
-        className={getNavItemClass("bookshelf")}
-        onClick={() => onNavigate("bookshelf")}
-      >
-        <FontAwesomeIcon icon={faBookOpen} className="me-3" />
-        <span className="fw-medium">Tủ sách của tôi</span>
-      </Nav.Link>
-      
-      <Nav.Link
-        className={getNavItemClass("contributions")}
-        onClick={() => onNavigate("contributions")}
-      >
-        <FontAwesomeIcon icon={faHandHoldingHeart} className="me-3" />
-        <span className="fw-medium">Đóng góp</span>
-      </Nav.Link>
-      
-      <div className="mt-4 mb-3 text-muted px-3 fw-medium">
-        <small>CÁ NHÂN</small>
-      </div>
-      
-      <Nav.Link
-        className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark"
-      >
-        <FontAwesomeIcon icon={faHeart} className="me-3" />
-        <span className="fw-medium">Ưa thích</span>
-      </Nav.Link>
-      
-      <Nav.Link
-        className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark"
-      >
-        <FontAwesomeIcon icon={faHistory} className="me-3" />
-        <span className="fw-medium">Lịch sử mượn</span>
-      </Nav.Link>
-      
-      <Nav.Link
-        className="d-flex align-items-center py-3 px-3 rounded-pill mb-2 text-dark"
-      >
-        <FontAwesomeIcon icon={faChartLine} className="me-3" />
-        <span className="fw-medium">Thống kê</span>
-      </Nav.Link>
-    </Nav>
-  );
-};
+    <div className="sidebar">
+      <div className="logo-container">
+        <img src="./logoUnder.png" alt="MYLIB Logo" className="logo" />
 
-export default Sidebar;
+      </div>
+
+      <nav className="sidebar-nav">
+        <div className={`nav-item ${activeView === "home" ? "active" : ""}`} onClick={() => onNavigate("home")} style={{ fontStyle: 'normal' }}>
+          <div className="nav-icon"><FontAwesomeIcon icon={faHome} /></div>
+          <span>Trang chủ</span>
+        </div>
+        <div className={`nav-item ${activeView === "search" ? "active" : ""}`} onClick={() => onNavigate("search")} style={{ fontStyle: 'normal' }}>
+          <div className="nav-icon"><FontAwesomeIcon icon={faSearch} /></div>
+          <span>Tìm kiếm</span>
+        </div>
+        <div
+          className={`nav-item ${activeView === "bookshelf" ? "active" : ""}`}
+          onClick={() => onNavigate("bookshelf")}
+          style={{ fontStyle: 'normal' }}
+        >
+          <div className="nav-icon"><FontAwesomeIcon icon={faBook} /></div>
+          <span>Giá sách của tôi</span>
+        </div>
+      </nav>
+
+      <div className="sidebar-footer">
+        <div className="footer-item" style={{ fontStyle: 'normal' }}>Về chúng tôi</div>
+        <div className="footer-item" style={{ fontStyle: 'normal' }}>Hỗ trợ</div>
+        <div className="footer-item" style={{ fontStyle: 'normal' }}>Điều khoản & Điều kiện</div>
+      </div>
+    </div>
+  )
+}
+
+export default Sidebar
+

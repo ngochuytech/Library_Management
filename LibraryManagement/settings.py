@@ -13,10 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import pymysql
+from datetime import timedelta
 from dotenv import load_dotenv
 pymysql.install_as_MySQLdb()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-sce%b2tpi3baphuv6f&8p0oh9=33q7(9of28nt@x9@-8uv%g9('
 ALLOWED_HOSTS = ['*']
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 
@@ -61,16 +61,20 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = True  # Cho phép tất cả các domain
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173",]
+CORS_ALLOW_CREDENTIALS = True
+
 
 ROOT_URLCONF = 'LibraryManagement.urls'
 
@@ -93,6 +97,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'LibraryManagement.wsgi.application'
 
 
+SESSION_COOKIE_SECURE = False  # Tắt trong môi trường phát triển
+CSRF_COOKIE_SECURE = False     # Tắt trong môi trường phát triển
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    
+    'ROTATE_REFRESH_TOKENS': True,                 
+    'BLACKLIST_AFTER_ROTATION': True,            
+    'AUTH_HEADER_TYPES': ('Bearer',),               
+}
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -105,12 +122,12 @@ WSGI_APPLICATION = 'LibraryManagement.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Set the backend to MySQL
-        'NAME': 'LMS',          # Your database name
-        'USER': 'root',          # Your MySQL username
-        'PASSWORD': '',  # Your MySQL password
-        'HOST': 'localhost',                   # Host for MySQL server
-        'PORT': '3306',                        # Default MySQL port
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'LMS',        
+        'USER': 'root',         
+        'PASSWORD': '',  
+        'HOST': 'localhost',                  
+        'PORT': '3306',                      
         'OPTIONS': {
             'sql_mode': 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO',
         }
@@ -148,20 +165,23 @@ TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False 
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173', # Thêm địa chỉ frontend React của bạn
+    # 'https://your-production-frontend-domain.com', # Nếu có tên miền production
+]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static')
+# ]
 
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'frontend/public/image')
-MEDIA_URL = '/frontend/public/image/'
+MEDIA_URL = '/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -169,9 +189,9 @@ load_dotenv()
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Giữ nguyên
-EMAIL_PORT = 587  # Giữ nguyên
-EMAIL_USE_TLS = True  # Giữ nguyên
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True  
 EMAIL_HOST_USER = 'tranminhvu101204@gmail.com'  # Đổi thành email Gmail của bạn
 EMAIL_HOST_PASSWORD = 'phdh ioes ovrc jurq'
 DEFAULT_FROM_EMAIL = 'tranminhvu101204@gmail.com'  # Cùng email với EMAIL_HOST_USER
