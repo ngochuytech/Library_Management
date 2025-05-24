@@ -517,50 +517,6 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                 )}
             </Card.Body>
           </Card>
-          <Card>
-            <Card.Header as="h5">Bạn cũng có thể thích</Card.Header>
-            <Card.Body>
-              {similarBooks.length > 0 ? (
-                <ListGroup variant="flush">
-                  {similarBooks.map((obj, index) => (
-                    <ListGroup.Item
-                      key={index}
-                      className="border-0 p-2 similar-book-item"
-                    >
-                      <div className="d-flex">
-                        <Image
-                          src={
-                            obj.image && obj.image.startsWith("http")
-                              ? obj.image
-                              : `${BASE_URL}${obj.image}`
-                          }
-                          width={60}
-                          height={80}
-                          style={{ objectFit: "cover" }}
-                          className="me-3 shadow-sm rounded"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/icon.png";
-                          }}
-                        />
-                        <div>
-                          <h6 className="mb-1 small-title">{obj.title}</h6>
-                          <p className="small text-muted mb-0">
-                            bởi {obj.author?.name || "N/A"}
-                          </p>
-                          <div className="small text-warning">
-                            {renderRatingStars(obj.rating || 0)}
-                          </div>
-                        </div>
-                      </div>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              ) : (
-                <p className="text-muted">Không tìm thấy sách tương tự.</p>
-              )}
-            </Card.Body>
-          </Card>
         </Col>
       </Row>
     </Container>
