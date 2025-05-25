@@ -39,7 +39,8 @@ class BookSerializer(serializers.ModelSerializer):
             book.category.set(categories)
             
         return book
-        
+
+    #Upadta categories_ids    
     def update(self, instance, validated_data):
         category_ids = validated_data.pop('category_ids', None)
         author_id = validated_data.pop('author_id', None)
