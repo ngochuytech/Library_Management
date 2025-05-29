@@ -7,7 +7,9 @@
     justify-content: center;
     overflow: hidden;
   }
-  
+  /*
+    Cập nhật frontend của cửa sổ up
+  */
   .wave-svg {
     position: absolute;
     top: 0;
