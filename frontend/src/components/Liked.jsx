@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   Container,
   Row,
@@ -19,6 +20,7 @@ import {
   faBook,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 
 const Liked = () => {
   // Danh sách sách đã like (dữ liệu mẫu)
@@ -77,6 +79,8 @@ const Liked = () => {
     // Thực hiện call API hoặc chuyển hướng ở đây
   };
 
+
+
   // Hàm render rating sao
   const renderRatingStars = (rating) => {
     return [...Array(5)].map((_, i) => (
@@ -92,6 +96,8 @@ const Liked = () => {
     ));
   };
 
+
+
   // Màu sắc cho từng thể loại
   const getCategoryColor = (category) => {
     const colors = {
@@ -104,6 +110,9 @@ const Liked = () => {
     return colors[category] || "secondary";
   };
 
+
+
+  
   return (
     <Container className="mt-3 mb-5">
       <Row>

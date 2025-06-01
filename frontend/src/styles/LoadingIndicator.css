@@ -4,6 +4,9 @@
   align-items: center;
 }
 
+
+
+
 /* Loading những component cần thiết */
 .loader {
   border: 5px solid #f3f3f3; /* Light grey */
@@ -13,6 +16,8 @@
   height: 50px;
   animation: spin 2s linear infinite;
 }
+
+
 
 /* Cuộn qua lại của thành phần spin*/
 @keyframes spin {
