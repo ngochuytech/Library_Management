@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+
 import {
   Container,
   Row,
@@ -16,6 +17,7 @@ import {
   // InputGroup, // Cho tìm kiếm
   // Form        // Cho tìm kiếm
 } from "react-bootstrap";
+
 import {
   faBook,
   // faCalendarAlt, // Chưa dùng
@@ -29,6 +31,7 @@ import {
   faSync,
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -73,9 +76,11 @@ const AdminBorrows = () => {
     }
   }, []);
 
+
   const fetchBorrowingRequests = useCallback(async () => {
     setIsLoadingRequests(true);
     setErrorRequests(null);
+
     try {
       const token = sessionStorage.getItem("access_token");
       if (!token) throw new Error("Yêu cầu xác thực.");
@@ -92,6 +97,7 @@ const AdminBorrows = () => {
     }
   }, []);
 
+
   useEffect(() => {
     if (activeTabKey === 'history') {
       fetchBorrowingHistory();
@@ -99,6 +105,7 @@ const AdminBorrows = () => {
       fetchBorrowingRequests();
     }
   }, [activeTabKey, fetchBorrowingHistory, fetchBorrowingRequests]);
+
 
   const renderStatus = (status) => {
     // (Giữ nguyên hàm renderStatus của bạn)
@@ -144,6 +151,7 @@ const AdminBorrows = () => {
         return <Badge bg="dark">{status || "Không rõ"}</Badge>;
     }
   };
+
 
   const handleViewDetail = (borrowId) => {
     navigate(`/admin/borrowDetail/${borrowId}`);
@@ -201,12 +209,14 @@ const AdminBorrows = () => {
         // Nếu backend là Django REST Framework và dùng ModelSerializer cho PUT,
         // nó có thể yêu cầu tất cả các trường (hoặc các trường required của model).
       };
+
       console.log("Sending payload:", payload);
       await axios.put(
         `${API_BASE_URL}/borrows/api/edit/${requestId}`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
 
       alert(successMessage);
       fetchBorrowingRequests(); // Tải lại danh sách yêu cầu
@@ -217,7 +227,9 @@ const AdminBorrows = () => {
       // }
 
     } catch (err) {
+
       console.error(`${errorMessagePrefix} ID ${requestId}:`, err);
+      
       if (err.response) {
         console.error("Lỗi từ server (err.response.data):", err.response.data);
         // Cố gắng hiển thị thông báo lỗi chi tiết hơn từ các trường cụ thể nếu có

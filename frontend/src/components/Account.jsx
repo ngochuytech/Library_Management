@@ -43,6 +43,7 @@ const Account = ({ defaultTab = "profile" }) => {
 
   const [notifications, setNotifications] = useState([]);
 
+
   useEffect(() => {
     const access_token = sessionStorage.getItem("access_token");
     if(access_token){
@@ -53,15 +54,19 @@ const Account = ({ defaultTab = "profile" }) => {
       setIsAuthenticated(false);
   }, [])
 
+
   useEffect(() => {
     fetchNotifications();
   }, [isAuthenticated, key]);
   
+
   useEffect(() => {
     setKey(defaultTab);
   }, [defaultTab]);
 
+
   const [formData, setFormData] = useState({ ...userData });
+
 
   const fetchNotifications = async () => {
     try {
@@ -71,6 +76,8 @@ const Account = ({ defaultTab = "profile" }) => {
       setNotifications([])
     }
   }
+
+
 
   const fetchUser = async () => {
     try {
@@ -85,6 +92,7 @@ const Account = ({ defaultTab = "profile" }) => {
         created_at: response.data.created_at,
         bio: "Đọc sách là niềm đam mê của tôi !"        
       })
+
 
       setFormData({
         name: response.data.name,
@@ -101,6 +109,7 @@ const Account = ({ defaultTab = "profile" }) => {
    
   }
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "phone") {
@@ -111,6 +120,7 @@ const Account = ({ defaultTab = "profile" }) => {
     }
     setFieldErrors({ ...fieldErrors, [name]: "" })
   };
+
 
   const handleSave = async () => {
     try {
@@ -141,6 +151,7 @@ const Account = ({ defaultTab = "profile" }) => {
 
   };
 
+
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -153,10 +164,12 @@ const Account = ({ defaultTab = "profile" }) => {
     confirmPassword: "",
   });
 
+
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
   };
+
 
   const validatePasswordForm = () => {
     let valid = true;
@@ -166,10 +179,12 @@ const Account = ({ defaultTab = "profile" }) => {
       confirmPassword: "",
     };
 
+
     if (!passwordData.currentPassword || passwordData.currentPassword.trim()=='') {
       newErrors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
       valid = false;
     }
+
 
     if (!passwordData.newPassword) {
       newErrors.newPassword = "Vui lòng nhập mật khẩu mới";
@@ -188,9 +203,11 @@ const Account = ({ defaultTab = "profile" }) => {
     return valid;
   };
 
+
   const handlePasswordSubmit = async () => {
     if(!validatePasswordForm())
       return;
+
 
     try {
         const response = await fetch(`${BASE_URL}/users/api/change-password`, {
@@ -229,9 +246,11 @@ const Account = ({ defaultTab = "profile" }) => {
         });
         setIsChangingPassword(false);
     } catch (error) {
+
       console.error("Failed to change password: ", error);
       toast.error(`Đổi mật khẩu thất bại. ${error}.`, {
         autoClose: 7000,
+
       });
     }
   };
@@ -254,6 +273,7 @@ const Account = ({ defaultTab = "profile" }) => {
     );
   }
 
+
   return (
     <Container className="my-5">
       <Row>
@@ -267,6 +287,7 @@ const Account = ({ defaultTab = "profile" }) => {
                 height={150}
                 className="mb-3 border"
               />
+
               <h4>{userData.name}</h4>
               <p className="text-muted">Thành viên từ {userData.created_at}</p>
             </Card.Body>
@@ -306,6 +327,7 @@ const Account = ({ defaultTab = "profile" }) => {
             </Card.Body>
           </Card>
         </Col>
+
 
         <Col md={8}>
           <Card className="shadow-sm">
@@ -365,6 +387,7 @@ const Account = ({ defaultTab = "profile" }) => {
                         />
                       </Form.Group>
 
+
                       <Form.Group className="mb-3">
                         <Form.Label>Tiểu sử</Form.Label>
                         <Form.Control
@@ -375,6 +398,7 @@ const Account = ({ defaultTab = "profile" }) => {
                           onChange={handleInputChange}
                         />
                       </Form.Group>
+
 
                       <div className="d-flex gap-2">
                         <Button variant="primary" onClick={handleSave}>
@@ -464,6 +488,7 @@ const Account = ({ defaultTab = "profile" }) => {
                             </Form.Control.Feedback>
                           </Form.Group>
 
+
                           <Form.Group className="mb-3">
                             <Form.Label>Mật khẩu mới</Form.Label>
                             <Form.Control
@@ -474,9 +499,11 @@ const Account = ({ defaultTab = "profile" }) => {
                               placeholder="Nhập mật khẩu mới"
                               isInvalid={!!errors.newPassword}
                             />
+
                             <Form.Control.Feedback type="invalid">
                               {errors.newPassword}
                             </Form.Control.Feedback>
+                            
                           </Form.Group>
 
                           <Form.Group className="mb-3">
