@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Form, Button, Card, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import api from "../api"; // Using your central api instance
+import api from "../api";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [devOtp, setDevOtp] = useState(""); // For development only
+  const [devOtp, setDevOtp] = useState("");
   const navigate = useNavigate();
 
   const handleLoginClick = (e) => {

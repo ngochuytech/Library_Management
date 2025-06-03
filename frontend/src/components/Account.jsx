@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Container,
   Row,
@@ -26,39 +26,39 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import api from '../api'
+import api from "../api";
 
 const Account = ({ defaultTab = "profile" }) => {
-  const navigate = useNavigate()
-  const BASE_URL = import.meta.env.VITE_API_URL
-
+  const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [key, setKey] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({});
 
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); 
+  const [success, setSuccess] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+
+  // State cho avatar
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const [notifications, setNotifications] = useState([]);
 
 
   useEffect(() => {
     const access_token = sessionStorage.getItem("access_token");
-    if(access_token){
+    if (access_token) {
       setIsAuthenticated(true);
-      fetchUser();      
-    }
-    else
-      setIsAuthenticated(false);
-  }, [])
+      fetchUser();
+    } else setIsAuthenticated(false);
+  }, []);
 
 
   useEffect(() => {
     fetchNotifications();
   }, [isAuthenticated, key]);
-  
 
   useEffect(() => {
     setKey(defaultTab);
@@ -70,12 +70,14 @@ const Account = ({ defaultTab = "profile" }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get(`/notifications/api`);
-      setNotifications(response.data);      
-    } catch (error) {      
-      setNotifications([])
+      const idUser = sessionStorage.getItem("idUser");
+      const response = await api.get(`/notifications/api/user/${idUser}`);
+
+      setNotifications(response.data);
+    } catch (error) {
+      setNotifications([]);
     }
-  }
+  };
 
 
 
@@ -90,8 +92,7 @@ const Account = ({ defaultTab = "profile" }) => {
         email: response.data.email,
         avatar: response.data.avatar,
         created_at: response.data.created_at,
-        bio: "Đọc sách là niềm đam mê của tôi !"        
-      })
+      });
 
 
       setFormData({
@@ -100,55 +101,100 @@ const Account = ({ defaultTab = "profile" }) => {
         email: response.data.email,
         avatar: response.data.avatar,
         created_at: response.data.created_at,
-        bio: response.data.bio || "Đọc sách là niềm đam mê của tôi !",
       });
+      console.log("ads", response.data);
     } catch (error) {
       console.error("Failed to fetch user detail:", error.message);
       toast.error("Không thể tải thông tin người dùng. Vui lòng thử lại.");
     }
-   
-  }
-
-
+  };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "phone") {
-      const cleanedValue = value.replace(/[^0-9]/g, '');
+      const cleanedValue = value.replace(/[^0-9]/g, "");
       setFormData({ ...formData, [name]: cleanedValue });
     } else {
       setFormData({ ...formData, [name]: value });
     }
-    setFieldErrors({ ...fieldErrors, [name]: "" })
+    setFieldErrors({ ...fieldErrors, [name]: "" });
   };
 
-
+  // --- HÀM XỬ LÝ CHỌN FILE AVATAR ---
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Vui lòng chỉ chọn file ảnh.");
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        e.target.value = null;
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Kích thước ảnh không được vượt quá 2MB.");
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        e.target.value = null;
+        return;
+      }
+      setSelectedFile(file); // Lưu file đã chọn
+      setPreviewUrl(URL.createObjectURL(file)); 
+    }
+  };
   const handleSave = async () => {
     try {
       const idUser = sessionStorage.getItem("idUser");
-      const response = await api.put(`/users/api/update/${idUser}`,{
-        name: formData.name,
-        phone_number: formData.phone
-      });
+
+      const updateFormData = new FormData();
+
+      updateFormData.append("name", formData.name);
+      if (selectedFile) {
+        updateFormData.append("avatar", selectedFile);
+      }
+      const response = await api.put(
+        `/users/api/update/${idUser}`,
+        updateFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       const updatedData = response.data;
-      
+
       setUserData({
         ...userData,
         name: updatedData.name,
-        phone: updatedData.phone_number
+        phone: updatedData.phone_number,
+        avatar: updatedData.avatar || userData.avatar,
       });
+
+      setFormData({
+        ...formData,
+        name: updatedData.name,
+        phone: updatedData.phone_number,
+        avatar: updatedData.avatar || userData.avatar,
+      });
+
       setIsEditing(false);
+      setSelectedFile(null);
+      setPreviewUrl(null);
       setError("");
       setFieldErrors({});
       toast.success("Cập nhật thông tin thành công!");
-      sessionStorage.setItem("username", updatedData.name)
-    } catch (error) {      
-      console.error("Failed to update user:", error.response.data.error);
-      if(error.response.data.error.phone_number)
-        toast.error("Cập nhật thông tin thất bại. Số điện thoại này đã tồn tại" )
-      else
-        toast.error("Cập nhật thông tin thất bại. " + error.response.data.error)
+      sessionStorage.setItem("username", updatedData.name);
+    } catch (error) {
+      console.error("Failed to update user:", error.response?.data?.error);
+      const errData = error.response?.data?.error;
+      if (errData?.phone_number) {
+        toast.error("Cập nhật thất bại. Số điện thoại này đã tồn tại");
+      } else if (errData?.avatar) {
+        toast.error("Cập nhật thất bại. Lỗi tải lên ảnh: " + errData.avatar);
+      } else {
+        toast.error("Cập nhật thất bại. " + (errData || error.message));
+      }
     }
-
   };
 
 
@@ -179,8 +225,10 @@ const Account = ({ defaultTab = "profile" }) => {
       confirmPassword: "",
     };
 
-
-    if (!passwordData.currentPassword || passwordData.currentPassword.trim()=='') {
+    if (
+      !passwordData.currentPassword ||
+      passwordData.currentPassword.trim() == ""
+    ) {
       newErrors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
       valid = false;
     }
@@ -205,46 +253,45 @@ const Account = ({ defaultTab = "profile" }) => {
 
 
   const handlePasswordSubmit = async () => {
-    if(!validatePasswordForm())
-      return;
+    if (!validatePasswordForm()) return;
 
 
     try {
-        const response = await fetch(`${BASE_URL}/users/api/change-password`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({
-            currentPassword: passwordData.currentPassword,
-            newPassword: passwordData.newPassword,
-            confirmPassword: passwordData.confirmPassword,
-          }),
-        })
+      const response = await fetch(`${BASE_URL}/users/api/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+          confirmPassword: passwordData.confirmPassword,
+        }),
+      });
 
-        if(!response.ok){
-          const errorData = await response.json();
-          setError(errorData.error || "Vui lòng thử lại.")
-          throw errorData.error;
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || "Vui lòng thử lại.");
+        throw errorData.error;
+      }
 
-        const data = await response.json();
-        toast.success(data.message || "Đổi mật khẩu thành công!", {
-          autoClose: 7000, 
-        });
-        setError("");
-        setErrors({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        });
-        setPasswordData({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        });
-        setIsChangingPassword(false);
+      const data = await response.json();
+      toast.success(data.message || "Đổi mật khẩu thành công!", {
+        autoClose: 7000,
+      });
+      setError("");
+      setErrors({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setIsChangingPassword(false);
     } catch (error) {
 
       console.error("Failed to change password: ", error);
@@ -280,12 +327,14 @@ const Account = ({ defaultTab = "profile" }) => {
         <Col md={4}>
           <Card className="shadow-sm mb-4">
             <Card.Body className="text-center">
+              {" "}
               <Image
-                src={userData.avatar}
+                src={previewUrl || "/image" + userData.avatar || "/icon.jpg"}
                 roundedCircle
                 width={150}
                 height={150}
                 className="mb-3 border"
+                style={{ objectFit: "cover" }}
               />
 
               <h4>{userData.name}</h4>
@@ -341,6 +390,34 @@ const Account = ({ defaultTab = "profile" }) => {
                 <Tab eventKey="profile" title="Thông tin cá nhân">
                   {isEditing ? (
                     <Form>
+                      {/* THÊM PHẦN INPUT AVATAR KHI CHỈNH SỬA */}
+                      <Form.Group className="mb-3 text-center">
+                        <Form.Label>Ảnh đại diện</Form.Label>
+                        {/* Hiển thị ảnh preview hoặc ảnh hiện tại */}
+                        <div className="mb-2">
+                          <Image
+                            src={
+                              previewUrl ||
+                              "/image" + formData.avatar ||
+                              "/icon.jpg"
+                            }
+                            roundedCircle
+                            width={120}
+                            height={120}
+                            className="border"
+                            style={{ objectFit: "cover" }}
+                          />
+                        </div>
+                        {/* Input file */}
+                        <Form.Control
+                          type="file"
+                          name="avatar"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          size="sm"
+                        />
+                      </Form.Group>
+
                       <Form.Group className="mb-3">
                         <Form.Label>Họ và tên</Form.Label>
                         <Form.Control
@@ -383,19 +460,7 @@ const Account = ({ defaultTab = "profile" }) => {
                           name="email"
                           value={formData.email || ""}
                           onChange={handleInputChange}
-                          disabled
-                        />
-                      </Form.Group>
-
-
-                      <Form.Group className="mb-3">
-                        <Form.Label>Tiểu sử</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
-                          name="bio"
-                          value={formData.bio || ""}
-                          onChange={handleInputChange}
+                          disabled 
                         />
                       </Form.Group>
 
@@ -404,12 +469,17 @@ const Account = ({ defaultTab = "profile" }) => {
                         <Button variant="primary" onClick={handleSave}>
                           <FontAwesomeIcon icon={faCheck} className="me-2" />
                           Lưu thay đổi
-                        </Button>
+                        </Button>{" "}
                         <Button
                           variant="outline-secondary"
-                          onClick={() => {setIsEditing(false);
+                          onClick={() => {
+                            setIsEditing(false);
                             setFieldErrors({});
-                            setError("");}}
+                            setError("");
+                            setSelectedFile(null);
+                            setPreviewUrl(null);
+                            setFormData({ ...userData });
+                          }}
                         >
                           Hủy
                         </Button>
@@ -423,13 +493,15 @@ const Account = ({ defaultTab = "profile" }) => {
                             <div>
                               <h6>Họ và tên</h6>
                               <p>{userData.name}</p>
-                            </div>
+                            </div>{" "}
                             <Button
                               variant="outline-primary"
                               size="sm"
                               onClick={() => {
                                 setFormData({ ...userData });
                                 setIsEditing(true);
+                                setSelectedFile(null);
+                                setPreviewUrl(null);
                               }}
                             >
                               <FontAwesomeIcon icon={faPen} className="me-1" />
@@ -457,10 +529,6 @@ const Account = ({ defaultTab = "profile" }) => {
                           <p>{userData.email}</p>
                         </ListGroup.Item>
 
-                        <ListGroup.Item>
-                          <h6>Tiểu sử</h6>
-                          <p>{userData.bio}</p>
-                        </ListGroup.Item>
                       </ListGroup>
                     </>
                   )}

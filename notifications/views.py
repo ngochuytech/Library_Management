@@ -16,6 +16,19 @@ def getNotification(request):
     serializer = NotificationSerializer(notification, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getNotificationWithUserId(request, id):
+    try:
+        notification = Notification.objects.filter(user_id=id).order_by('-date')
+        serializer = NotificationSerializer(notification, many=True)
+        return Response(serializer.data)
+    except Notification.DoesNotExist:
+        return Response(
+            {"message": f"Không thể tìm thông báo với user có id: {id}"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createNotification(request):

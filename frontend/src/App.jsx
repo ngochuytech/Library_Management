@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -41,16 +41,28 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
+// Admin Protected route component
+function AdminProtectedRoute({ children }) {
+  const isAuthenticated = sessionStorage.getItem("access_token") !== null;
+  const isAdmin = sessionStorage.getItem("isAdmin") === "true";
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
 
+  if (!isAdmin) {
+    return <Navigate to="/home" />;
+  }
 
+  return children;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <ToastContainer
         position="top-right"
-        autoClose={7000} 
+        autoClose={7000}
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
@@ -68,11 +80,21 @@ function App() {
         <Route path="/otp-verification" element={<OtpForm />} />
         <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="/reset-success" element={<SuccessForm />} />
-        <Route path="/admin/home" element={<AdminHome />} />
         <Route path="*" element={<NotFound />} />
-        {/* <Route path="/book" element={<BookDetail />} /> */}
-        {/* Admin */}
-        <Route path="/borrowDetail/:borrowId" element={<BorrowDetail />} />
+        {/* <Route path="/book" element={<BookDetail />} /> */} {/* Admin */}
+        <Route
+          path="/admin/home"
+          element={
+            <AdminProtectedRoute>
+              <AdminHome />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route path="/admin/home/:view" element={<AdminHome />} />
+        <Route
+          path="/admin/borrowDetail/:borrowId"
+          element={<BorrowDetail />}
+        />
         <Route path="/admin/books/:id" element={<AdminBookDetail />} />
         <Route path="/admin/users/:id" element={<AdminUsersDetail />} />
         <Route path="/admin/search" element={<LibraryAdminSearch />} />

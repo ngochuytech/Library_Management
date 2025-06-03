@@ -1,0 +1,252 @@
+/* ../styles/SearchTab.css */
+
+.search-tab-container {
+    padding: 0 2rem;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .search-tab-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    background-color: #ffffff;
+  }
+  
+  .search-tab-table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0 12px; /* Tạo khoảng cách giữa các hàng */
+    table-layout: fixed;
+  }
+  
+  .search-tab-thead {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .search-tab-th {
+    padding: 1.2rem 1.5rem;
+    font-weight: 600;
+    color: #343a40;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 1rem;
+    vertical-align: middle;
+    text-align: center;
+    padding-left: 2rem;
+  }
+  
+  .search-tab-th-center {
+    text-align: center;
+  }
+  
+  .search-tab-tbody-tr {
+    background-color: #fff;
+    border-radius: 12px; /* Áp dụng cho các ô td nếu muốn bo tròn thực sự hiệu quả với border-spacing */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    /* marginBottom không hoạt động hiệu quả trên tr, border-spacing trên table xử lý việc này */
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  
+  .search-tab-tbody-tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Áp dụng border và bo góc cho các ô td để tạo hiệu ứng "card" cho mỗi hàng */
+  .search-tab-tbody-tr td {
+    border-top: 1px solid #f1f3f5;
+    border-bottom: 1px solid #f1f3f5;
+    padding: 1.2rem 1.5rem;
+    vertical-align: middle;
+    background-color: #fff; /* Đảm bảo td có nền trắng riêng */
+  }
+  
+  .search-tab-tbody-tr td:first-child {
+    border-left: 1px solid #f1f3f5;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+  }
+  
+  .search-tab-tbody-tr td:last-child {
+    border-right: 1px solid #f1f3f5;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  
+  
+  .search-tab-td-title {
+    overflow: hidden;
+  }
+  
+  .search-tab-book-info-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-tab-book-image {
+    width: 60px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    margin-right: 1rem;
+    flex-shrink: 0; /* Ngăn ảnh bị co lại */
+  }
+  
+  .search-tab-book-text-details {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* Cho phép text-overflow hoạt động trong flex item */
+  }
+  
+  .search-tab-book-title {
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: #212529;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.1rem;
+  }
+  
+  .search-tab-book-meta {
+    font-size: 0.9rem;
+    color: #6c757d;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .search-tab-td-category .search-tab-category-badges-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .search-tab-category-badge {
+    /* Thuộc tính background sẽ được đặt inline trong JSX */
+    color: #ffffff;
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .search-tab-td-status {
+    text-align: center;
+  }
+  
+  .search-tab-status-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .search-tab-status-badge {
+    /* Thuộc tính background sẽ được đặt inline trong JSX */
+    padding: 0.5em 1em;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    border: none;
+    transition: transform 0.2s ease;
+    color: #fff; /* Đảm bảo màu chữ là trắng cho gradient */
+  }
+  
+  .search-tab-status-badge:hover {
+    transform: translateY(-1px);
+  }
+  
+  .search-tab-progress-bar {
+    height: 6px;
+    width: 80px;
+    border-radius: 4px;
+    margin-bottom: 0.4rem;
+    background-color: #e9ecef !important; /* Override react-bootstrap default */
+  }
+  
+  .search-tab-availability-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+  
+  .search-tab-td-action {
+    text-align: center;
+  }
+  
+  .search-tab-action-button {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+    transition: all 0.2s;
+    color: #fff; /* Đảm bảo màu chữ là trắng */
+  }
+  
+  .search-tab-action-button:hover,
+  .search-tab-action-button:focus {
+    background-color: #4338ca;
+    border-color: #4338ca;
+    transform: translateY(-1px);
+    color: #fff;
+  }
+  
+  .search-tab-action-button svg {
+    margin-right: 0.4rem;
+    font-size: 0.9rem;
+  }
+  
+  .search-tab-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  
+  /* Styling cho Pagination của react-bootstrap */
+  .search-tab-pagination .page-item .page-link {
+    color: #4f46e5; /* Màu chữ mặc định cho các nút trang */
+    border-radius: 0; /* Reset border-radius mặc định nếu cần */
+  }
+  
+  .search-tab-pagination .page-item:first-child .page-link {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+  
+  .search-tab-pagination .page-item:last-child .page-link {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+  
+  .search-tab-pagination .page-item.active .page-link {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+    color: white; /* Màu chữ cho trang hiện tại */
+    font-weight: 600;
+  }
+  
+  .search-tab-pagination .page-item .page-link:hover {
+    background-color: #e0e7ff; /* Màu nền khi hover (tùy chỉnh) */
+    border-color: #c7d2fe;
+  }
+  
+  .search-tab-pagination .page-item.disabled .page-link {
+    color: #6c757d;
+  }

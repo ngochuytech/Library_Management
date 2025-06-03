@@ -17,6 +17,10 @@ from django.utils.crypto import get_random_string
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.hashers import check_password
 from users.exceptions import InvalidPhoneNumberException
+from django.db.models.functions import TruncMonth
+from django.db.models import Count
+from django.utils import timezone
+
 # Store OTPs temporarily (in production, use Redis or database)
 otp_store = {}
 User = get_user_model()
@@ -105,7 +109,6 @@ class ForgotPasswordView(APIView):
         email = request.data.get('email')
         try:
             user = User.objects.get(email=email)
-            # Generate 6-digit OTP
             otp = ''.join(random.choices(string.digits, k=6))
             # Store OTP with expiration (15 minutes)
             otp_store[email] = {
@@ -180,7 +183,6 @@ class ResetPasswordView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found', 'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
 
-# Thêm các import cần thiết
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -188,7 +190,13 @@ from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
 
-# API lấy danh sách người dùng (chỉ admin mới có quyền truy cập)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser]) 
+def getTotalUsersCount(request):
+    total_users = User.objects.filter(is_superuser=False, is_staff=False).count()
+    return Response({"total_users": total_users}, status=status.HTTP_200_OK)
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def list_users(request):
@@ -217,6 +225,7 @@ def updateUserInformation(request, id):
         user = User.objects.get(id=id)
         name = request.data.get("name")
         phone_number = request.data.get("phone_number")
+        avatar = request.FILES.get('avatar')
 
         data = {}
         if name is not None and not name.strip():
@@ -228,17 +237,19 @@ def updateUserInformation(request, id):
             raise InvalidPhoneNumberException("Số điện thoại không được để trống")
         
         data['name'] = name
-        data['phone_number'] = phone_number
+        if phone_number:
+            data['phone_number'] = phone_number
+        if avatar:
+            data['avatar'] = avatar
 
         serializer = UserSerializer(instance=user, data=data, partial=True)
         if not serializer.is_valid():
             print("serializer.errors = ", serializer.errors)
-            raise InvalidPhoneNumberException(serializer.errors)
+            return Response({
+                "error": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
         
-        user.name = name
-        user.phone_number = phone_number
-        user.save()
-        serializer = UserSerializer(user)
+        serializer.save()
         print("data = ", serializer.data)
         return Response(serializer.data)
     
@@ -251,19 +262,14 @@ def updateUserInformation(request, id):
             "error": e.message,
         }, status=status.HTTP_400_BAD_REQUEST)
 
-# API cập nhật thông tin người dùng
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAdminUser])
 def update_user(request, id):
     try:
-        user = User.objects.get(id=id) # User là model của bạn
-        # Kiểm tra request.FILES nếu bạn gửi avatar bằng FormData
+        user = User.objects.get(id=id)
         print("Request data:", request.data) 
         print("Request FILES:", request.FILES)
 
-        # Khi có file upload, request.data sẽ chứa các trường non-file,
-        # và request.FILES sẽ chứa các trường file.
-        # ModelSerializer sẽ tự động xử lý việc này khi bạn truyền request.data.
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -276,27 +282,17 @@ def update_user(request, id):
         print("Exception in update_user:", str(e)) # Log lỗi chung
         return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# API xóa người dùng
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
 def delete_user(request, id):
     try:
-        user = User.objects.get(id=id) # User là model User của bạn
-
-        # Cân nhắc: Bạn có thể muốn thêm logic kiểm tra xem user có đang cố tự xóa mình không,
-        # hoặc không cho xóa superuser cuối cùng, v.v.
-        # Ví dụ:
-        # if request.user.id == user.id:
-        #     return Response({"error": "You cannot delete yourself."}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(id=id)
 
         user.delete()
-        # Theo chuẩn REST, DELETE thành công thường trả về 204 No Content và không có body.
-        # Hoặc bạn có thể trả về một thông báo thành công nếu muốn.
         return Response(status=status.HTTP_204_NO_CONTENT) 
-        # return Response({"message": f"User with id {id} deleted successfully"}, status=status.HTTP_200_OK) # Nếu bạn muốn có message
     except User.DoesNotExist:
         return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e: # Bắt các lỗi không mong muốn khác
+    except Exception as e: 
         print(f"Error deleting user {id}: {str(e)}")
         return Response({"error": "An error occurred while deleting the user."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -342,3 +338,80 @@ def changePassword(request):
             "error": f"Đã xảy ra lỗi: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_detail(request, id):
+    try:
+        user = User.objects.get(id=id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"error": f"User with id {id} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def getMonthlyNewUsersStats(request):
+    end_date = timezone.now()
+    start_date = end_date - datetime.timedelta(days=365)
+
+    new_users_counts = User.objects.filter(
+        created_at__isnull=False,
+        created_at__gte=start_date,
+        created_at__lte=end_date
+    ).annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        count=Count('id')
+    ).exclude(month__isnull=True).order_by('month')
+
+    stats_list = []
+    month_names_map = {
+        "January": "Tháng 1", "February": "Tháng 2", "March": "Tháng 3",
+        "April": "Tháng 4", "May": "Tháng 5", "June": "Tháng 6",
+        "July": "Tháng 7", "August": "Tháng 8", "September": "Tháng 9",
+        "October": "Tháng 10", "November": "Tháng 11", "December": "Tháng 12"
+    }
+
+    final_stats_map = {}
+    current_month_iter = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    for i in range(12):
+        month_key = current_month_iter.strftime('%Y-%m')
+        english_month = current_month_iter.strftime('%B')
+        year = current_month_iter.strftime('%Y')
+        vietnamese_month = month_names_map.get(english_month, english_month)
+        formatted_month = f"{vietnamese_month} {year}"
+        final_stats_map[month_key] = {'month': formatted_month, 'new_users_count': 0}
+        current_month_iter = (current_month_iter - datetime.timedelta(days=1)).replace(day=1)
+
+    for entry in new_users_counts:
+        month_dt = entry['month']
+        if month_dt is None:
+            continue
+        month_key = month_dt.strftime('%Y-%m')
+        if month_key in final_stats_map:
+            final_stats_map[month_key]['new_users_count'] = entry['count']
+        
+    def sort_key_by_month_year(item):
+        parts = item['month'].split(' ')
+        
+        month_number_map = {
+            "Tháng 1": 1, "Tháng 2": 2, "Tháng 3": 3, "Tháng 4": 4, "Tháng 5": 5, "Tháng 6": 6,
+            "Tháng 7": 7, "Tháng 8": 8, "Tháng 9": 9, "Tháng 10": 10, "Tháng 11": 11, "Tháng 12": 12
+        }
+        
+        month_name_viet = parts[0] + ' ' + parts[1] 
+        
+        month_num = month_number_map.get(month_name_viet)
+        year_num = int(parts[2]) 
+
+        if month_num is None:
+            try:
+                return datetime.datetime.strptime(item['month'], '%B %Y')
+            except ValueError:
+                return datetime.datetime.min 
+        
+        return datetime.datetime(year_num, month_num, 1) 
+
+    sorted_filled_stats = sorted(final_stats_map.values(), key=sort_key_by_month_year)
+    
+    return Response(sorted_filled_stats, status=status.HTTP_200_OK)

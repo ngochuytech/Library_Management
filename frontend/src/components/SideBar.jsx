@@ -29,14 +29,6 @@ const Sidebar = ({ activeView, onNavigate }) => {
           <div className="nav-icon"><FontAwesomeIcon icon={faBook} /></div>
           <span>Giá sách của tôi</span>
         </div>
-        <div
-          className={`nav-item ${activeView === "contributions" ? "active" : ""}`}
-          onClick={() => onNavigate("contributions")}
-          style={{ fontStyle: 'normal' }}
-        >
-          <div className="nav-icon"><FontAwesomeIcon icon={faGift} /></div>
-          <span>Đóng góp</span>
-        </div>
       </nav>
 
       <div className="sidebar-footer">

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar as faSolidStar } from "@fortawesome/free-solid-svg-icons"; // Đổi tên để rõ ràng hơn nếu muốn
+import { faStar as faRegularStar } from "@fortawesome/free-regular-svg-icons"; // Đổi tên để rõ ràng hơn nếu muốn
 import {
   Container,
   Row,
@@ -18,25 +20,20 @@ import {
 } from "react-bootstrap";
 import {
   faStar,
-  faHeart as fasHeart,
   faBookOpen,
   faShoppingCart,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faStar as faStarRegular,
-  faHeart as farHeart,
-} from "@fortawesome/free-regular-svg-icons";
+import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import api from '../api';
+import api from "../api";
 import "../styles/BookDetail.css";
 
 const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
   const [book, setBook] = useState(initialBook);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [showBorrowModal, setShowBorrowModal] = useState(false);
-  const [borrowDays, setBorrowDays] = useState(7); // Mặc định 7 ngày
+  const [borrowDays, setBorrowDays] = useState(7);
   const [author, setAuthor] = useState(null);
   const [similarBooks, setSimilarBooks] = useState([]);
   const [loadingAuthor, setLoadingAuthor] = useState(true);
@@ -44,14 +41,20 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
   const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetchAuthor();
-    fetchSimilarBook();
-  }, []);
+    if (initialBook) {
+      setBook(initialBook);
+      fetchAuthor(initialBook.author.id); 
+      fetchSimilarBook(initialBook.id);
+    }
+  }, [initialBook]);
 
-  const fetchAuthor = async () => {
+  const fetchAuthor = async (authorId) => {
+    if (!authorId) return;
     setAuthor(null);
+    setLoadingAuthor(true);
+    setErrorAuthor(null);
     try {
-      const response = await fetch(`${BASE_URL}/authors/api/${book.author.id}`);
+      const response = await fetch(`${BASE_URL}/authors/api/${authorId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -64,21 +67,25 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
     }
   };
 
-  const fetchSimilarBook = async () => {
+  const fetchSimilarBook = async (currentBookId) => {
+    if (!currentBookId) return;
     setSimilarBooks([]);
     try {
-      const response = await fetch(`${BASE_URL}/books/api/random/${book.id}`);
+      const response = await fetch(
+        `${BASE_URL}/books/api/random/${currentBookId}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setSimilarBooks(data);
     } catch (error) {
-      console.log("Không thể tải sách tương tự");
+      console.log("Không thể tải sách tương tự:", error);
     }
   };
 
   const fetchBookDetails = async () => {
+    if (!book || !book.id) return;
     try {
       const response = await fetch(`${BASE_URL}/books/api/${book.id}`);
       if (!response.ok) {
@@ -93,7 +100,14 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
 
   const handleBorrowBook = async () => {
     try {
-      const currentUserId = sessionStorage.getItem("idUser"); // Đổi tên biến để rõ ràng hơn
+      const token = sessionStorage.getItem("access_token");
+      if (!token) {
+        toast.error(
+          "Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn. Vui lòng đăng nhập lại."
+        );
+        return;
+      }
+      const currentUserId = sessionStorage.getItem("idUser");
       if (!currentUserId) {
         toast.error("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.");
         return;
@@ -101,82 +115,104 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
 
       if (!book || !book.id) {
         toast.error("Không tìm thấy thông tin sách để mượn.");
-        return; 
+        return;
       }
       const currentBookId = book.id;
 
-      // Tạo payload với tên trường khớp với lỗi từ backend
+      const requireDate = new Date().toISOString();
+
       const payload = {
-        user_id: parseInt(currentUserId, 10), // Đảm bảo user_id là số nếu serializer yêu cầu
-        book_id: currentBookId,              // book.id đã là số
+        user_id: parseInt(currentUserId, 10),
+        book_id: currentBookId,
         borrow_days: borrowDays,
-        // status: 'Pending' // Backend đã có default='PENDING' cho status, không cần gửi
+        require_date: requireDate,
       };
 
-      console.log("Sending borrow request with payload:", payload); // Để debug
+      console.log("Đang gửi yêu cầu mượn sách với payload:", payload);
 
-      // Sử dụng instance `api` đã cấu hình (có thể đã có token)
       const response = await api.post(`/borrows/api/create`, payload);
 
-      // Kiểm tra status thành công (201 Created)
-      if (response.status === 201 && response.data) { // Kiểm tra cả response.data
-        toast.success("Mượn sách thành công, chúng tôi sẽ liên hệ bạn!", {
-            position: "top-right", autoClose: 3000, hideProgressBar: false,
-            closeOnClick: true, pauseOnHover: true, draggable: true,
-        });
+      if (response.status === 201 && response.data) {
+        toast.success(
+          "Yêu cầu mượn sách đã được gửi! Chúng tôi sẽ sớm liên hệ với bạn.",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
 
-        await fetchBookDetails(); // Cập nhật lại thông tin sách (ví dụ: số lượng còn lại)
-        
-        // Gửi thông báo (notification)
+        await fetchBookDetails();
+
         try {
-            await api.post('/notifications/api/create', {
-                user_id: parseInt(currentUserId, 10),
-                message: `Bạn đã yêu cầu mượn sách "${book.title}". Chúng tôi sẽ sớm liên hệ với bạn.`
-            });
+          await api.post("/notifications/api/create", {
+            user_id: parseInt(currentUserId, 10),
+            message: `Bạn đã yêu cầu mượn sách "${book.title}". Chúng tôi sẽ sớm liên hệ với bạn.`,
+          });
         } catch (notificationError) {
-            console.error("Error sending notification:", notificationError.response?.data || notificationError.message);
-            // Không cần làm người dùng lo lắng nếu chỉ thông báo lỗi
+          console.error(
+            "Lỗi khi gửi thông báo:",
+            notificationError.response?.data || notificationError.message
+          );
         }
-        
       } else {
-        // Xử lý các trường hợp status khác 201 nhưng không phải lỗi (ít gặp với POST create)
-        console.warn("Unexpected response status:", response.status, "Data:", response.data);
-        toast.error(response.data?.message || `Yêu cầu không thành công (mã lỗi: ${response.status}).`);
+        console.warn(
+          "Trạng thái phản hồi không mong muốn:",
+          response.status,
+          "Dữ liệu:",
+          response.data
+        );
+        toast.error(
+          response.data?.message ||
+            `Yêu cầu không thành công (mã lỗi: ${response.status}).`
+        );
       }
-
     } catch (error) {
-      console.error("Borrow error object:", error); // Log toàn bộ object lỗi
+      console.error("Đối tượng lỗi khi mượn sách:", error);
       if (error.response) {
-        console.error("Borrow error response data:", error.response.data);
-        // error.response.data chính là {user_id: Array(1), book_id: Array(1)}
+        console.error(
+          "Dữ liệu lỗi phản hồi khi mượn sách:",
+          error.response.data
+        );
         let errorMessages = "Lỗi khi gửi yêu cầu mượn sách:\n";
         const responseData = error.response.data;
-        if (typeof responseData === 'object' && responseData !== null) {
-          // Nếu backend trả về lỗi theo format { field: ["message1", "message2"], ...}
+        if (typeof responseData === "object" && responseData !== null) {
           for (const key in responseData) {
             if (Array.isArray(responseData[key])) {
-              errorMessages += `Trường ${key}: ${responseData[key].join('; ')}\n`;
-            } else if (typeof responseData[key] === 'string') { // Trường hợp message chung như { "detail": "Not found."}
+              errorMessages += `Trường ${key}: ${responseData[key].join(
+                "; "
+              )}\n`;
+            } else if (typeof responseData[key] === "string") {
               errorMessages += `${responseData[key]}\n`;
             }
           }
-           // Nếu có message chung ở ngoài cùng
-           if (responseData.message && typeof responseData.message === 'string') {
+          if (
+            responseData.message &&
+            typeof responseData.message === "string"
+          ) {
             errorMessages = responseData.message + "\n" + errorMessages;
-          } else if (responseData.detail && typeof responseData.detail === 'string') { // DRF hay dùng detail
+          } else if (
+            responseData.detail &&
+            typeof responseData.detail === "string"
+          ) {
             errorMessages = responseData.detail + "\n" + errorMessages;
           }
-        } else if (typeof responseData === 'string') {
+        } else if (typeof responseData === "string") {
           errorMessages += responseData;
         } else {
-          errorMessages += error.message || "Lỗi không xác định từ server.";
+          errorMessages += error.message || "Lỗi không xác định từ máy chủ.";
         }
         toast.error(errorMessages.trim(), { autoClose: 5000 });
       } else if (error.request) {
-        console.error("Borrow error request:", error.request);
-        toast.error("Không nhận được phản hồi từ máy chủ. Vui lòng kiểm tra kết nối mạng.");
+        console.error("Yêu cầu lỗi khi mượn sách:", error.request);
+        toast.error(
+          "Không nhận được phản hồi từ máy chủ. Vui lòng kiểm tra kết nối mạng."
+        );
       } else {
-        console.error('Borrow setup error message:', error.message);
+        console.error("Lỗi thiết lập yêu cầu mượn sách:", error.message);
         toast.error(`Lỗi thiết lập yêu cầu: ${error.message}`);
       }
     } finally {
@@ -184,18 +220,52 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
     }
   };
 
+  useEffect(() => {
+    if (initialBook && initialBook.id) {
+      setBook(initialBook);
+      if (initialBook.author && initialBook.author.id) {
+        fetchAuthor(initialBook.author.id);
+      } else {
+        setLoadingAuthor(false);
+        setErrorAuthor("Thông tin tác giả không đầy đủ.");
+      }
+      fetchSimilarBook(initialBook.id);
+    } else {
+      setLoadingAuthor(false);
+    }
+  }, [initialBook]);
+
+  if (!book || !book.id) {
+    return (
+      <Container className="mt-3 mb-5 book-detail-container">
+        <Alert variant="warning">
+          Đang tải thông tin sách hoặc sách không tồn tại...
+        </Alert>
+      </Container>
+    );
+  }
   const renderRatingStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<FontAwesomeIcon key={i} icon={faStar} className="text-warning" />);
+      stars.push(
+        <FontAwesomeIcon
+          key={`full-${i}`}
+          icon={faSolidStar}
+          className="text-warning"
+        />
+      );
     }
 
-    if (hasHalfStar) {
+    if (hasHalfStar && stars.length < 5) {
       stars.push(
-        <FontAwesomeIcon key="half" icon={faStarRegular} className="text-warning" />
+        <FontAwesomeIcon
+          key="half"
+          icon={faRegularStar}
+          className="text-warning"
+        />
       );
     }
 
@@ -204,19 +274,34 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
       stars.push(
         <FontAwesomeIcon
           key={`empty-${i}`}
-          icon={faStarRegular}
+          icon={faRegularStar}
           className="text-secondary"
         />
       );
     }
-
     return stars;
   };
 
+
+  if (!initialBook || !initialBook.id) {
+    return (
+      <Container className="mt-3 mb-5 book-detail-container">
+        <Alert variant="warning">
+          Đang tải thông tin sách hoặc sách không tồn tại...
+        </Alert>
+      </Container>
+    );
+  }
   return (
+    // ... (JSX của bạn)
     <Container className="mt-3 mb-5 book-detail-container">
       <ToastContainer />
-      <Modal show={showPreview} onHide={() => setShowPreview(false)} size="lg" centered>
+      <Modal
+        show={showPreview}
+        onHide={() => setShowPreview(false)}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Preview: {book.title}</Modal.Title>
         </Modal.Header>
@@ -225,16 +310,22 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowPreview(false)}>
-            Close
+            Đóng
           </Button>
         </Modal.Footer>
       </Modal>
-      <Modal show={showBorrowModal} onHide={() => setShowBorrowModal(false)} centered>
+      <Modal
+        show={showBorrowModal}
+        onHide={() => setShowBorrowModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận mượn sách</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Bạn có muốn mượn sách <strong>{book.title}</strong> không?</p>
+          <p>
+            Bạn có muốn mượn sách <strong>{book.title}</strong> không?
+          </p>
           <Form.Group className="mb-3">
             <Form.Label>Chọn số ngày mượn</Form.Label>
             <Form.Select
@@ -263,10 +354,18 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
               <Row>
                 <Col md={4} className="mb-4 mb-md-0">
                   <Image
-                    src={`image/${book.image}`}
+                    src={
+                      book.image && book.image.startsWith("http")
+                        ? book.image
+                        : `${BASE_URL}${book.image}`
+                    }
                     alt={book.title}
                     fluid
-                    className="shadow-sm rounded"
+                    className="shadow-sm rounded book-detail-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/icon.png";
+                    }}
                   />
                   <div className="d-flex justify-content-between mt-3">
                     <Button
@@ -275,40 +374,35 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                       onClick={() => setShowPreview(true)}
                     >
                       <FontAwesomeIcon icon={faBookOpen} className="me-2" />
-                      Preview
+                      Xem trước
                     </Button>
                   </div>
                 </Col>
                 <Col md={8}>
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h1 className="h3 mb-2">{book.title}</h1>
-                      <h2 className="h5 text-muted mb-3">
-                        by {book.author.name} ({book.publication_date})
-                      </h2>
-                    </div>
-                    <Button
-                      variant="link"
-                      onClick={() => setIsFavorite(!isFavorite)}
-                      className="p-0 text-decoration-none"
-                    >
-                      <FontAwesomeIcon
-                        icon={isFavorite ? fasHeart : farHeart}
-                        className={isFavorite ? "text-danger" : "text-secondary"}
-                        style={{ fontSize: "1.2rem" }}
-                      />
-                    </Button>
-                  </div>
-                  <div className="mb-3">
-                    <span className="me-2">{renderRatingStars(book.rating)}</span>
-                    <span className="text-muted">{book.rating}</span>
+                  {" "}
+                  <div>
+                    <h1 className="h3 mb-2">{book.title}</h1>
+                    <h2 className="h5 text-muted mb-3">
+                      bởi {book.author?.name || "N/A"} ({book.publication_date}){" "}
+                      {/* Thêm optional chaining */}
+                    </h2>
                   </div>
                   <div className="d-flex flex-wrap gap-2 mb-3">
-                    {book.category.map((obj, index) => (
-                      <Badge key={index} bg="light" text="dark" className="fw-normal">
-                        {obj.name}
-                      </Badge>
-                    ))}
+                    {book.category?.map(
+                      (
+                        obj,
+                        index
+                      ) => (
+                        <Badge
+                          key={index}
+                          bg="light"
+                          text="dark"
+                          className="fw-normal"
+                        >
+                          {obj.name}
+                        </Badge>
+                      )
+                    )}
                   </div>
                   <Alert
                     variant={book.avaliable > 0 ? "success" : "danger"}
@@ -326,7 +420,11 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                       </span>
                     </div>
                     <ProgressBar
-                      now={(book.avaliable / book.quantity) * 100}
+                      now={
+                        (book.quantity > 0
+                          ? book.avaliable / book.quantity
+                          : 0) * 100
+                      }
                       variant={book.avaliable > 0 ? "success" : "danger"}
                       className="flex-grow-1"
                       style={{ height: "8px" }}
@@ -349,10 +447,12 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
             </Card.Body>
           </Card>
           <Tabs defaultActiveKey="description" id="book-tabs" className="mb-4">
-            <Tab eventKey="description" title="Description">
+            <Tab eventKey="description" title="Mô tả">
               <Card>
                 <Card.Body>
-                  <p className="lead">{book.description}</p>
+                  <p className="lead" style={{ whiteSpace: "pre-line" }}>
+                    {book.description}
+                  </p>
                 </Card.Body>
               </Card>
             </Tab>
@@ -364,50 +464,57 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
             <Card.Body>
               <div className="d-flex mb-3">
                 <Image
-                  src={author?.avatar ? `image/${author.avatar}` : "icon.png"}
+                  src={
+                    author?.avatar && author.avatar.startsWith("http")
+                      ? author.avatar
+                      : author?.avatar
+                      ? `${BASE_URL}${author.avatar}`
+                      : "/icon.png"
+                  }
                   roundedCircle
                   width={80}
                   height={80}
-                  className="me-3"
+                  className="me-3 author-avatar"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/icon.png";
+                  }}
                 />
                 {loadingAuthor ? (
                   <p>Đang tải...</p>
                 ) : errorAuthor ? (
-                  <p>{errorAuthor}</p>
-                ) : (
+                  <Alert variant="danger" className="p-2 small">
+                    {errorAuthor}
+                  </Alert>
+                ) : author ? (
                   <div>
                     <h5 className="mb-1">{author.name}</h5>
-                    <p className="text-muted small">{author.jobs}</p>
+                    <p className="text-muted small">
+                      {author.jobs || "Chưa có thông tin nghề nghiệp"}
+                    </p>
                   </div>
+                ) : (
+                  <p>Không có thông tin tác giả.</p>
                 )}
               </div>
-              <p>{author?.biography ? author.biography : ""}</p>
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={() => onSearchByAuthor(book.author.id, book.author.name)}
+              <p
+                className="author-biography"
+                style={{ whiteSpace: "pre-line" }}
               >
-                Xem tất cả sách của tác giả này
-              </Button>
-            </Card.Body>
-          </Card>
-          <Card>
-            <Card.Header as="h5">Bạn cũng có thể thích</Card.Header>
-            <Card.Body>
-              <ListGroup variant="flush">
-                {similarBooks.map((obj, index) => (
-                  <ListGroup.Item key={index} className="border-0">
-                    <div className="d-flex">
-                      <Image src={`image/${obj.image}`} width={60} className="me-3 shadow-sm" />
-                      <div>
-                        <h6 className="mb-1">{obj.title}</h6>
-                        <p className="small text-muted mb-0">by {obj.author.name}</p>
-                        <div className="small text-warning">{renderRatingStars(4.5)}</div>
-                      </div>
-                    </div>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
+                {author?.biography ? author.biography : ""}
+              </p>
+              {author &&
+                book.author && (
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() =>
+                      onSearchByAuthor(book.author.id, book.author.name)
+                    }
+                  >
+                    Xem tất cả sách của {book.author.name}
+                  </Button>
+                )}
             </Card.Body>
           </Card>
         </Col>

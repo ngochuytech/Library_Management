@@ -11,7 +11,7 @@ import {
   Form,
   InputGroup,
   Badge,
-  Pagination, // Đã import
+  Pagination,
   Alert,
   Image,
 } from "react-bootstrap";
@@ -31,9 +31,8 @@ import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-
-  const AdminBooks = () => {
-  const PAGE_SIZE = 6;
+const AdminBooks = () => {
+  const PAGE_SIZE = 9;
 
   const navigate = useNavigate();
   const [books, setBooks] = useState([]);
@@ -54,8 +53,8 @@ const BASE_URL = import.meta.env.VITE_API_URL;
     quantity: "",
     description: "",
     image: null,
-    preview: "", // Đảm bảo trường này có trong formData
-    publication_date: new Date().toISOString().split("T")[0], // Đã có
+    preview: "",
+    publication_date: new Date().toISOString().split("T")[0],
   });
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,47 +66,32 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
   const fetchBooks = async (page, search = "") => {
     setLoading(true);
-    setError(null); // Reset lỗi trước mỗi lần fetch
+    setError(null);
     try {
-      let url = `${BASE_URL}/books/api?page=${page}`;
-
-      if (search) {
-        // Backend kỳ vọng 'query' cho nội dung tìm kiếm và 'type' cho loại tìm kiếm.
-        // Ở đây, chúng ta mặc định tìm kiếm theo 'title'.
-        // Nếu placeholder "Tìm kiếm sách theo tên hoặc tác giả..." ngụ ý tìm kiếm đa trường,
-        // backend cần được cập nhật để hỗ trợ điều đó với một tham số 'query' duy nhất,
-        // hoặc frontend cần có cách chọn 'type'.
-        url += `&query=${encodeURIComponent(search)}&type=title`;
-      }
+      const url = `${BASE_URL}/books/api/search?type=title&query=${encodeURIComponent(
+        search
+      )}&page=${page}`;
 
       const response = await api.get(url);
-      console.log("API response for books:", response.data);
-
+      console.log("Response data:", response.data); // Kiểm tra dữ liệu trả về
       if (response.data && response.data.results) {
         setBooks(response.data.results);
         const totalItems = response.data.count || 0;
         const calculatedTotalPages = Math.ceil(totalItems / PAGE_SIZE);
         setTotalPages(calculatedTotalPages > 0 ? calculatedTotalPages : 1);
 
-        // Xử lý trường hợp trang hiện tại vượt quá tổng số trang (ví dụ sau khi xóa/tìm kiếm)
         if (page > calculatedTotalPages && calculatedTotalPages > 0) {
-          setCurrentPage(calculatedTotalPages); // Chuyển về trang cuối cùng hợp lệ
+          setCurrentPage(calculatedTotalPages);
         } else if (
           page > 1 &&
           calculatedTotalPages === 0 &&
           response.data.results.length === 0
         ) {
-          // Nếu đang yêu cầu trang > 1 nhưng không có kết quả nào (tổng item = 0)
-          setCurrentPage(1); // Reset về trang 1
-          // setTotalPages(1); // đã được xử lý ở trên
+          setCurrentPage(1);
         } else if (page > calculatedTotalPages && calculatedTotalPages > 0) {
           setCurrentPage(calculatedTotalPages);
         }
-        // Nếu calculatedTotalPages là 0 (không có item nào), totalPages sẽ được set là 1.
-        // currentPage nên là 1 trong trường hợp này.
-        // Logic hiện tại của bạn đã xử lý việc reset về trang 1 khi không có kết quả khá tốt.
       } else {
-        // Xử lý trường hợp response không đúng định dạng mong đợi
         setBooks([]);
         setTotalPages(1);
         setError("Dữ liệu sách trả về không hợp lệ.");
@@ -115,8 +99,8 @@ const BASE_URL = import.meta.env.VITE_API_URL;
     } catch (err) {
       console.error("Error fetching books:", err);
       setError("Không thể tải danh sách sách. Vui lòng thử lại sau.");
-      setBooks([]); // Reset books về mảng rỗng khi có lỗi
-      setTotalPages(1); // Reset phân trang khi có lỗi
+      setBooks([]);
+      setTotalPages(1);
       setCurrentPage(1);
     } finally {
       setLoading(false);
@@ -125,7 +109,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchBooks(currentPage, searchTerm);
-  }, [currentPage, searchTerm]); // Phụ thuộc chính xác
+  }, [currentPage, searchTerm]);
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -138,8 +122,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
         setCategories(categoriesResponse.data);
       } catch (err) {
         console.error("Error fetching authors or categories:", err);
-        // Cân nhắc việc không set lỗi chung ở đây nếu fetchBooks đã xử lý lỗi tải sách
-        // setError("Failed to load options. Please try again later.");
       } finally {
         setLoadingOptions(false);
       }
@@ -184,7 +166,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       category: [],
       quantity: "",
       description: "",
-      preview: "", // Reset preview
+      preview: "",
       image: null,
       publication_date: new Date().toISOString().split("T")[0],
     });
@@ -197,12 +179,11 @@ const BASE_URL = import.meta.env.VITE_API_URL;
     setFormData({
       title: book.title,
       author: book.author.id,
-      category: book.category.map((cat) => cat.id.toString()), // Đảm bảo là mảng string IDs
+      category: book.category.map((cat) => cat.id.toString()),
       quantity: book.quantity,
-      // available: book.available, // available không có trong form, bỏ qua nếu không cần
       description: book.description,
-      preview: book.preview || "", // Lấy preview, nếu không có thì là chuỗi rỗng
-      image: book.image, // Đây sẽ là URL nếu sách đã có ảnh
+      preview: book.preview || "", 
+      image: book.image,
       publication_date:
         book.publication_date || new Date().toISOString().split("T")[0],
     });
@@ -219,7 +200,8 @@ const BASE_URL = import.meta.env.VITE_API_URL;
   };
 
   const handleDeleteBook = async () => {
-    if (bookToDelete) {
+    console.log("Deleting book:", bookToDelete);
+    if (bookToDelete && bookToDelete.quantity == bookToDelete.available) {
       try {
         const token = sessionStorage.getItem(ACCESS_TOKEN);
         const requestHeaders = {
@@ -232,29 +214,22 @@ const BASE_URL = import.meta.env.VITE_API_URL;
         setShowDeleteConfirm(false);
         setBookToDelete(null);
 
-        // Sau khi xóa thành công:
-        // Nếu sách bị xóa là cuốn cuối cùng trên trang hiện tại (và không phải trang 1),
-        // thì lùi về trang trước đó.
-        // Ngược lại, tải lại dữ liệu cho trang hiện tại.
         if (books.length === 1 && currentPage > 1) {
-          setCurrentPage(currentPage - 1); // Sẽ trigger useEffect để fetchBooks
+          setCurrentPage(currentPage - 1);
         } else {
-          // Nếu là trang 1 hoặc còn sách trên trang hiện tại, fetch lại trang hiện tại
-          // Hoặc nếu searchTerm thay đổi, fetchBooks cũng sẽ được gọi với currentPage=1
           fetchBooks(currentPage, searchTerm);
         }
-        // Không cần reload toàn bộ danh sách nữa vì fetchBooks(currentPage) sẽ làm điều đó.
-        // setShowModal(false); // Dòng này không cần thiết vì đây là modal xác nhận xóa
       } catch (error) {
         console.error("Error deleting book:", error);
         alert("Đã xảy ra lỗi khi xóa sách");
-        setShowDeleteConfirm(false); // Đảm bảo modal đóng khi có lỗi
+        setShowDeleteConfirm(false);
       }
+    } else {
+      alert("Không thể xóa sách này vì đang có người mượn.");
     }
   };
 
   const handleSaveBook = async () => {
-    // setLoading(true); // Cân nhắc thêm cờ loading cho nút Save
     try {
       const token = sessionStorage.getItem(ACCESS_TOKEN);
       const bookFormData = new FormData();
@@ -295,13 +270,9 @@ const BASE_URL = import.meta.env.VITE_API_URL;
         await api.post(`${BASE_URL}/books/api/create`, bookFormData, {
           headers: requestHeaders,
         });
-        // Khi thêm sách mới thành công, có thể muốn chuyển đến trang cuối cùng nếu API sắp xếp mới nhất lên đầu,
-        // hoặc đơn giản là ở lại trang 1 hoặc trang hiện tại.
-        // Để đơn giản, chúng ta sẽ fetch lại trang hiện tại.
-        // Nếu bạn muốn đi đến trang 1 sau khi thêm: setCurrentPage(1); (useEffect sẽ fetch)
       }
 
-      await fetchBooks(currentPage, searchTerm); // Tải lại danh sách sách cho trang hiện tại
+      await fetchBooks(currentPage, searchTerm);
 
       setShowModal(false);
       setCurrentBook(null);
@@ -334,7 +305,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       }
       alert(errorMessage.trim());
     } finally {
-      // setLoading(false);
     }
   };
 
@@ -347,17 +317,16 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
   const renderPaginationItems = () => {
     if (totalPages <= 1) {
-      return null; // Không hiển thị phân trang nếu chỉ có 1 hoặc không có trang nào
+      return null;
     }
 
     let items = [];
-    const maxPagesToShow = 5; // Số lượng trang hiển thị trực tiếp (ví dụ: 1 ... 3 4 5 ... 10)
+    const maxPagesToShow = 5;
     const halfMaxPages = Math.floor(maxPagesToShow / 2);
 
     let startPage = Math.max(1, currentPage - halfMaxPages);
     let endPage = Math.min(totalPages, currentPage + halfMaxPages);
 
-    // Điều chỉnh để luôn hiển thị `maxPagesToShow` nếu có thể
     if (currentPage <= halfMaxPages) {
       endPage = Math.min(totalPages, maxPagesToShow);
     }
@@ -365,7 +334,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       startPage = Math.max(1, totalPages - maxPagesToShow + 1);
     }
 
-    // Nút "First"
     items.push(
       <Pagination.First
         key="first"
@@ -374,7 +342,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       />
     );
 
-    // Nút "Prev"
     items.push(
       <Pagination.Prev
         key="prev"
@@ -383,7 +350,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       />
     );
 
-    // Dấu "..." ở đầu nếu cần
     if (startPage > 1) {
       items.push(
         <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
@@ -395,7 +361,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       }
     }
 
-    // Các nút số trang
     for (let number = startPage; number <= endPage; number++) {
       items.push(
         <Pagination.Item
@@ -408,7 +373,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
       );
     }
 
-    // Dấu "..." ở cuối nếu cần
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         items.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
@@ -445,7 +409,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
   };
   // ***** KẾT THÚC LOGIC PHÂN TRANG *****
 
-  // Điều kiện loading ban đầu, chỉ hiển thị khi chưa có sách nào được tải
   if (loading && books.length === 0 && !error) {
     return (
       <Container className="my-5 text-center">
@@ -454,7 +417,6 @@ const BASE_URL = import.meta.env.VITE_API_URL;
     );
   }
 
-  // Hiển thị lỗi nếu có
   if (error) {
     return (
       <Container className="my-5">
@@ -507,7 +469,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
+                    setCurrentPage(1);
                   }}
                 />
               </InputGroup>
@@ -540,19 +502,18 @@ const BASE_URL = import.meta.env.VITE_API_URL;
                           <Image
                             src={
                               `/image/${book.image}` || "/placeholder-book.jpg"
-                            } // Placeholder nếu không có ảnh
+                            }
                             alt={book.title}
                             width={50}
-                            thumbnail // Hoặc className="rounded shadow-sm"
+                            thumbnail
                           />
                         </td>
                         <td>{book.title}</td>
-                        <td>{book.author?.name || "N/A"}</td>{" "}
-                        {/* Xử lý nếu author null */}
+                        <td>{book.author?.name || "N/A"}</td>
                         <td>
                           {book.category?.map(
                             (
-                              cat // Xử lý nếu category null
+                              cat
                             ) => (
                               <Badge
                                 key={cat.id}
@@ -636,8 +597,8 @@ const BASE_URL = import.meta.env.VITE_API_URL;
                       <Image
                         src={
                           typeof formData.image === "string"
-                            ? formData.image // URL cho ảnh cũ
-                            : URL.createObjectURL(formData.image) // URL tạm thời cho ảnh mới
+                            ? formData.image
+                            : URL.createObjectURL(formData.image)
                         }
                         alt="Xem trước ảnh bìa"
                         fluid
@@ -710,7 +671,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
                           onChange={handleCategoryChange}
                           required
                           disabled={loadingOptions}
-                          value={formData.category} // formData.category là mảng các string IDs
+                          value={formData.category}
                           style={{ height: "100px" }}
                         >
                           {/* <option value="" disabled>Chọn thể loại (có thể chọn nhiều)</option> */}

@@ -54,32 +54,56 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [accountTab, setAccountTab] = useState("profile");
+  const [user, setUser] = useState(null);
 
   const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
+    checkOverdue();
     fetchNotifications();
     fetchRecommendedBooks();
     fetchRecentlyBooks();
   }, []);
 
   useEffect(() => {
+    fetchUser();
     if (activeView == "search" && searchQuery.trim() == "")
       fetchAllBook(currentPage);
     else fetchSearchResults(currentPage);
   }, [activeView, searchQuery, searchType, currentPage]);
 
-
   const fetchNotifications = async () => {
-
     try {
-      const response = await api.get(`${BASE_URL}/notifications/api`);
-        
+      const idUser = sessionStorage.getItem("idUser");
+      const response = await api.get(`/notifications/api/user/${idUser}`);
+
       setNotifications(response.data.slice(0, 5));
-    } catch(error){
+    } catch (error) {
       console.log(error);
-      
+
       setNotifications([]);
+    }
+  };
+  // fetch user
+  const fetchUser = async () => {
+    const idUser = sessionStorage.getItem("idUser");
+    if (!idUser) {
+      setUser(null);
+      return;
+    }
+    try {
+      const response = await api.get(`/users/detail/${idUser}/`);
+      setUser(response.data);
+      console.log("user", response.data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setUser(null);
+    }
+  };
+  const checkOverdue = async () => {
+    const access_token = sessionStorage.getItem("access_token");
+    if (access_token) {
+      await api.post("/borrows/api/check-overdue");
     }
   };
 
@@ -105,7 +129,6 @@ const HomePage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-
       setRecentlyBooks(data.results);
     } catch (error) {
       console.error("Failed to fetch recently books:", error);
@@ -124,7 +147,7 @@ const HomePage = () => {
       const data = await response.json();
 
       setSearchResult(data.results);
-      setTotalPages(Math.ceil(data.count / 6));
+      setTotalPages(Math.ceil(data.count / 9));
     } catch (error) {
       console.error("Failed to fetch search books:", error);
     }
@@ -147,6 +170,7 @@ const HomePage = () => {
   };
 
   const handleBookClick = (book) => {
+    console.log("Book clicked:", book);
     setSelectedBook(book);
     setActiveView("bookDetail");
   };
@@ -191,10 +215,10 @@ const HomePage = () => {
                 <Card.Text className="text-muted small">
                   {book.author?.name}
                 </Card.Text>
-                <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-warning small">
+                {/* <Card.Text className="d-flex justify-content-center align-items-center gap-1 text-warning small">
                   <FontAwesomeIcon icon={faStar} className="fs-6" />
                   <span>{book.rating}</span>
-                </Card.Text>
+                </Card.Text> */}
               </Card.Body>
             </Card>
           </Col>
@@ -222,9 +246,7 @@ const HomePage = () => {
           />
         );
       case "bookshelf":
-        return <MyBookshelf />;
-      case "contributions":
-        return <Contributions />;
+        return <MyBookshelf handleBookClick={handleBookClick} />;
       case "RecommendBooks":
         return <RecommendBooks />;
       case "bookDetail":
@@ -244,7 +266,7 @@ const HomePage = () => {
       default:
         return (
           <>
-            <Quote books={recommendedBooks} handleCardClick={handleBookClick} />
+            <Quote handleCardClick={handleBookClick} />
             <h2 className="greeting mt-4 mb-3">Xin chào</h2>
 
             <h3 className="section-heading">Đề nghị cho bạn</h3>
@@ -254,9 +276,9 @@ const HomePage = () => {
               onBookClick={handleBookClick}
             />
 
-            <h3 className="section-heading mt-4">Mới đọc</h3>
+            <h3 className="section-heading mt-4">Mới ra</h3>
             <BookSection
-              title="Mới đọc"
+              title="Mới ra"
               books={recentlyBooks}
               onBookClick={handleBookClick}
             />
@@ -322,47 +344,47 @@ const HomePage = () => {
                   </div>
                 </div>
 
-                  <div className="user-section">
-                    <div
-                      className="notifications"
-                      onClick={() => setShowNotifications(!showNotifications)}
-                    >
-                      <span className="notification-icon">
-                        <FontAwesomeIcon icon={faBell} />
-                      </span>
-                      {showNotifications && (
-                        <div className="notifications-dropdown">
-                          <div className="notification-header">
-                            <strong>Thông báo</strong>
-                            <a
-                              href="#"
-                              className="view-all"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setShowNotifications(false);
-                                handleNavigation("account", "notifications");
-                              }}
-                            >
-                              Xem tất cả
-                            </a>
-                          </div>
-                          {notifications.length === 0 ? (
-                            <div className="notification-item">
-                              <small>Không có thông báo nào.</small>
-                            </div>
-                          ) : (
-                            notifications.map((noti) => (
-                              <div className="notification-item" key={noti.id}>
-                                <small>{noti.message}</small>
-                                <br />
-                                <small className="text-muted">
-                                  {new Date(noti.date).toLocaleString("vi-VN")}
-                                </small>
-                              </div>
-                            ))
-                          )}
+                <div className="user-section">
+                  <div
+                    className="notifications"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                  >
+                    <span className="notification-icon">
+                      <FontAwesomeIcon icon={faBell} />
+                    </span>
+                    {showNotifications && (
+                      <div className="notifications-dropdown">
+                        <div className="notification-header">
+                          <strong>Thông báo</strong>
+                          <a
+                            href="#"
+                            className="view-all"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setShowNotifications(false);
+                              handleNavigation("account", "notifications");
+                            }}
+                          >
+                            Xem tất cả
+                          </a>
                         </div>
-                      )}
+                        {notifications.length === 0 ? (
+                          <div className="notification-item">
+                            <small>Không có thông báo nào.</small>
+                          </div>
+                        ) : (
+                          notifications.map((noti) => (
+                            <div className="notification-item" key={noti.id}>
+                              <small>{noti.message}</small>
+                              <br />
+                              <small className="text-muted">
+                                {new Date(noti.date).toLocaleString("vi-VN")}
+                              </small>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div
@@ -371,9 +393,18 @@ const HomePage = () => {
                   >
                     <img
                       className="avatar"
-                      src="public/icon.jpg"
+                      src={
+                        user && user.avatar
+                          ? `/image/${user.avatar}`
+                          : "/image/default-avatar.png"
+                      }
                       alt="Avatar"
-                      style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
                     />
                     <span>
                       {sessionStorage.getItem("username") === null
@@ -389,20 +420,14 @@ const HomePage = () => {
                         >
                           Trang cá nhân
                         </div>
-                        <div
-                          className="user-dropdown-item"
-                          onClick={() => handleNavigation("liked")}
-                        >
-                          Ưa thích
-                        </div>
-                        <div
-                          className="user-dropdown-item"
-                          onClick={() => handleNavigation("History")}
-                        >
-                          Lịch sử mượn
-                        </div>
                         <div className="divider"></div>
-                        <div className="user-dropdown-item logout">
+                        <div
+                          className="user-dropdown-item logout"
+                          onClick={() => {
+                            sessionStorage.clear();
+                            navigate("/");
+                          }}
+                        >
                           Đăng xuất
                         </div>
                       </div>
@@ -410,7 +435,6 @@ const HomePage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Content Area with Transition */}
               <div className="content-area">
                 <div className="view-transition">{renderContent()}</div>
