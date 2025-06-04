@@ -88,8 +88,6 @@ const Liked = () => {
     ));
   };
 
-    return colors[category] || "secondary";
-  };
 
 
 
@@ -219,6 +217,6 @@ const Liked = () => {
       </Row>
     </Container>
   );
-
+}
 
 export default Liked;
