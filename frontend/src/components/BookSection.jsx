@@ -23,7 +23,7 @@ const BookCard = ({ book, onClick }) => {
     
     return stars;
   };
-
+  // Return things from books
   return (
     <div className="book-card" onClick={() => onClick(book)}>
       <img

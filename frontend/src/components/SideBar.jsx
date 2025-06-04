@@ -3,6 +3,7 @@ import "../styles/SideBar.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHome, faSearch, faBook, faGift } from "@fortawesome/free-solid-svg-icons"
 
+//Define sidebar
 const Sidebar = ({ activeView, onNavigate }) => {
   return (
     <div className="sidebar">

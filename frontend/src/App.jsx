@@ -18,15 +18,22 @@ import LibraryAdminSearch from "./components/LibraryAdminSearch";
 // import BookDetail from "./components/BookDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
+
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
 }
 
+
+
 function RegisterAndLogout() {
   localStorage.clear();
   return <Register />;
 }
+
+
+
 
 // Protected route component
 function ProtectedRoute({ children }) {
@@ -95,5 +102,8 @@ function App() {
     </BrowserRouter>
   );
 }
+
+
+
 
 export default App;

@@ -12,6 +12,9 @@ function ProtectedRoute({ children }) {
         auth().catch(() => setIsAuthorized(false))
     }, [])
 
+
+
+
     const refreshToken = async () => {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN);
         try {
@@ -29,6 +32,8 @@ function ProtectedRoute({ children }) {
             setIsAuthorized(false);
         }
     };
+
+
 
     const auth = async () => {
         const token = localStorage.getItem(ACCESS_TOKEN);
@@ -51,6 +56,9 @@ function ProtectedRoute({ children }) {
         return <div>Loading...</div>;
     }
 
+
+
+    
     return isAuthorized ? children : <Navigate to="/login" />;
 }
 

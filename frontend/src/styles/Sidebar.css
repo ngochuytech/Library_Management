@@ -55,14 +55,23 @@
   line-height: 1;
 }
 
+
+
+
 .nav-item span {
   font-size: 14px;
   color: #4b5563;
 }
 
+
+
+
 .nav-item:hover {
   background-color: #f3f4f6;
 }
+
+
+
 
 .nav-item.active {
   background-color: #e5e7eb;
@@ -74,6 +83,11 @@
   font-weight: 500;
 }
 
+
+
+
+
+
 .sidebar-footer {
   margin-top: auto;
   width: 100%;
@@ -81,6 +95,10 @@
   flex-direction: column;
   gap: 8px;
 }
+
+
+
+
 
 .footer-item {
   padding: 8px 16px;
