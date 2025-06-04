@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useEffect, useState } from "react";
 import { Form, Button, Card } from "react-bootstrap";
 import { Eye, EyeOff } from "lucide-react";
@@ -8,12 +10,17 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
+
+
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const BASE_URL = import.meta.env.VITE_API_URL;
+
+
 
   const navigate = useNavigate();
 
@@ -22,10 +29,14 @@ const LoginForm = () => {
     navigate("/register");
   };
 
+
+
   const handleGuestClick = (e) => {
     e.preventDefault();
     navigate("/guest");
   };
+
+
 
   const handleForgotPasswordClick = (e) => {
     e.preventDefault();
@@ -35,12 +46,15 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+
+
     try {
       const response = await axios.post(
         `${BASE_URL}/users/login`,
         { email, password },
         { withCredentials: true }
       );
+
 
       sessionStorage.setItem("access_token", response.data.access_token);
       sessionStorage.setItem("username", response.data.user.name);
@@ -50,6 +64,8 @@ const LoginForm = () => {
       // Lưu thông tin admin
       const isAdmin = response.data.is_admin;
       sessionStorage.setItem("isAdmin", isAdmin);
+
+
 
 
       if (rememberMe) {
@@ -68,6 +84,8 @@ const LoginForm = () => {
     }
   };
 
+
+
   return (
     <Card
       style={{
@@ -78,6 +96,7 @@ const LoginForm = () => {
         border: "none",
       }}
     >
+      
       <Card.Body>
         <div className="text-center mb-4">
           <img

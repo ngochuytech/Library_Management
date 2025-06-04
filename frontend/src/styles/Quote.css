@@ -5,6 +5,9 @@
     height: 180px;
   }
   
+
+
+
   .quote-content {
     background-color: #1e5bb0;
     color: white;
@@ -17,12 +20,16 @@
     position: relative;
   }
   
+
+
   .quote-title {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 16px;
   }
   
+
+
   .quote-text {
     font-size: 18px;
     margin-bottom: 16px;
@@ -33,6 +40,8 @@
     text-align: right;
   }
   
+
+
   .quote-dots {
     display: flex;
     gap: 8px;
@@ -41,6 +50,8 @@
     left: 24px;
   }
   
+
+
   .dot {
     height: 8px;
     width: 8px;
@@ -49,10 +60,16 @@
     opacity: 0.5;
   }
   
+
+
+
   .dot.active {
     opacity: 1;
   }
   
+
+
+
   .new-books {
     background-color: white;
     border-radius: 8px;
@@ -62,6 +79,9 @@
     border: 1px solid #e5e7eb;
   }
   
+
+
+
   .new-books-title {
     writing-mode: vertical-lr;
     transform: rotate(180deg);
@@ -84,6 +104,9 @@
     flex: 1;
     overflow: hidden;
   }
+  
+
+
   
   .book-thumbnail {
     width: 80px;

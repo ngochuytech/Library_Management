@@ -14,6 +14,7 @@ import {
   Alert,
   Form,
 } from "react-bootstrap";
+
 import {
   faBook,
   faCheckCircle,
@@ -28,6 +29,7 @@ import {
   faFilter,
   faEraser,
 } from "@fortawesome/free-solid-svg-icons";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -209,9 +211,14 @@ const AdminBorrows = () => {
     }
   }, []);
 
+
+
+
   const fetchBorrowingRequests = useCallback(async () => {
     setIsLoadingRequests(true);
     setErrorRequests(null);
+
+
     try {
       const token = sessionStorage.getItem("access_token");
       if (!token) throw new Error("Yêu cầu xác thực.");
@@ -237,6 +244,8 @@ const AdminBorrows = () => {
     }
   }, []);
 
+
+
   useEffect(() => {
     const token = sessionStorage.getItem("access_token");
     if (!token) {
@@ -245,6 +254,7 @@ const AdminBorrows = () => {
       });
       return;
     }
+    
     fetchBorrowingHistory();
     fetchBorrowingRequests();
   }, [activeTabKey, fetchBorrowingHistory, fetchBorrowingRequests, navigate]);
@@ -338,6 +348,7 @@ const AdminBorrows = () => {
     }
   };
 
+
   const handleViewDetail = (borrowId) => {
     navigate(`/admin/borrowDetail/${borrowId}`);
   };
@@ -404,6 +415,7 @@ const AdminBorrows = () => {
           message: `Bạn đã trả sách "${item.book.title}" thành công!`,
         });
       }
+
 
       alert(successMessage);
       fetchBorrowingRequests();
