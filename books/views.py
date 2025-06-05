@@ -14,18 +14,18 @@ class searchBookPagination(PageNumberPagination):
     page_size = 9
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
-def getTotalBooksCount(request):
-    total_books = Book.objects.count()
-    return Response({"total_books": total_books}, status=status.HTTP_200_OK)        
-
-@api_view(['GET'])
 def getBook(request):
     books = Book.objects.all()
     paginator = suggestBookPagination()
     paginated_books = paginator.paginate_queryset(books, request)
     serializer = BookSerializer(paginated_books, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def getTotalBooksCount(request):
+    total_books = Book.objects.count()
+    return Response({"total_books": total_books}, status=status.HTTP_200_OK)        
 
 @api_view(['GET'])
 def getRandomBook(request, bookId):
