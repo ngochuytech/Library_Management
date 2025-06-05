@@ -596,9 +596,7 @@ const AdminBooks = () => {
                     {formData.image ? (
                       <Image
                         src={
-                          typeof formData.image === "string"
-                            ? formData.image
-                            : URL.createObjectURL(formData.image)
+                          `/image${formData.image}`
                         }
                         alt="Xem trước ảnh bìa"
                         fluid
