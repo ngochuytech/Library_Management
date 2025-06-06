@@ -187,6 +187,8 @@ const AdminBooks = () => {
       publication_date:
         book.publication_date || new Date().toISOString().split("T")[0],
     });
+    console.log(formData.image);
+    
     setShowModal(true);
   };
 
@@ -596,7 +598,9 @@ const AdminBooks = () => {
                     {formData.image ? (
                       <Image
                         src={
-                          `/image${formData.image}`
+                          typeof formData.image === "string"
+                            ? `/image/${formData.image}`
+                            : URL.createObjectURL(formData.image)
                         }
                         alt="Xem trước ảnh bìa"
                         fluid

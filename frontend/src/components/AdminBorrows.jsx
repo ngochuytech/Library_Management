@@ -724,9 +724,7 @@ const AdminBorrows = () => {
                                   <div className="d-flex align-items-center">
                                     <Image
                                       src={
-                                        record.book?.image
-                                          ? `${API_BASE_URL}${record.book.image}`
-                                          : "/book_placeholder.jpg"
+                                        `/image${record.book?.image || ""}`
                                       }
                                       alt={record.book?.title}
                                       width={40}
@@ -1046,9 +1044,7 @@ const AdminBorrows = () => {
                                   <div className="d-flex align-items-center">
                                     <Image
                                       src={
-                                        request.book?.image
-                                          ? `${API_BASE_URL}${request.book.image}`
-                                          : "/book_placeholder.jpg"
+                                        `/image${request.book?.image || ""}`
                                       }
                                       alt={request.book?.title}
                                       width={40}

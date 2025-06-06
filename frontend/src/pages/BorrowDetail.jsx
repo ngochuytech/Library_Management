@@ -231,10 +231,7 @@ const BorrowDetail = () => {
                       <Image
                         src={
                           bookData?.image
-                            ? `${BASE_URL}/${bookData.image.replace(
-                                /^\/+/,
-                                ""
-                              )}`
+                            ? `/image${bookData.image}`
                             : "default-book-placeholder.png"
                         }
                         alt={bookData?.title || "Book cover"}

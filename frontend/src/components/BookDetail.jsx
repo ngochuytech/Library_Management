@@ -355,9 +355,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                 <Col md={4} className="mb-4 mb-md-0">
                   <Image
                     src={
-                      book.image && book.image.startsWith("http")
-                        ? book.image
-                        : `${BASE_URL}${book.image}`
+                      `/image${book.image}`
                     }
                     alt={book.title}
                     fluid
@@ -468,7 +466,7 @@ const DetailBook = ({ book: initialBook, onSearchByAuthor }) => {
                     author?.avatar && author.avatar.startsWith("http")
                       ? author.avatar
                       : author?.avatar
-                      ? `${BASE_URL}${author.avatar}`
+                      ? `/image${author.avatar}`
                       : "/icon.png"
                   }
                   roundedCircle

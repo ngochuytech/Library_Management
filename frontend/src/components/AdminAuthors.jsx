@@ -143,7 +143,7 @@ const AdminAuthors = () => {
       jobs: author.jobs,
       biography: author.biography,
     });
-    setAvatarPreview(author.avatar ? `${BASE_URL}${author.avatar}` : null);
+    setAvatarPreview(author.avatar ? `/image${author.avatar}` : null);
     setUploadedAvatar(null);
     setShowModal(true);
   };
@@ -367,7 +367,7 @@ const AdminAuthors = () => {
                             <td>{author.id}</td>
                             <td>
                               <Image
-                                src={`${BASE_URL}${author.avatar}`}
+                                src={`/image${author.avatar}`}
                                 alt={author.name}
                                 width={50}
                                 height={50}
